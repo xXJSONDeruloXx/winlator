@@ -1,0 +1,8 @@
+                 U __cxa_atexit@LIBC
+                 U __cxa_finalize@LIBC
+                 U __register_atfork@LIBC
+0000000000000788 T gsl_memory_alloc_pure
+00000000000007c0 T gsl_memory_alloc_pure_64
+00000000000007f4 T gsl_memory_free_pure
+                 U hook_gsl_memory_alloc_pure_64
+                 U hook_gsl_memory_free_pure

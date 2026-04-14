@@ -361,3 +361,16 @@ mkdir rootfs && tar xf rootfs.tar -C rootfs
 - `nm -D` — from binutils / Xcode CLI tools
 - `zstd` — required to decompress `.tzst` files
 - APK inspected: `Winlator_11.0.apk` (SHA: not computed here; 146 MB, from GitHub Releases)
+
+---
+
+## 7. Recovered Content Location
+
+All recovered content has been committed to this branch under:
+
+- `recovered/java/` — 260 jadx-decompiled Java files (v8–v11 source, near-original)
+- `recovered/lib/arm64-v8a/` — 6 new native libraries extracted from APK
+- `recovered/assets/` — new/updated assets (drivers, wincomponents, soundfont, configs)
+- `re/` — reverse engineering setup (Ghidra scripts, symbol tables, strings, dependency map)
+
+See `recovered/README.md` for details and `re/README.md` for RE workflow.

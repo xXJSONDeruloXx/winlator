@@ -1,0 +1,24 @@
+=== libvortekrenderer ===
+--- ELF header ---
+--- Sections ---
+--- Dynamic deps ---
+=== libgladiorenderer ===
+--- ELF header ---
+--- Sections ---
+--- Dynamic deps ---
+=== libhook_impl ===
+--- ELF header ---
+--- Sections ---
+--- Dynamic deps ---
+=== libfile_redirect_hook ===
+--- ELF header ---
+--- Sections ---
+--- Dynamic deps ---
+=== libgsl_alloc_hook ===
+--- ELF header ---
+--- Sections ---
+--- Dynamic deps ---
+=== libmain_hook ===
+--- ELF header ---
+--- Sections ---
+--- Dynamic deps ---

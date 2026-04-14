@@ -1,0 +1,7 @@
+                 U __cxa_atexit@LIBC
+                 U __cxa_finalize@LIBC
+                 U __register_atfork@LIBC
+0000000000000720 T android_dlopen_ext
+0000000000000754 T android_load_sphal_library
+                 U hook_android_dlopen_ext
+                 U hook_android_load_sphal_library

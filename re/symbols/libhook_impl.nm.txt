@@ -1,0 +1,620 @@
+0000000000042b5c T std::bad_typeid::what() const
+0000000000042734 T std::logic_error::what() const
+000000000004260c T std::bad_exception::what() const
+00000000000427f8 T std::runtime_error::what() const
+000000000004266c T std::bad_array_new_length::what() const
+0000000000022834 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::find_last_of(char const*, unsigned long, unsigned long) const
+0000000000022038 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::find_first_of(char const*, unsigned long, unsigned long) const
+0000000000021ac4 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::find_last_not_of(char const*, unsigned long, unsigned long) const
+0000000000021b5c W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::find_first_not_of(char const*, unsigned long, unsigned long) const
+0000000000021ed0 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::at(unsigned long) const
+00000000000225ac W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::copy(char*, unsigned long, unsigned long) const
+0000000000023068 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::find(char const*, unsigned long, unsigned long) const
+00000000000226e8 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::find(char, unsigned long) const
+00000000000217d8 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::rfind(char const*, unsigned long, unsigned long) const
+0000000000022a38 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::rfind(char, unsigned long) const
+0000000000022d84 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::compare(char const*) const
+0000000000022ea0 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::compare(unsigned long, unsigned long, char const*) const
+0000000000022e18 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::compare(unsigned long, unsigned long, char const*, unsigned long) const
+0000000000023138 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::compare(unsigned long, unsigned long, std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>> const&, unsigned long, unsigned long) const
+00000000000249cc W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::find_last_of(wchar_t const*, unsigned long, unsigned long) const
+0000000000024200 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::find_first_of(wchar_t const*, unsigned long, unsigned long) const
+0000000000023c20 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::find_last_not_of(wchar_t const*, unsigned long, unsigned long) const
+0000000000023cc8 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::find_first_not_of(wchar_t const*, unsigned long, unsigned long) const
+0000000000024080 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::at(unsigned long) const
+0000000000024724 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::copy(wchar_t*, unsigned long, unsigned long) const
+0000000000025094 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::find(wchar_t const*, unsigned long, unsigned long) const
+0000000000024874 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::find(wchar_t, unsigned long) const
+000000000002390c W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::rfind(wchar_t const*, unsigned long, unsigned long) const
+0000000000024be0 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::rfind(wchar_t, unsigned long) const
+0000000000024e30 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::compare(wchar_t const*) const
+0000000000024f54 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::compare(unsigned long, unsigned long, wchar_t const*) const
+0000000000024ec8 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::compare(unsigned long, unsigned long, wchar_t const*, unsigned long) const
+0000000000025174 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::compare(unsigned long, unsigned long, std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>> const&, unsigned long, unsigned long) const
+0000000000021404 W std::__ndk1::__basic_string_common<true>::__throw_length_error() const
+0000000000021470 W std::__ndk1::__basic_string_common<true>::__throw_out_of_range() const
+0000000000042b00 T std::bad_cast::what() const
+000000000004263c T std::bad_alloc::what() const
+00000000000425f4 T std::exception::what() const
+0000000000042b10 T std::bad_typeid::bad_typeid()
+0000000000042b10 T std::bad_typeid::bad_typeid()
+0000000000042b30 T std::bad_typeid::~bad_typeid()
+0000000000042b28 T std::bad_typeid::~bad_typeid()
+0000000000042b28 T std::bad_typeid::~bad_typeid()
+000000000002945c T std::logic_error::logic_error(char const*)
+00000000000293c4 T std::logic_error::logic_error(std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>> const&)
+00000000000294e8 T std::logic_error::logic_error(std::logic_error const&)
+000000000002945c T std::logic_error::logic_error(char const*)
+00000000000293c4 T std::logic_error::logic_error(std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>> const&)
+00000000000294e8 T std::logic_error::logic_error(std::logic_error const&)
+00000000000426d4 T std::logic_error::~logic_error()
+000000000004267c T std::logic_error::~logic_error()
+000000000004267c T std::logic_error::~logic_error()
+0000000000029520 T std::logic_error::operator=(std::logic_error const&)
+0000000000042984 T std::range_error::~range_error()
+0000000000042740 T std::range_error::~range_error()
+0000000000042740 T std::range_error::~range_error()
+0000000000042804 T std::domain_error::~domain_error()
+000000000004267c T std::domain_error::~domain_error()
+000000000004267c T std::domain_error::~domain_error()
+00000000000428c4 T std::length_error::~length_error()
+000000000004267c T std::length_error::~length_error()
+000000000004267c T std::length_error::~length_error()
+0000000000042924 T std::out_of_range::~out_of_range()
+000000000004267c T std::out_of_range::~out_of_range()
+000000000004267c T std::out_of_range::~out_of_range()
+0000000000042604 T std::bad_exception::~bad_exception()
+00000000000425e4 T std::bad_exception::~bad_exception()
+00000000000425e4 T std::bad_exception::~bad_exception()
+0000000000029614 T std::runtime_error::runtime_error(char const*)
+000000000002957c T std::runtime_error::runtime_error(std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>> const&)
+00000000000296a0 T std::runtime_error::runtime_error(std::runtime_error const&)
+0000000000029614 T std::runtime_error::runtime_error(char const*)
+000000000002957c T std::runtime_error::runtime_error(std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>> const&)
+00000000000296a0 T std::runtime_error::runtime_error(std::runtime_error const&)
+0000000000042798 T std::runtime_error::~runtime_error()
+0000000000042740 T std::runtime_error::~runtime_error()
+0000000000042740 T std::runtime_error::~runtime_error()
+00000000000296d8 T std::runtime_error::operator=(std::runtime_error const&)
+00000000000429e4 T std::overflow_error::~overflow_error()
+0000000000042740 T std::overflow_error::~overflow_error()
+0000000000042740 T std::overflow_error::~overflow_error()
+0000000000042a44 T std::underflow_error::~underflow_error()
+0000000000042740 T std::underflow_error::~underflow_error()
+0000000000042740 T std::underflow_error::~underflow_error()
+0000000000042864 T std::invalid_argument::~invalid_argument()
+000000000004267c T std::invalid_argument::~invalid_argument()
+000000000004267c T std::invalid_argument::~invalid_argument()
+000000000004264c T std::bad_array_new_length::bad_array_new_length()
+000000000004264c T std::bad_array_new_length::bad_array_new_length()
+0000000000042664 T std::bad_array_new_length::~bad_array_new_length()
+00000000000425e4 T std::bad_array_new_length::~bad_array_new_length()
+00000000000425e4 T std::bad_array_new_length::~bad_array_new_length()
+0000000000028ce4 T std::__ndk1::to_wstring(double)
+0000000000028ed8 T std::__ndk1::to_wstring(long double)
+0000000000028aec T std::__ndk1::to_wstring(float)
+0000000000027d14 T std::__ndk1::to_wstring(int)
+00000000000281d0 T std::__ndk1::to_wstring(unsigned int)
+0000000000027ea8 T std::__ndk1::to_wstring(long)
+0000000000028300 T std::__ndk1::to_wstring(unsigned long)
+000000000002803c T std::__ndk1::to_wstring(long long)
+0000000000028430 T std::__ndk1::to_wstring(unsigned long long)
+0000000000023780 W std::__ndk1::char_traits<wchar_t>::move(wchar_t*, wchar_t const*, unsigned long)
+0000000000021698 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::__grow_by_and_replace(unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, char const*)
+0000000000022f54 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::at(unsigned long)
+00000000000157d0 V std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::npos
+0000000000022bb4 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::erase(unsigned long, unsigned long)
+0000000000021e40 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::__init(char const*, unsigned long)
+000000000002189c W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::__init(char const*, unsigned long, unsigned long)
+0000000000022758 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::__init(unsigned long, char)
+00000000000232f8 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::append(char const*)
+00000000000223e4 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::append(char const*, unsigned long)
+0000000000022c84 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::append(std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>> const&, unsigned long, unsigned long)
+0000000000022968 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::append(unsigned long, char)
+0000000000022f9c W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::assign(char const*)
+00000000000221dc W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::assign(char const*, unsigned long)
+00000000000224b4 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::assign(std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>> const&, unsigned long, unsigned long)
+0000000000022a84 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::assign(unsigned long, char)
+0000000000023428 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::insert(std::__ndk1::__wrap_iter<char const*>, char)
+00000000000227e8 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::insert(unsigned long, char const*)
+0000000000021f18 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::insert(unsigned long, char const*, unsigned long)
+0000000000023560 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::insert(unsigned long, std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>> const&, unsigned long, unsigned long)
+0000000000021be8 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::insert(unsigned long, unsigned long, char)
+0000000000023510 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::resize(unsigned long, char)
+00000000000219d0 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::replace(unsigned long, unsigned long, char const*)
+00000000000214dc W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::replace(unsigned long, unsigned long, char const*, unsigned long)
+00000000000233d8 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::replace(unsigned long, unsigned long, std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>> const&, unsigned long, unsigned long)
+00000000000220ac W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::replace(unsigned long, unsigned long, unsigned long, char)
+00000000000222a4 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::reserve(unsigned long)
+0000000000021cf4 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::__grow_by(unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long)
+00000000000228b4 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::push_back(char)
+0000000000021930 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::basic_string(std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>> const&)
+0000000000021a24 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::basic_string(std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>> const&, std::__ndk1::allocator<char> const&)
+000000000002261c W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::basic_string(std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>> const&, unsigned long, unsigned long, std::__ndk1::allocator<char> const&)
+0000000000021930 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::basic_string(std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>> const&)
+0000000000021a24 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::basic_string(std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>> const&, std::__ndk1::allocator<char> const&)
+000000000002261c W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::basic_string(std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>> const&, unsigned long, unsigned long, std::__ndk1::allocator<char> const&)
+0000000000021b44 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::~basic_string()
+0000000000021b44 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::~basic_string()
+00000000000231f0 W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::operator=(std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>> const&)
+0000000000021e0c W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>::operator=(char)
+00000000000237a4 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::__grow_by_and_replace(unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, wchar_t const*)
+000000000002500c W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::at(unsigned long)
+00000000000157d8 V std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::npos
+0000000000024d04 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::erase(unsigned long, unsigned long)
+0000000000023fe8 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::__init(wchar_t const*, unsigned long)
+00000000000239e0 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::__init(wchar_t const*, unsigned long, unsigned long)
+00000000000248e8 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::__init(unsigned long, wchar_t)
+0000000000025348 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::append(wchar_t const*)
+00000000000245f8 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::append(wchar_t const*, unsigned long)
+0000000000024ddc W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::append(std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>> const&, unsigned long, unsigned long)
+0000000000024b04 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::append(unsigned long, wchar_t)
+0000000000025058 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::assign(wchar_t const*)
+00000000000243bc W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::assign(wchar_t const*, unsigned long)
+00000000000246d0 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::assign(std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>> const&, unsigned long, unsigned long)
+0000000000024c38 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::assign(unsigned long, wchar_t)
+00000000000253d8 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::insert(std::__ndk1::__wrap_iter<wchar_t const*>, wchar_t)
+0000000000024980 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::insert(unsigned long, wchar_t const*)
+00000000000240cc W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::insert(unsigned long, wchar_t const*, unsigned long)
+0000000000025518 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::insert(unsigned long, std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>> const&, unsigned long, unsigned long)
+0000000000023d64 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::insert(unsigned long, unsigned long, wchar_t)
+00000000000254c8 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::resize(unsigned long, wchar_t)
+0000000000023b24 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::replace(unsigned long, unsigned long, wchar_t const*)
+00000000000235b0 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::replace(unsigned long, unsigned long, wchar_t const*, unsigned long)
+0000000000025384 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::replace(unsigned long, unsigned long, std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>> const&, unsigned long, unsigned long)
+0000000000024280 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::replace(unsigned long, unsigned long, unsigned long, wchar_t)
+000000000002448c W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::reserve(unsigned long)
+0000000000023e7c W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::__grow_by(unsigned long, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long)
+0000000000024a54 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::push_back(wchar_t)
+0000000000023a7c W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::basic_string(std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>> const&)
+0000000000023b78 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::basic_string(std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>> const&, std::__ndk1::allocator<wchar_t> const&)
+000000000002479c W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::basic_string(std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>> const&, unsigned long, unsigned long, std::__ndk1::allocator<wchar_t> const&)
+0000000000023a7c W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::basic_string(std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>> const&)
+0000000000023b78 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::basic_string(std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>> const&, std::__ndk1::allocator<wchar_t> const&)
+000000000002479c W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::basic_string(std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>> const&, unsigned long, unsigned long, std::__ndk1::allocator<wchar_t> const&)
+0000000000023cb0 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::~basic_string()
+0000000000023cb0 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::~basic_string()
+0000000000025234 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::operator=(std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>> const&)
+0000000000023fb4 W std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>>::operator=(wchar_t)
+0000000000026f20 T std::__ndk1::stod(std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>> const&, unsigned long*)
+000000000002710c T std::__ndk1::stod(std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>> const&, unsigned long*)
+0000000000026b40 T std::__ndk1::stof(std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>> const&, unsigned long*)
+0000000000026d2c T std::__ndk1::stof(std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>> const&, unsigned long*)
+0000000000025700 T std::__ndk1::stoi(std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>> const&, unsigned long*, int)
+000000000002594c T std::__ndk1::stoi(std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>> const&, unsigned long*, int)
+0000000000025ba0 T std::__ndk1::stol(std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>> const&, unsigned long*, int)
+0000000000025d8c T std::__ndk1::stol(std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>> const&, unsigned long*, int)
+0000000000027300 T std::__ndk1::stold(std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>> const&, unsigned long*)
+00000000000274e8 T std::__ndk1::stold(std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>> const&, unsigned long*)
+0000000000026368 T std::__ndk1::stoll(std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>> const&, unsigned long*, int)
+0000000000026558 T std::__ndk1::stoll(std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>> const&, unsigned long*, int)
+0000000000025f80 T std::__ndk1::stoul(std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>> const&, unsigned long*, int)
+0000000000026170 T std::__ndk1::stoul(std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>> const&, unsigned long*, int)
+0000000000029734 T std::__ndk1::__itoa::__u32toa(unsigned int, char*)
+00000000000299d8 T std::__ndk1::__itoa::__u64toa(unsigned long, char*)
+0000000000026750 T std::__ndk1::stoull(std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>> const&, unsigned long*, int)
+0000000000026944 T std::__ndk1::stoull(std::__ndk1::basic_string<wchar_t, std::__ndk1::char_traits<wchar_t>, std::__ndk1::allocator<wchar_t>> const&, unsigned long*, int)
+000000000002873c T std::__ndk1::to_string(double)
+0000000000028918 T std::__ndk1::to_string(long double)
+0000000000028560 T std::__ndk1::to_string(float)
+00000000000276d8 T std::__ndk1::to_string(int)
+0000000000027a8c T std::__ndk1::to_string(unsigned int)
+0000000000027814 T std::__ndk1::to_string(long)
+0000000000027b64 T std::__ndk1::to_string(unsigned long)
+0000000000027950 T std::__ndk1::to_string(long long)
+0000000000027c3c T std::__ndk1::to_string(unsigned long long)
+000000000002556c W std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>> std::__ndk1::operator+<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>>(char const*, std::__ndk1::basic_string<char, std::__ndk1::char_traits<char>, std::__ndk1::allocator<char>> const&)
+0000000000042ab4 T std::bad_cast::bad_cast()
+0000000000042ab4 T std::bad_cast::bad_cast()
+0000000000042ad4 T std::bad_cast::~bad_cast()
+0000000000042acc T std::bad_cast::~bad_cast()
+0000000000042acc T std::bad_cast::~bad_cast()
+000000000004261c T std::bad_alloc::bad_alloc()
+000000000004261c T std::bad_alloc::bad_alloc()
+0000000000042634 T std::bad_alloc::~bad_alloc()
+00000000000425e4 T std::bad_alloc::~bad_alloc()
+00000000000425e4 T std::bad_alloc::~bad_alloc()
+00000000000425ec T std::exception::~exception()
+00000000000425e4 T std::exception::~exception()
+00000000000425e4 T std::exception::~exception()
+0000000000042aac T std::type_info::~type_info()
+0000000000042aa4 T std::type_info::~type_info()
+0000000000042aa4 T std::type_info::~type_info()
+000000000002a868 T std::unexpected()
+000000000002a884 T std::get_terminate()
+000000000002aa88 T std::set_terminate(void (*)())
+000000000002a7f4 T std::get_unexpected()
+000000000002aa54 T std::set_unexpected(void (*)())
+000000000002a900 T std::get_new_handler()
+000000000002a8dc T std::set_new_handler(void (*)())
+0000000000029134 T std::__throw_bad_alloc()
+00000000000158c8 R std::nothrow
+000000000002a808 T std::terminate()
+000000000004b398 D typeinfo for half
+000000000004b5c8 D typeinfo for char32_t
+000000000004ae98 D typeinfo for std::nullptr_t
+000000000004b578 D typeinfo for char16_t
+000000000004b528 D typeinfo for char8_t
+000000000004b6d8 D typeinfo for __cxxabiv1::__enum_type_info
+000000000004ad30 D typeinfo for __cxxabiv1::__shim_type_info
+000000000004b650 D typeinfo for __cxxabiv1::__array_type_info
+000000000004ad48 D typeinfo for __cxxabiv1::__class_type_info
+000000000004ad60 D typeinfo for __cxxabiv1::__pbase_type_info
+000000000004ad78 D typeinfo for __cxxabiv1::__pointer_type_info
+000000000004ad90 D typeinfo for __cxxabiv1::__function_type_info
+000000000004b790 D typeinfo for __cxxabiv1::__si_class_type_info
+000000000004b7f8 D typeinfo for __cxxabiv1::__vmi_class_type_info
+000000000004ae30 D typeinfo for __cxxabiv1::__fundamental_type_info
+000000000004ada8 D typeinfo for __cxxabiv1::__pointer_to_member_type_info
+000000000004b3a8 D typeinfo for half*
+000000000004b5d8 D typeinfo for char32_t*
+000000000004aea8 D typeinfo for std::nullptr_t*
+000000000004b588 D typeinfo for char16_t*
+000000000004b538 D typeinfo for char8_t*
+000000000004b3c8 D typeinfo for half const*
+000000000004b5f8 D typeinfo for char32_t const*
+000000000004aec8 D typeinfo for std::nullptr_t const*
+000000000004b5a8 D typeinfo for char16_t const*
+000000000004b558 D typeinfo for char8_t const*
+000000000004b058 D typeinfo for signed char const*
+000000000004af18 D typeinfo for bool const*
+000000000004afb8 D typeinfo for char const*
+000000000004b468 D typeinfo for double const*
+000000000004b4b8 D typeinfo for long double const*
+000000000004b418 D typeinfo for float const*
+000000000004b508 D typeinfo for __float128 const*
+000000000004b008 D typeinfo for unsigned char const*
+000000000004b148 D typeinfo for int const*
+000000000004b198 D typeinfo for unsigned int const*
+000000000004b1e8 D typeinfo for long const*
+000000000004b238 D typeinfo for unsigned long const*
+000000000004b328 D typeinfo for __int128 const*
+000000000004b378 D typeinfo for unsigned __int128 const*
+000000000004b0a8 D typeinfo for short const*
+000000000004b0f8 D typeinfo for unsigned short const*
+000000000004ae78 D typeinfo for void const*
+000000000004af68 D typeinfo for wchar_t const*
+000000000004b288 D typeinfo for long long const*
+000000000004b2d8 D typeinfo for unsigned long long const*
+000000000004b038 D typeinfo for signed char*
+000000000004aef8 D typeinfo for bool*
+000000000004af98 D typeinfo for char*
+000000000004b448 D typeinfo for double*
+000000000004b498 D typeinfo for long double*
+000000000004b3f8 D typeinfo for float*
+000000000004b4e8 D typeinfo for __float128*
+000000000004afe8 D typeinfo for unsigned char*
+000000000004b128 D typeinfo for int*
+000000000004b178 D typeinfo for unsigned int*
+000000000004b1c8 D typeinfo for long*
+000000000004b218 D typeinfo for unsigned long*
+000000000004b308 D typeinfo for __int128*
+000000000004b358 D typeinfo for unsigned __int128*
+000000000004b088 D typeinfo for short*
+000000000004b0d8 D typeinfo for unsigned short*
+000000000004ae58 D typeinfo for void*
+000000000004af48 D typeinfo for wchar_t*
+000000000004b268 D typeinfo for long long*
+000000000004b2b8 D typeinfo for unsigned long long*
+000000000004bc88 D typeinfo for std::bad_typeid
+000000000004ba28 D typeinfo for std::logic_error
+000000000004bb58 D typeinfo for std::range_error
+000000000004ba40 D typeinfo for std::domain_error
+000000000004bac0 D typeinfo for std::length_error
+000000000004bb00 D typeinfo for std::out_of_range
+000000000004b968 D typeinfo for std::bad_exception
+000000000004bb40 D typeinfo for std::runtime_error
+000000000004bb98 D typeinfo for std::overflow_error
+000000000004bbd8 D typeinfo for std::underflow_error
+000000000004ba80 D typeinfo for std::invalid_argument
+000000000004b998 D typeinfo for std::bad_array_new_length
+000000000004bc70 D typeinfo for std::bad_cast
+000000000004b980 D typeinfo for std::bad_alloc
+000000000004b930 D typeinfo for std::exception
+000000000004bc60 D typeinfo for std::type_info
+000000000004b028 D typeinfo for signed char
+000000000004aee8 D typeinfo for bool
+000000000004af88 D typeinfo for char
+000000000004b438 D typeinfo for double
+000000000004b488 D typeinfo for long double
+000000000004b3e8 D typeinfo for float
+000000000004b4d8 D typeinfo for __float128
+000000000004afd8 D typeinfo for unsigned char
+000000000004b118 D typeinfo for int
+000000000004b168 D typeinfo for unsigned int
+000000000004b1b8 D typeinfo for long
+000000000004b208 D typeinfo for unsigned long
+000000000004b2f8 D typeinfo for __int128
+000000000004b348 D typeinfo for unsigned __int128
+000000000004b078 D typeinfo for short
+000000000004b0c8 D typeinfo for unsigned short
+000000000004ae48 D typeinfo for void
+000000000004af38 D typeinfo for wchar_t
+000000000004b258 D typeinfo for long long
+000000000004b2a8 D typeinfo for unsigned long long
+000000000001735c R typeinfo name for half
+00000000000173a4 R typeinfo name for char32_t
+00000000000172c9 R typeinfo name for std::nullptr_t
+0000000000017398 R typeinfo name for char16_t
+000000000001738c R typeinfo name for char8_t
+00000000000173d2 R typeinfo name for __cxxabiv1::__enum_type_info
+00000000000171a0 R typeinfo name for __cxxabiv1::__shim_type_info
+00000000000173b0 R typeinfo name for __cxxabiv1::__array_type_info
+00000000000171c1 R typeinfo name for __cxxabiv1::__class_type_info
+00000000000171e3 R typeinfo name for __cxxabiv1::__pbase_type_info
+0000000000017205 R typeinfo name for __cxxabiv1::__pointer_type_info
+0000000000017229 R typeinfo name for __cxxabiv1::__function_type_info
+00000000000173f3 R typeinfo name for __cxxabiv1::__si_class_type_info
+0000000000017418 R typeinfo name for __cxxabiv1::__vmi_class_type_info
+0000000000017298 R typeinfo name for __cxxabiv1::__fundamental_type_info
+000000000001724e R typeinfo name for __cxxabiv1::__pointer_to_member_type_info
+000000000001735f R typeinfo name for half*
+00000000000173a7 R typeinfo name for char32_t*
+00000000000172cc R typeinfo name for std::nullptr_t*
+000000000001739b R typeinfo name for char16_t*
+000000000001738f R typeinfo name for char8_t*
+0000000000017363 R typeinfo name for half const*
+00000000000173ab R typeinfo name for char32_t const*
+00000000000172d0 R typeinfo name for std::nullptr_t const*
+000000000001739f R typeinfo name for char16_t const*
+0000000000017393 R typeinfo name for char8_t const*
+00000000000172fe R typeinfo name for signed char const*
+00000000000172da R typeinfo name for bool const*
+00000000000172ec R typeinfo name for char const*
+0000000000017376 R typeinfo name for double const*
+000000000001737f R typeinfo name for long double const*
+000000000001736d R typeinfo name for float const*
+0000000000017388 R typeinfo name for __float128 const*
+00000000000172f5 R typeinfo name for unsigned char const*
+0000000000017319 R typeinfo name for int const*
+0000000000017322 R typeinfo name for unsigned int const*
+000000000001732b R typeinfo name for long const*
+0000000000017334 R typeinfo name for unsigned long const*
+000000000001734f R typeinfo name for __int128 const*
+0000000000017358 R typeinfo name for unsigned __int128 const*
+0000000000017307 R typeinfo name for short const*
+0000000000017310 R typeinfo name for unsigned short const*
+00000000000172c5 R typeinfo name for void const*
+00000000000172e3 R typeinfo name for wchar_t const*
+000000000001733d R typeinfo name for long long const*
+0000000000017346 R typeinfo name for unsigned long long const*
+00000000000172fb R typeinfo name for signed char*
+00000000000172d7 R typeinfo name for bool*
+00000000000172e9 R typeinfo name for char*
+0000000000017373 R typeinfo name for double*
+000000000001737c R typeinfo name for long double*
+000000000001736a R typeinfo name for float*
+0000000000017385 R typeinfo name for __float128*
+00000000000172f2 R typeinfo name for unsigned char*
+0000000000017316 R typeinfo name for int*
+000000000001731f R typeinfo name for unsigned int*
+0000000000017328 R typeinfo name for long*
+0000000000017331 R typeinfo name for unsigned long*
+000000000001734c R typeinfo name for __int128*
+0000000000017355 R typeinfo name for unsigned __int128*
+0000000000017304 R typeinfo name for short*
+000000000001730d R typeinfo name for unsigned short*
+00000000000172c2 R typeinfo name for void*
+00000000000172e0 R typeinfo name for wchar_t*
+000000000001733a R typeinfo name for long long*
+0000000000017343 R typeinfo name for unsigned long long*
+000000000001753d R typeinfo name for std::bad_typeid
+0000000000017494 R typeinfo name for std::logic_error
+00000000000174db R typeinfo name for std::range_error
+0000000000017483 R typeinfo name for std::domain_error
+00000000000174b9 R typeinfo name for std::length_error
+00000000000174ca R typeinfo name for std::out_of_range
+000000000001744b R typeinfo name for std::bad_exception
+00000000000174eb R typeinfo name for std::runtime_error
+00000000000174fd R typeinfo name for std::overflow_error
+0000000000017510 R typeinfo name for std::underflow_error
+00000000000174a4 R typeinfo name for std::invalid_argument
+000000000001746a R typeinfo name for std::bad_array_new_length
+0000000000017531 R typeinfo name for std::bad_cast
+000000000001745d R typeinfo name for std::bad_alloc
+000000000001743e R typeinfo name for std::exception
+0000000000017524 R typeinfo name for std::type_info
+00000000000172f9 R typeinfo name for signed char
+00000000000172d5 R typeinfo name for bool
+00000000000172e7 R typeinfo name for char
+0000000000017371 R typeinfo name for double
+000000000001737a R typeinfo name for long double
+0000000000017368 R typeinfo name for float
+0000000000017383 R typeinfo name for __float128
+00000000000172f0 R typeinfo name for unsigned char
+0000000000017314 R typeinfo name for int
+000000000001731d R typeinfo name for unsigned int
+0000000000017326 R typeinfo name for long
+000000000001732f R typeinfo name for unsigned long
+000000000001734a R typeinfo name for __int128
+0000000000017353 R typeinfo name for unsigned __int128
+0000000000017302 R typeinfo name for short
+000000000001730b R typeinfo name for unsigned short
+00000000000172c0 R typeinfo name for void
+00000000000172de R typeinfo name for wchar_t
+0000000000017338 R typeinfo name for long long
+0000000000017341 R typeinfo name for unsigned long long
+000000000004b6a0 D vtable for __cxxabiv1::__enum_type_info
+000000000004adc0 D vtable for __cxxabiv1::__shim_type_info
+000000000004b618 D vtable for __cxxabiv1::__array_type_info
+000000000004b6f0 D vtable for __cxxabiv1::__class_type_info
+000000000004b810 D vtable for __cxxabiv1::__pbase_type_info
+000000000004b848 D vtable for __cxxabiv1::__pointer_type_info
+000000000004b668 D vtable for __cxxabiv1::__function_type_info
+000000000004b740 D vtable for __cxxabiv1::__si_class_type_info
+000000000004b7a8 D vtable for __cxxabiv1::__vmi_class_type_info
+000000000004adf8 D vtable for __cxxabiv1::__fundamental_type_info
+000000000004b880 D vtable for __cxxabiv1::__pointer_to_member_type_info
+000000000004bc18 D vtable for std::bad_typeid
+000000000004b9b0 D vtable for std::logic_error
+000000000004bb18 D vtable for std::range_error
+000000000004ba00 D vtable for std::domain_error
+000000000004ba98 D vtable for std::length_error
+000000000004bad8 D vtable for std::out_of_range
+000000000004b940 D vtable for std::bad_exception
+000000000004b9d8 D vtable for std::runtime_error
+000000000004bb70 D vtable for std::overflow_error
+000000000004bbb0 D vtable for std::underflow_error
+000000000004ba58 D vtable for std::invalid_argument
+000000000004b8e0 D vtable for std::bad_array_new_length
+000000000004bbf0 D vtable for std::bad_cast
+000000000004b8b8 D vtable for std::bad_alloc
+000000000004b908 D vtable for std::exception
+000000000004bc40 D vtable for std::type_info
+0000000000029258 W operator delete[](void*)
+0000000000029260 W operator delete[](void*, std::nothrow_t const&)
+00000000000293a8 W operator delete[](void*, std::align_val_t)
+00000000000293b0 W operator delete[](void*, std::align_val_t, std::nothrow_t const&)
+0000000000029268 W operator delete[](void*, unsigned long)
+00000000000293b8 W operator delete[](void*, unsigned long, std::align_val_t)
+0000000000029240 W operator delete(void*)
+0000000000029248 W operator delete(void*, std::nothrow_t const&)
+000000000002938c W operator delete(void*, std::align_val_t)
+0000000000029394 W operator delete(void*, std::align_val_t, std::nothrow_t const&)
+0000000000029250 W operator delete(void*, unsigned long)
+000000000002939c W operator delete(void*, unsigned long, std::align_val_t)
+0000000000029208 W operator new[](unsigned long)
+0000000000029210 W operator new[](unsigned long, std::nothrow_t const&)
+0000000000029354 W operator new[](unsigned long, std::align_val_t)
+000000000002935c W operator new[](unsigned long, std::align_val_t, std::nothrow_t const&)
+000000000002916c W operator new(unsigned long)
+00000000000291d8 W operator new(unsigned long, std::nothrow_t const&)
+0000000000029270 W operator new(unsigned long, std::align_val_t)
+0000000000029324 W operator new(unsigned long, std::align_val_t, std::nothrow_t const&)
+                 U __android_log_print
+0000000000029ce0 T __cxa_allocate_dependent_exception
+0000000000029c68 T __cxa_allocate_exception
+                 U __cxa_atexit@LIBC
+0000000000029e58 T __cxa_begin_catch
+0000000000040400 T __cxa_call_unexpected
+000000000002a038 T __cxa_current_exception_type
+000000000002a1a0 T __cxa_current_primary_exception
+0000000000029fdc T __cxa_decrement_exception_refcount
+00000000000425cc T __cxa_deleted_virtual
+000000000002aabc T __cxa_demangle
+0000000000029ef8 T __cxa_end_catch
+                 U __cxa_finalize@LIBC
+0000000000029d1c T __cxa_free_dependent_exception
+0000000000029cbc T __cxa_free_exception
+0000000000029e4c T __cxa_get_exception_ptr
+000000000002a40c T __cxa_get_globals
+000000000002a430 T __cxa_get_globals_fast
+000000000002a65c T __cxa_guard_abort
+000000000002a454 T __cxa_guard_acquire
+000000000002a5ac T __cxa_guard_release
+000000000002a174 T __cxa_increment_exception_refcount
+000000000004e5f8 B __cxa_new_handler
+00000000000425b4 T __cxa_pure_virtual
+000000000002a088 T __cxa_rethrow
+000000000002a220 T __cxa_rethrow_primary_exception
+000000000004d508 D __cxa_terminate_handler
+0000000000029d24 T __cxa_throw
+000000000002a3b4 T __cxa_uncaught_exception
+000000000002a3e4 T __cxa_uncaught_exceptions
+000000000004d510 D __cxa_unexpected_handler
+0000000000041824 T __dynamic_cast
+0000000000042b6c W __emutls_get_address
+                 U __errno@LIBC
+000000000003fcf0 T __gxx_personality_v0
+                 U __memmove_chk@LIBC
+                 U __open_2@LIBC
+                 U __read_chk@LIBC
+                 U __register_atfork@LIBC
+                 U __sF@LIBC
+                 U __stack_chk_fail@LIBC
+                 U __strlen_chk@LIBC
+                 U __system_property_get@LIBC
+                 U __vsnprintf_chk@LIBC
+                 U abort@LIBC
+00000000000206c8 T android_create_namespace
+0000000000020728 T android_create_namespace_escape
+                 U android_dlopen_ext@LIBC
+000000000004d570 B android_get_exported_namespace
+000000000004d580 B android_link_namespaces
+000000000004d578 B android_link_namespaces_all_libs
+                 U android_set_abort_message@LIBC
+                 U atoi@LIBC
+                 U calloc@LIBC
+                 U close@LIBC
+                 U closelog@LIBC
+                 U dl_iterate_phdr@LIBC
+                 U dlerror@LIBC
+                 U dlopen@LIBC
+                 U dlsym@LIBC
+0000000000021080 T elf_soname_patch
+                 U fflush@LIBC
+                 U fopen@LIBC
+                 U fprintf@LIBC
+                 U fputc@LIBC
+                 U free@LIBC
+                 U ftruncate@LIBC
+                 U fwrite@LIBC
+                 U getauxval@LIBC
+                 U getpagesize@LIBC
+000000000001f48c T hook_android_dlopen_ext
+000000000001fb04 T hook_android_load_sphal_library
+000000000001fca0 T hook_fopen
+000000000001ff00 T hook_gsl_memory_alloc_pure_64
+0000000000020070 T hook_gsl_memory_free_pure
+000000000001f450 T init_gsl
+000000000001f434 T init_hook_param
+                 U ioctl@LIBC
+000000000002078c T linkernsbypass_link_namespace_to_default_all_libs
+00000000000206b8 T linkernsbypass_load_status
+0000000000020860 T linkernsbypass_namespace_dlopen
+00000000000208f4 T linkernsbypass_namespace_dlopen_unique
+                 U malloc@LIBC
+                 U memchr@LIBC
+                 U memcmp@LIBC
+                 U memcpy@LIBC
+                 U memmove@LIBC
+                 U memset@LIBC
+                 U mmap@LIBC
+                 U mprotect@LIBC
+                 U open@LIBC
+                 U openlog@LIBC
+                 U posix_memalign@LIBC
+                 U pthread_cond_broadcast@LIBC
+                 U pthread_cond_wait@LIBC
+                 U pthread_getspecific@LIBC
+                 U pthread_key_create@LIBC
+                 U pthread_key_delete@LIBC
+                 U pthread_mutex_lock@LIBC
+                 U pthread_mutex_unlock@LIBC
+                 U pthread_once@LIBC
+                 U pthread_rwlock_rdlock@LIBC
+                 U pthread_rwlock_unlock@LIBC
+                 U pthread_rwlock_wrlock@LIBC
+                 U pthread_setspecific@LIBC
+                 U realloc@LIBC
+                 U snprintf@LIBC
+                 U stat@LIBC
+                 U strcmp@LIBC
+                 U strlen@LIBC
+                 U strncmp@LIBC
+                 U strstr@LIBC
+                 U strtod@LIBC
+                 U strtof@LIBC
+                 U strtol@LIBC
+                 U strtold@LIBC
+                 U strtoll@LIBC
+                 U strtoul@LIBC
+                 U strtoull@LIBC
+                 U swprintf@LIBC
+                 U syscall@LIBC
+                 U syslog@LIBC
+                 U vasprintf@LIBC
+                 U vfprintf@LIBC
+                 U wcslen@LIBC
+                 U wcstod@LIBC
+                 U wcstof@LIBC
+                 U wcstol@LIBC
+                 U wcstold@LIBC
+                 U wcstoll@LIBC
+                 U wcstoul@LIBC
+                 U wcstoull@LIBC
+                 U wmemchr@LIBC
+                 U wmemcmp@LIBC
+                 U wmemcpy@LIBC
+                 U wmemmove@LIBC
+                 U wmemset@LIBC
