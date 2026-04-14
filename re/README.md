@@ -51,31 +51,44 @@ Adreno GPU workarounds.
 
 ### Install
 
+The Homebrew cask for Ghidra was removed. Use the setup script — it auto-downloads
+Ghidra 12.0.4 from GitHub releases if it isn't already installed:
+
 ```bash
-# Requires Java 17+
-brew install --cask ghidra
-# or manual: https://github.com/NationalSecurityAgency/ghidra/releases (latest stable)
+# From the repo root:
+./re/ghidra/setup.sh
+```
+
+Requires Java 17+ (already present: `brew install openjdk` if needed).
+
+Or install manually:
+```bash
+# Download from: https://github.com/NationalSecurityAgency/ghidra/releases
+# Extract the zip, then set GHIDRA_HOME:
+export GHIDRA_HOME=/path/to/ghidra_12.0.4_PUBLIC
+./re/ghidra/setup.sh
 ```
 
 ### Create project and analyze (headless)
 
 ```bash
-cd re
-./ghidra/setup.sh
+# From the repo root (winlator/):
+./re/ghidra/setup.sh
 ```
 
 This will:
-1. Create a Ghidra project at `re/ghidra/project/`
-2. Import all 6 target `.so` files
-3. Run auto-analysis on each
-4. Apply the custom `WinlatorLabelImports.java` script (labels all imported symbols from
-   `libwinlator.so` so cross-library calls are named)
-5. Export a function list + call tree for each binary to `re/ghidra/exports/`
+1. Download Ghidra 12.0.4 into `re/ghidra/ghidra_install/` if not found
+2. Create a project at `re/ghidra/project/Winlator_v11.gpr`
+3. Import all 7 target `.so` files with AARCH64:LE:64:v8A processor spec
+4. Run full auto-analysis on each
+5. Export function list + call tree for each binary to `re/ghidra/exports/`
 
 ### Interactive analysis
 
 ```bash
-ghidra re/ghidra/project/Winlator_v11.gpr
+# After setup.sh runs, open the project:
+re/ghidra/ghidra_install/ghidra_12.0.4_PUBLIC/ghidraRun \
+  re/ghidra/project/Winlator_v11.gpr
 ```
 
 Then open any of the imported programs. Recommended workflow:
