@@ -20,3 +20,6 @@ gradle-wrapper.jar is committed intentionally
 # Ghidra project files (large, machine-specific)
 re/ghidra/project/
 re/ghidra/ghidra_install/
+
+# Native build outputs
+native/*/build/
