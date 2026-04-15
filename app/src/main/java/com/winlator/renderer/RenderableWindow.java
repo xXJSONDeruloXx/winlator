@@ -2,20 +2,19 @@ package com.winlator.renderer;
 
 import com.winlator.xserver.Drawable;
 
+/* JADX INFO: loaded from: classes.dex */
 class RenderableWindow {
     final Drawable content;
+    final FullscreenTransformation fullscreenTransformation;
     short rootX;
     short rootY;
-    final boolean forceFullscreen;
+    final boolean transparent;
 
-    public RenderableWindow(Drawable content, int rootX, int rootY) {
-        this(content, rootX, rootY, false);
-    }
-
-    public RenderableWindow(Drawable content, int rootX, int rootY, boolean forceFullscreen) {
+    public RenderableWindow(Drawable content, int rootX, int rootY, boolean transparent, FullscreenTransformation fullscreenTransformation) {
         this.content = content;
-        this.rootX = (short)rootX;
-        this.rootY = (short)rootY;
-        this.forceFullscreen = forceFullscreen;
+        this.rootX = (short) rootX;
+        this.rootY = (short) rootY;
+        this.transparent = transparent;
+        this.fullscreenTransformation = fullscreenTransformation;
     }
 }

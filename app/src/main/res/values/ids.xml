@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Missing IDs from v11 decompilation -->
+    <item name="CBMouseMoveMode" type="id"/>
+    <item name="LLCPUPanel" type="id"/>
+    <item name="LLFPSPanel" type="id"/>
+    <item name="LLGPUPanel" type="id"/>
+    <item name="LLImageList" type="id"/>
+    <item name="LLMIDIKeyOptions" type="id"/>
+    <item name="LLRadialMenuOptions" type="id"/>
+    <item name="LLRAMPanel" type="id"/>
+    <item name="NPBindings" type="id"/>
+    <item name="SBOpacity" type="id"/>
+    <item name="SNote" type="id"/>
+</resources>

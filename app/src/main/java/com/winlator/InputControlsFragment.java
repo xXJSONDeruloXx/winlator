@@ -1,6 +1,5 @@
 package com.winlator;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,26 +8,25 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
-import android.widget.SeekBar;
 import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.core.widget.ImageViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
-
+import com.winlator.contentdialog.ContentDialog;
 import com.winlator.core.AppUtils;
 import com.winlator.core.Callback;
 import com.winlator.core.FileUtils;
@@ -36,331 +34,417 @@ import com.winlator.core.HttpUtils;
 import com.winlator.inputcontrols.ControlsProfile;
 import com.winlator.inputcontrols.ExternalController;
 import com.winlator.inputcontrols.InputControlsManager;
-import com.winlator.math.Mathf;
-import com.winlator.contentdialog.ContentDialog;
-import com.winlator.widget.InputControlsView;
-
+import com.winlator.widget.SeekBar;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
-
+/* JADX INFO: loaded from: classes.dex */
 public class InputControlsFragment extends Fragment {
-    private static final String INPUT_CONTROLS_URL = "https://raw.githubusercontent.com/brunodev85/winlator/main/input_controls/%s";
-    private InputControlsManager manager;
     private ControlsProfile currentProfile;
-    private Runnable updateLayout;
     private Callback<ControlsProfile> importProfileCallback;
+    private InputControlsManager manager;
     private final int selectedProfileId;
+    private Runnable updateLayout;
 
     public InputControlsFragment(int selectedProfileId) {
         this.selectedProfileId = selectedProfileId;
     }
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
+    @Override // androidx.fragment.app.Fragment
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(false);
-        manager = new InputControlsManager(getContext());
+        this.manager = new InputControlsManager(getContext());
     }
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    @Override // androidx.fragment.app.Fragment
+    public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle(R.string.input_controls);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.input_controls);
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (requestCode == MainActivity.OPEN_FILE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+    @Override // androidx.fragment.app.Fragment
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 2 && resultCode == -1) {
             try {
-                ControlsProfile importedProfile = manager.importProfile(new JSONObject(FileUtils.readString(getContext(), data.getData())));
-                if (importProfileCallback != null) importProfileCallback.call(importedProfile);
-            }
-            catch (Exception e) {
+                ControlsProfile importedProfile = this.manager.importProfile(new JSONObject(FileUtils.readString(getContext(), data.getData())));
+                Callback<ControlsProfile> callback = this.importProfileCallback;
+                if (callback != null) {
+                    callback.call(importedProfile);
+                }
+            } catch (Exception e) {
                 AppUtils.showToast(getContext(), R.string.unable_to_import_profile);
             }
-            importProfileCallback = null;
+            this.importProfileCallback = null;
         }
     }
 
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.input_controls_fragment, container, false);
+    @Override // androidx.fragment.app.Fragment
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        final View view = inflater.inflate(R.layout.input_controls_fragment, container, false);
         final Context context = getContext();
         final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-
-        currentProfile = selectedProfileId > 0 ? manager.getProfile(selectedProfileId) : null;
-
-        final Spinner sProfile = view.findViewById(R.id.SProfile);
+        int i = this.selectedProfileId;
+        this.currentProfile = i > 0 ? this.manager.getProfile(i) : null;
+        final Spinner sProfile = (Spinner) view.findViewById(R.id.SProfile);
         loadProfileSpinner(sProfile);
-
-        final TextView tvCursorSpeed = view.findViewById(R.id.TVCursorSpeed);
-        final SeekBar sbCursorSpeed = view.findViewById(R.id.SBCursorSpeed);
-        sbCursorSpeed.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                tvCursorSpeed.setText(progress+"%");
-                if (currentProfile != null) {
-                    currentProfile.setCursorSpeed(progress / 100.0f);
-                    currentProfile.save();
-                }
+        final SeekBar sbCursorSpeed = (SeekBar) view.findViewById(R.id.SBCursorSpeed);
+        sbCursorSpeed.setOnValueChangeListener((seekBar, f) -> lambda_onCreateView_0(seekBar, f));
+        final CheckBox cbDisableMouseInput = (CheckBox) view.findViewById(R.id.CBDisableMouseInput);
+        cbDisableMouseInput.setOnCheckedChangeListener((compoundButton, z) -> lambda_onCreateView_1(compoundButton, z));
+        Runnable runnable = () -> lambda_onCreateView_2(sbCursorSpeed, cbDisableMouseInput, view);
+        this.updateLayout = runnable;
+        runnable.run();
+        SeekBar sbOverlayOpacity = (SeekBar) view.findViewById(R.id.SBOverlayOpacity);
+        sbOverlayOpacity.setOnValueChangeListener(new SeekBar.OnValueChangeListener() { // from class: com.winlator.InputControlsFragment$$ExternalSyntheticLambda17
+            @Override // com.winlator.widget.SeekBar.OnValueChangeListener
+            public final void onValueChangeListener(SeekBar seekBar, float f) {
+                InputControlsFragment.lambda_onCreateView_3(preferences, seekBar, f);
             }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {}
         });
-
-        updateLayout = () -> {
-            if (currentProfile != null) {
-                sbCursorSpeed.setProgress((int)(currentProfile.getCursorSpeed() * 100));
-            }
-            else sbCursorSpeed.setProgress(100);
-            loadExternalControllers(view);
-        };
-
-        updateLayout.run();
-
-        final TextView tvUiOpacity = view.findViewById(R.id.TVUiOpacity);
-        SeekBar sbUiOpacity = view.findViewById(R.id.SBOverlayOpacity);
-        sbUiOpacity.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                tvUiOpacity.setText(progress+"%");
-                if (fromUser) {
-                    progress = (int)Mathf.roundTo(progress, 5);
-                    seekBar.setProgress(progress);
-                    preferences.edit().putFloat("overlay_opacity", progress / 100.0f).apply();
-                }
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {}
-        });
-        sbUiOpacity.setProgress((int)(preferences.getFloat("overlay_opacity", InputControlsView.DEFAULT_OVERLAY_OPACITY) * 100));
-
-        view.findViewById(R.id.BTAddProfile).setOnClickListener((v) -> ContentDialog.prompt(context, R.string.profile_name, null, (name) -> {
-            currentProfile = manager.createProfile(name);
-            loadProfileSpinner(sProfile);
-            updateLayout.run();
-        }));
-
-        view.findViewById(R.id.BTEditProfile).setOnClickListener((v) -> {
-            if (currentProfile != null) {
-                ContentDialog.prompt(context, R.string.profile_name, currentProfile.getName(), (name) -> {
-                    currentProfile.setName(name);
-                    currentProfile.save();
-                    loadProfileSpinner(sProfile);
-                });
-            }
-            else AppUtils.showToast(context, R.string.no_profile_selected);
-        });
-
-        view.findViewById(R.id.BTDuplicateProfile).setOnClickListener((v) -> {
-            if (currentProfile != null) {
-                ContentDialog.confirm(context, R.string.do_you_want_to_duplicate_this_profile, () -> {
-                    currentProfile = manager.duplicateProfile(currentProfile);
-                    loadProfileSpinner(sProfile);
-                    updateLayout.run();
-                });
-            }
-            else AppUtils.showToast(context, R.string.no_profile_selected);
-        });
-
-        view.findViewById(R.id.BTRemoveProfile).setOnClickListener((v) -> {
-            if (currentProfile != null) {
-                ContentDialog.confirm(context, R.string.do_you_want_to_remove_this_profile, () -> {
-                    manager.removeProfile(currentProfile);
-                    currentProfile = null;
-                    loadProfileSpinner(sProfile);
-                    updateLayout.run();
-                });
-            }
-            else AppUtils.showToast(context, R.string.no_profile_selected);
-        });
-
-        view.findViewById(R.id.BTImportProfile).setOnClickListener((v) -> {
-            android.widget.PopupMenu popupMenu = new PopupMenu(context, v);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) popupMenu.setForceShowIcon(true);
-            popupMenu.inflate(R.menu.open_file_popup_menu);
-            popupMenu.setOnMenuItemClickListener((menuItem) -> {
-                int itemId = menuItem.getItemId();
-                if (itemId == R.id.open_file) {
-                    openProfileFile(sProfile);
-                }
-                else if (itemId == R.id.download_file) {
-                    downloadProfileList(sProfile);
-                }
-                return true;
-            });
-            popupMenu.show();
-        });
-
-        view.findViewById(R.id.BTExportProfile).setOnClickListener((v) -> {
-            if (currentProfile != null) {
-                File exportedFile = manager.exportProfile(currentProfile);
-                if (exportedFile != null) {
-                    String path = exportedFile.getPath().substring(exportedFile.getPath().indexOf(Environment.DIRECTORY_DOWNLOADS));
-                    AppUtils.showToast(context, context.getString(R.string.profile_exported_to)+" "+path);
-                }
-            }
-            else AppUtils.showToast(context, R.string.no_profile_selected);
-        });
-
-        view.findViewById(R.id.BTControlsEditor).setOnClickListener((v) -> {
-            if (currentProfile != null) {
-                Intent intent = new Intent(context, ControlsEditorActivity.class);
-                intent.putExtra("profile_id", currentProfile.id);
-                startActivity(intent);
-            }
-            else AppUtils.showToast(context, R.string.no_profile_selected);
-        });
-
+        sbOverlayOpacity.setValue(preferences.getFloat("overlay_opacity", 0.4f) * 100.0f);
+        view.findViewById(R.id.BTAddProfile).setOnClickListener(view2 -> lambda_onCreateView_5(context, sProfile, view2));
+        view.findViewById(R.id.BTEditProfile).setOnClickListener(view2 -> lambda_onCreateView_7(context, sProfile, view2));
+        view.findViewById(R.id.BTDuplicateProfile).setOnClickListener(view2 -> lambda_onCreateView_9(context, sProfile, view2));
+        view.findViewById(R.id.BTRemoveProfile).setOnClickListener(view2 -> lambda_onCreateView_11(context, sProfile, view2));
+        view.findViewById(R.id.BTImportProfile).setOnClickListener(view2 -> lambda_onCreateView_13(context, sProfile, view2));
+        view.findViewById(R.id.BTExportProfile).setOnClickListener(view2 -> lambda_onCreateView_14(context, view2));
+        view.findViewById(R.id.BTControlsEditor).setOnClickListener(view2 -> lambda_onCreateView_15(context, view2));
         return view;
     }
 
-    private void openProfileFile(Spinner sProfile) {
-        importProfileCallback = (importedProfile) -> {
-            currentProfile = importedProfile;
-            loadProfileSpinner(sProfile);
-            updateLayout.run();
-        };
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("*/*");
-        getActivity().startActivityFromFragment(this, intent, MainActivity.OPEN_FILE_REQUEST_CODE);
+    /* JADX INFO: Access modifiers changed from: private */
+    public /* synthetic */ void lambda_onCreateView_0(SeekBar seekBar, float value) {
+        ControlsProfile controlsProfile = this.currentProfile;
+        if (controlsProfile != null) {
+            controlsProfile.setCursorSpeed(value / 100.0f);
+            this.currentProfile.save();
+        }
     }
 
-    private void downloadSelectedProfiles(final Spinner sProfile, String[] items, final ArrayList<Integer> positions) {
-        final MainActivity activity = (MainActivity)getActivity();
-        activity.preloaderDialog.show(R.string.downloading_file);
-        currentProfile = null;
-        final AtomicInteger processedItemCount = new AtomicInteger();
-
-        for (int position : positions) {
-            HttpUtils.download(String.format(INPUT_CONTROLS_URL, items[position]), (content) -> {
-                try {
-                    if (content != null) manager.importProfile(new JSONObject(content));
-                }
-                catch (JSONException e) {}
-                if (processedItemCount.incrementAndGet() == positions.size()) {
-                    activity.runOnUiThread(() -> {
-                        activity.preloaderDialog.close();
-                        loadProfileSpinner(sProfile);
-                        updateLayout.run();
-                    });
-                }
-            });
+    /* JADX INFO: Access modifiers changed from: private */
+    public /* synthetic */ void lambda_onCreateView_1(CompoundButton buttonView, boolean isChecked) {
+        ControlsProfile controlsProfile = this.currentProfile;
+        if (controlsProfile != null) {
+            controlsProfile.setDisableMouseInput(isChecked);
+            this.currentProfile.save();
         }
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public /* synthetic */ void lambda_onCreateView_2(SeekBar sbCursorSpeed, CheckBox cbDisableMouseInput, View view) {
+        ControlsProfile controlsProfile = this.currentProfile;
+        if (controlsProfile != null) {
+            sbCursorSpeed.setValue(controlsProfile.getCursorSpeed() * 100.0f);
+            cbDisableMouseInput.setChecked(this.currentProfile.isDisableMouseInput());
+        } else {
+            sbCursorSpeed.setValue(100.0f);
+            cbDisableMouseInput.setChecked(false);
+        }
+        loadExternalControllers(view);
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public static /* synthetic */ void lambda_onCreateView_3(SharedPreferences preferences, SeekBar seekBar, float value) {
+        preferences.edit().putFloat("overlay_opacity", value / 100.0f).apply();
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public /* synthetic */ void lambda_onCreateView_5(Context context, final Spinner sProfile, View v) {
+        ContentDialog.prompt(context, R.string.profile_name, null, obj -> lambda_onCreateView_4(sProfile, (String) obj));
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public /* synthetic */ void lambda_onCreateView_4(Spinner sProfile, String name) {
+        this.currentProfile = this.manager.createProfile(name);
+        loadProfileSpinner(sProfile);
+        this.updateLayout.run();
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public /* synthetic */ void lambda_onCreateView_7(Context context, final Spinner sProfile, View v) {
+        ControlsProfile controlsProfile = this.currentProfile;
+        if (controlsProfile != null) {
+            ContentDialog.prompt(context, R.string.profile_name, controlsProfile.getName(), obj -> lambda_onCreateView_6(sProfile, (String) obj));
+        } else {
+            AppUtils.showToast(context, R.string.no_profile_selected);
+        }
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public /* synthetic */ void lambda_onCreateView_6(Spinner sProfile, String name) {
+        this.currentProfile.setName(name);
+        this.currentProfile.save();
+        loadProfileSpinner(sProfile);
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public /* synthetic */ void lambda_onCreateView_9(Context context, final Spinner sProfile, View v) {
+        if (this.currentProfile != null) {
+            ContentDialog.confirm(context, R.string.do_you_want_to_duplicate_this_profile, () -> lambda_onCreateView_8(sProfile));
+        } else {
+            AppUtils.showToast(context, R.string.no_profile_selected);
+        }
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public /* synthetic */ void lambda_onCreateView_8(Spinner sProfile) {
+        this.currentProfile = this.manager.duplicateProfile(this.currentProfile);
+        loadProfileSpinner(sProfile);
+        this.updateLayout.run();
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public /* synthetic */ void lambda_onCreateView_11(Context context, final Spinner sProfile, View v) {
+        if (this.currentProfile != null) {
+            ContentDialog.confirm(context, R.string.do_you_want_to_remove_this_profile, () -> lambda_onCreateView_10(sProfile));
+        } else {
+            AppUtils.showToast(context, R.string.no_profile_selected);
+        }
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public /* synthetic */ void lambda_onCreateView_10(Spinner sProfile) {
+        this.manager.removeProfile(this.currentProfile);
+        this.currentProfile = null;
+        loadProfileSpinner(sProfile);
+        this.updateLayout.run();
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public /* synthetic */ void lambda_onCreateView_13(Context context, final Spinner sProfile, View v) {
+        PopupMenu popupMenu = new PopupMenu(context, v);
+        if (Build.VERSION.SDK_INT >= 29) {
+            popupMenu.setForceShowIcon(true);
+        }
+        popupMenu.inflate(R.menu.open_file_popup_menu);
+        popupMenu.setOnMenuItemClickListener(menuItem -> lambda_onCreateView_12(sProfile, menuItem));
+        popupMenu.show();
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public /* synthetic */ boolean lambda_onCreateView_12(Spinner sProfile, MenuItem menuItem) {
+        int itemId = menuItem.getItemId();
+        if (itemId == R.id.menu_item_open_file) {
+            openProfileFile(sProfile);
+            return true;
+        }
+        if (itemId == R.id.menu_item_download_file) {
+            downloadProfileList(sProfile);
+            return true;
+        }
+        return true;
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public /* synthetic */ void lambda_onCreateView_14(Context context, View v) {
+        ControlsProfile controlsProfile = this.currentProfile;
+        if (controlsProfile != null) {
+            File exportedFile = this.manager.exportProfile(controlsProfile);
+            if (exportedFile != null) {
+                String path = exportedFile.getPath().substring(exportedFile.getPath().indexOf(Environment.DIRECTORY_DOWNLOADS));
+                AppUtils.showToast(context, context.getString(R.string.profile_exported_to) + " " + path);
+                return;
+            }
+            return;
+        }
+        AppUtils.showToast(context, R.string.no_profile_selected);
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public /* synthetic */ void lambda_onCreateView_15(Context context, View v) {
+        if (this.currentProfile != null) {
+            Intent intent = new Intent(context, (Class<?>) ControlsEditorActivity.class);
+            intent.putExtra("profile_id", this.currentProfile.id);
+            startActivity(intent);
+            return;
+        }
+        AppUtils.showToast(context, R.string.no_profile_selected);
+    }
+
+    private void openProfileFile(final Spinner sProfile) {
+        this.importProfileCallback = obj -> lambda_openProfileFile_16(sProfile, (ControlsProfile) obj);
+        Intent intent = new Intent("android.intent.action.OPEN_DOCUMENT");
+        intent.addCategory("android.intent.category.OPENABLE");
+        intent.setType("*/*");
+        getActivity().startActivityFromFragment(this, intent, 2);
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public /* synthetic */ void lambda_openProfileFile_16(Spinner sProfile, ControlsProfile importedProfile) {
+        this.currentProfile = importedProfile;
+        loadProfileSpinner(sProfile);
+        this.updateLayout.run();
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    /* JADX INFO: renamed from: downloadSelectedProfiles, reason: merged with bridge method [inline-methods] */
+    public void lambda_downloadProfileList_19(final Spinner sProfile, String[] items, final ArrayList<Integer> positions) {
+        final MainActivity activity = (MainActivity) getActivity();
+        activity.preloaderDialog.show(R.string.downloading_file);
+        this.currentProfile = null;
+        final AtomicInteger processedItemCount = new AtomicInteger();
+        Iterator<Integer> it = positions.iterator();
+        while (it.hasNext()) {
+            int position = it.next().intValue();
+            HttpUtils.download(String.format("https://raw.githubusercontent.com/brunodev85/winlator/main/input_controls/%s", items[position]), obj -> lambda_downloadSelectedProfiles_18(processedItemCount, positions, activity, sProfile, (String) obj));
+        }
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public /* synthetic */ void lambda_downloadSelectedProfiles_18(AtomicInteger processedItemCount, ArrayList positions, final MainActivity activity, final Spinner sProfile, String content) {
+        if (content != null) {
+            try {
+                this.manager.importProfile(new JSONObject(content));
+            } catch (JSONException e) {
+            }
+        }
+        if (processedItemCount.incrementAndGet() == positions.size()) {
+            activity.runOnUiThread(() -> lambda_downloadSelectedProfiles_17(activity, sProfile));
+        }
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public /* synthetic */ void lambda_downloadSelectedProfiles_17(MainActivity activity, Spinner sProfile) {
+        activity.preloaderDialog.close();
+        loadProfileSpinner(sProfile);
+        this.updateLayout.run();
     }
 
     private void downloadProfileList(final Spinner sProfile) {
-        final MainActivity activity = (MainActivity)getActivity();
+        final MainActivity activity = (MainActivity) getActivity();
         activity.preloaderDialog.show(R.string.loading);
-        HttpUtils.download(String.format(INPUT_CONTROLS_URL, "index.txt"), (content) -> activity.runOnUiThread(() -> {
-            activity.preloaderDialog.close();
-            if (content != null) {
-                final String[] items = content.split("\n");
-                ContentDialog.showMultipleChoiceList(activity, R.string.import_profile, items, (positions) -> {
-                    if (!positions.isEmpty()) {
-                        ContentDialog.confirm(activity, R.string.do_you_want_to_download_the_selected_profiles, () -> downloadSelectedProfiles(sProfile, items, positions));
-                    }
-                });
-            }
-            else AppUtils.showToast(activity, R.string.unable_to_load_profile_list);
-        }));
+        HttpUtils.download(String.format("https://raw.githubusercontent.com/brunodev85/winlator/main/input_controls/%s", "index.txt"), obj -> lambda_downloadProfileList_22(activity, sProfile, (String) obj));
     }
 
-    @Override
+    /* JADX INFO: Access modifiers changed from: private */
+    public /* synthetic */ void lambda_downloadProfileList_22(final MainActivity activity, final Spinner sProfile, final String content) {
+        activity.runOnUiThread(() -> lambda_downloadProfileList_21(activity, content, sProfile));
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public /* synthetic */ void lambda_downloadProfileList_21(final MainActivity activity, String content, final Spinner sProfile) {
+        activity.preloaderDialog.close();
+        if (content != null) {
+            final String[] items = content.split("\n");
+            ContentDialog.showSelectionList((Context) activity, R.string.import_profile, items, true, (Callback<ArrayList<Integer>>) obj -> lambda_downloadProfileList_20(activity, sProfile, items, (ArrayList) obj));
+        } else {
+            AppUtils.showToast(activity, R.string.a_network_error_occurred);
+        }
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public /* synthetic */ void lambda_downloadProfileList_20(MainActivity activity, final Spinner sProfile, final String[] items, final ArrayList positions) {
+        if (!positions.isEmpty()) {
+            ContentDialog.confirm(activity, R.string.do_you_want_to_download_the_selected_profiles, () -> lambda_downloadProfileList_19(sProfile, items, positions));
+        }
+    }
+
+    @Override // androidx.fragment.app.Fragment
     public void onStart() {
         super.onStart();
-        if (updateLayout != null) updateLayout.run();
+        Runnable runnable = this.updateLayout;
+        if (runnable != null) {
+            runnable.run();
+        }
     }
 
     private void loadProfileSpinner(Spinner spinner) {
-        final ArrayList<ControlsProfile> profiles = manager.getProfiles();
+        final ArrayList<ControlsProfile> profiles = this.manager.getProfiles();
         ArrayList<String> values = new ArrayList<>();
-        values.add("-- "+getString(R.string.select_profile)+" --");
-
+        values.add("-- " + getString(R.string.select_profile) + " --");
         int selectedPosition = 0;
         for (int i = 0; i < profiles.size(); i++) {
             ControlsProfile profile = profiles.get(i);
-            if (profile == currentProfile) selectedPosition = i + 1;
+            if (profile == this.currentProfile) {
+                selectedPosition = i + 1;
+            }
             values.add(profile.getName());
         }
-
-        spinner.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, values));
+        spinner.setAdapter((SpinnerAdapter) new ArrayAdapter(getContext(), android.R.layout.simple_spinner_dropdown_item, values));
         spinner.setSelection(selectedPosition, false);
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() { // from class: com.winlator.InputControlsFragment.1
+            @Override // android.widget.AdapterView.OnItemSelectedListener
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                currentProfile = position > 0 ? profiles.get(position - 1) : null;
-                updateLayout.run();
+                InputControlsFragment.this.currentProfile = position > 0 ? (ControlsProfile) profiles.get(position - 1) : null;
+                InputControlsFragment.this.updateLayout.run();
             }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
+            @Override // android.widget.AdapterView.OnItemSelectedListener
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
         });
     }
 
+    /* JADX WARN: Multi-variable type inference failed */
+    /* JADX WARN: Type inference failed for: r9v0 */
+    /* JADX WARN: Type inference failed for: r9v1, types: [boolean, int] */
+    /* JADX WARN: Type inference failed for: r9v3 */
     private void loadExternalControllers(final View view) {
-        LinearLayout container = view.findViewById(R.id.LLExternalControllers);
+        LinearLayout container = (LinearLayout) view.findViewById(R.id.LLExternalControllers);
         container.removeAllViews();
         Context context = getContext();
-        LayoutInflater inflater = LayoutInflater.from(context);
+        LayoutInflater layoutInflaterFrom = LayoutInflater.from(context);
         ArrayList<ExternalController> connectedControllers = ExternalController.getControllers();
-
-        ArrayList<ExternalController> controllers = currentProfile != null ? currentProfile.loadControllers() : new ArrayList<>();
+        ControlsProfile controlsProfile = this.currentProfile;
+        ArrayList<ExternalController> controllers = controlsProfile != null ? controlsProfile.loadControllers() : new ArrayList<>();
         for (ExternalController controller : connectedControllers) {
-            if (!controllers.contains(controller)) controllers.add(controller);
-        }
-
-        if (!controllers.isEmpty()) {
-            view.findViewById(R.id.TVEmptyText).setVisibility(View.GONE);
-            String bindingsText = context.getString(R.string.bindings);
-            for (final ExternalController controller : controllers) {
-                View itemView = inflater.inflate(R.layout.external_controller_list_item, container, false);
-                ((TextView)itemView.findViewById(R.id.TVTitle)).setText(controller.getName());
-
-                int controllerBindingCount = controller.getControllerBindingCount();
-                ((TextView)itemView.findViewById(R.id.TVSubtitle)).setText(controllerBindingCount+" "+bindingsText);
-
-                ImageView imageView = itemView.findViewById(R.id.ImageView);
-                int tintColor = controller.isConnected() ? ContextCompat.getColor(context, R.color.colorAccent) : 0xffe57373;
-                ImageViewCompat.setImageTintList(imageView, ColorStateList.valueOf(tintColor));
-
-                if (controllerBindingCount > 0) {
-                    ImageButton removeButton = itemView.findViewById(R.id.BTRemove);
-                    removeButton.setVisibility(View.VISIBLE);
-                    removeButton.setOnClickListener((v) -> ContentDialog.confirm(getContext(), R.string.do_you_want_to_remove_this_controller, () -> {
-                        currentProfile.removeController(controller);
-                        currentProfile.save();
-                        loadExternalControllers(view);
-                    }));
-                }
-
-                itemView.setOnClickListener((v) -> {
-                    if (currentProfile != null) {
-                        Intent intent = new Intent(getContext(), ExternalControllerBindingsActivity.class);
-                        intent.putExtra("profile_id", currentProfile.id);
-                        intent.putExtra("controller_id", controller.getId());
-                        startActivity(intent);
-                    }
-                    else AppUtils.showToast(getContext(), R.string.no_profile_selected);
-                });
-
-                container.addView(itemView);
+            if (!controllers.contains(controller)) {
+                controllers.add(controller);
             }
         }
-        else view.findViewById(R.id.TVEmptyText).setVisibility(View.VISIBLE);
+        int r9 = 0;
+        if (!controllers.isEmpty()) {
+            view.findViewById(R.id.TVEmptyText).setVisibility(8);
+            String bindingsText = context.getString(R.string.bindings).toLowerCase(Locale.ENGLISH);
+            for (final ExternalController controller2 : controllers) {
+                View itemView = layoutInflaterFrom.inflate(R.layout.external_controller_list_item, container, false);
+                ((TextView) itemView.findViewById(R.id.TVTitle)).setText(controller2.getName());
+                int controllerBindingCount = controller2.getControllerBindingCount();
+                ((TextView) itemView.findViewById(R.id.TVSubtitle)).setText(controllerBindingCount + " " + bindingsText);
+                ImageView imageView = (ImageView) itemView.findViewById(R.id.ImageView);
+                int tintColor = AppUtils.getThemeColor(context, controller2.isConnected() ? com.google.android.material.R.attr.colorAccent : com.google.android.material.R.attr.colorError);
+                ImageViewCompat.setImageTintList(imageView, ColorStateList.valueOf(tintColor));
+                if (controllerBindingCount > 0) {
+                    ImageButton imageButton = (ImageButton) itemView.findViewById(R.id.BTRemove);
+                    imageButton.setVisibility(r9);
+                    imageButton.setOnClickListener(view2 -> lambda_loadExternalControllers_24(controller2, view, view2));
+                }
+                itemView.setOnClickListener(view2 -> lambda_loadExternalControllers_25(controller2, view2));
+                container.addView(itemView);
+                r9 = 0;
+            }
+            return;
+        }
+        view.findViewById(R.id.TVEmptyText).setVisibility(0);
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public /* synthetic */ void lambda_loadExternalControllers_24(final ExternalController controller, final View view, View v) {
+        ContentDialog.confirm(getContext(), R.string.do_you_want_to_remove_this_controller, () -> lambda_loadExternalControllers_23(controller, view));
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public /* synthetic */ void lambda_loadExternalControllers_23(ExternalController controller, View view) {
+        this.currentProfile.removeController(controller);
+        this.currentProfile.save();
+        loadExternalControllers(view);
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public /* synthetic */ void lambda_loadExternalControllers_25(ExternalController controller, View v) {
+        if (this.currentProfile != null) {
+            Intent intent = new Intent(getContext(), (Class<?>) ExternalControllerBindingsActivity.class);
+            intent.putExtra("profile_id", this.currentProfile.id);
+            intent.putExtra("controller_id", controller.getId());
+            startActivity(intent);
+            return;
+        }
+        AppUtils.showToast(getContext(), R.string.no_profile_selected);
     }
 }

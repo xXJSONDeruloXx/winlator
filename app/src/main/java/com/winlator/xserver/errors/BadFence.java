@@ -1,7 +1,8 @@
 package com.winlator.xserver.errors;
 
+/* JADX INFO: loaded from: classes.dex */
 public class BadFence extends XRequestError {
     public BadFence(int id) {
-        super(Byte.MIN_VALUE + 2, id);
+        super(-126, id);
     }
 }

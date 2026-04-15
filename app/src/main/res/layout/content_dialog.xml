@@ -1,113 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp">
-
-    <LinearLayout
-        android:id="@+id/LLTitleBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="gone">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <ImageView
-                android:id="@+id/IVIcon"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                app:tint="@color/colorPrimary"
-                android:layout_marginRight="8dp"
-                android:visibility="gone" />
-
-            <TextView
-                android:id="@+id/TVTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/colorPrimary"
-                android:textStyle="bold"
-                android:textSize="18sp" />
+<LinearLayout android:orientation="vertical" android:padding="16.0dp" android:layout_width="wrap_content" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout android:orientation="vertical" android:id="@+id/LLTitleBar" android:visibility="gone" android:layout_width="match_parent" android:layout_height="wrap_content">
+        <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content">
+            <ImageView android:id="@+id/IVIcon" android:visibility="gone" android:layout_width="28.0dp" android:layout_height="28.0dp" android:layout_marginRight="8.0dp" app:tint="?colorPrimaryVariant" />
+            <TextView android:textSize="18.0sp" android:textStyle="bold" android:textColor="?colorPrimaryVariant" android:id="@+id/TVTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" />
         </LinearLayout>
-
         <View style="@style/HorizontalLine" />
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/TVMessage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="18sp"
-        android:layout_marginBottom="8dp"
-        android:visibility="gone" />
-
-    <EditText
-        style="@style/EditText"
-        android:id="@+id/EditText"
-        android:layout_width="280dp"
-        android:layout_gravity="center_horizontal"
-        android:visibility="gone" />
-
-    <ListView
-        android:id="@+id/ListView"
-        android:layout_width="340dp"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:visibility="gone" />
-
-    <FrameLayout
-        android:id="@+id/FrameLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:visibility="gone" />
-
-    <LinearLayout
-        android:id="@+id/LLBottomBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
+    <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8.0dp">
+        <ImageView android:id="@+id/IVMessageIcon" android:visibility="gone" android:layout_width="50.0dp" android:layout_height="50.0dp" android:layout_marginRight="16.0dp" app:tint="?colorPrimaryVariant" />
+        <TextView android:textSize="18.0sp" android:id="@+id/TVMessage" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+    </LinearLayout>
+    <EditText android:layout_gravity="center_horizontal" android:id="@+id/EditText" android:visibility="gone" android:layout_width="280.0dp" style="@style/EditText" />
+    <ListView android:id="@+id/ListView" android:visibility="gone" android:layout_width="340.0dp" android:layout_height="0.0dp" android:layout_weight="1.0" />
+    <FrameLayout android:id="@+id/FrameLayout" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="0.0dp" android:layout_weight="1.0" />
+    <LinearLayout android:orientation="vertical" android:id="@+id/LLBottomBar" android:layout_width="match_parent" android:layout_height="wrap_content">
         <View style="@style/HorizontalLine" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="right">
-
-            <TextView
-                android:id="@+id/TVBottomBarText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textColor="@color/colorPrimary"
-                android:textStyle="bold"
-                android:visibility="gone" />
-
-            <LinearLayout
-                android:id="@+id/LLBottomBarPanel"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="horizontal"
-                android:visibility="gone" />
-
-            <Button
-                style="@style/ButtonNeutral"
-                android:text="@string/cancel"
-                android:id="@+id/BTCancel" />
-
-            <Button
-                style="@style/ButtonNeutral"
-                android:text="@string/ok"
-                android:id="@+id/BTConfirm" />
+        <LinearLayout android:gravity="right" android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content">
+            <TextView android:textStyle="bold" android:textColor="?colorPrimaryVariant" android:id="@+id/TVBottomBarText" android:visibility="gone" android:layout_width="0.0dp" android:layout_height="wrap_content" android:layout_weight="1.0" />
+            <LinearLayout android:orientation="horizontal" android:id="@+id/LLBottomBarPanel" android:visibility="gone" android:layout_width="0.0dp" android:layout_height="wrap_content" android:layout_weight="1.0" />
+            <Button android:id="@+id/BTReset" android:visibility="gone" android:text="@string/reset" style="@style/ButtonNeutral" />
+            <Button android:id="@+id/BTCancel" android:text="@string/cancel" style="@style/ButtonNeutral" />
+            <Button android:id="@+id/BTConfirm" android:text="@string/ok" style="@style/ButtonNeutral" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

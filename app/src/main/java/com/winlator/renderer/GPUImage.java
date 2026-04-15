@@ -1,51 +1,71 @@
 package com.winlator.renderer;
 
 import androidx.annotation.Keep;
-
 import com.winlator.xserver.Drawable;
-
 import java.nio.ByteBuffer;
 
+/* JADX INFO: loaded from: classes.dex */
 public class GPUImage extends Texture {
     private long hardwareBufferPtr;
     private long imageKHRPtr;
-    private ByteBuffer virtualData;
-    private short stride;
-    private boolean locked = false;
+    private boolean locked;
     private int nativeHandle;
-    private static boolean supported = false;
+    private short stride;
+    private ByteBuffer virtualData;
+
+    private native long createHardwareBuffer(short s, short s2, boolean z, boolean z2);
+
+    private native long createImageKHR(long j, int i);
+
+    private native void destroyHardwareBuffer(long j, boolean z);
+
+    private native void destroyImageKHR(long j);
+
+    private native ByteBuffer lockHardwareBuffer(long j);
 
     static {
         System.loadLibrary("winlator");
     }
 
-    public GPUImage(short width, short height) {
-        this(width, height, true);
+    public GPUImage(Drawable owner) {
+        this(owner, true, true);
     }
 
-    public GPUImage(short width, short height, boolean cpuAccess) {
-        hardwareBufferPtr = createHardwareBuffer(width, height, cpuAccess);
-        if (cpuAccess && hardwareBufferPtr != 0) {
-            virtualData = lockHardwareBuffer(hardwareBufferPtr);
-            locked = true;
+    public GPUImage(Drawable owner, boolean cpuAccess) {
+        this(owner, cpuAccess, true);
+    }
+
+    public GPUImage(Drawable owner, boolean cpuAccess, boolean useHALPixelFormatBGRA8888) {
+        super(owner);
+        this.locked = false;
+        long jCreateHardwareBuffer = createHardwareBuffer(owner.width, owner.height, cpuAccess, useHALPixelFormatBGRA8888);
+        this.hardwareBufferPtr = jCreateHardwareBuffer;
+        if (cpuAccess && jCreateHardwareBuffer != 0) {
+            this.virtualData = lockHardwareBuffer(jCreateHardwareBuffer);
+            this.locked = true;
         }
     }
 
-    @Override
+    @Override // com.winlator.renderer.Texture
     public void allocateTexture(short width, short height, ByteBuffer data) {
-        if (isAllocated()) return;
+        if (isAllocated()) {
+            return;
+        }
         super.allocateTexture(width, height, null);
-        imageKHRPtr = createImageKHR(hardwareBufferPtr, textureId);
+        this.imageKHRPtr = createImageKHR(this.hardwareBufferPtr, this.textureId);
     }
 
-    @Override
-    public void updateFromDrawable(Drawable drawable) {
-        if (!isAllocated()) allocateTexture(drawable.width, drawable.height, null);
-        needsUpdate = false;
+    @Override // com.winlator.renderer.Texture
+    public void updateFromDrawable() {
+        Drawable drawable;
+        if (!isAllocated() && (drawable = this.owner) != null) {
+            allocateTexture(drawable.width, drawable.height, null);
+        }
+        this.needsUpdate = false;
     }
 
     public short getStride() {
-        return stride;
+        return this.stride;
     }
 
     @Keep
@@ -54,7 +74,7 @@ public class GPUImage extends Texture {
     }
 
     public int getNativeHandle() {
-        return nativeHandle;
+        return this.nativeHandle;
     }
 
     @Keep
@@ -63,42 +83,20 @@ public class GPUImage extends Texture {
     }
 
     public ByteBuffer getVirtualData() {
-        return virtualData;
+        return this.virtualData;
     }
 
-    @Override
+    @Override // com.winlator.renderer.Texture
     public void destroy() {
-        destroyImageKHR(imageKHRPtr);
-        destroyHardwareBuffer(hardwareBufferPtr, locked);
-        virtualData = null;
-        imageKHRPtr = 0;
-        hardwareBufferPtr = 0;
+        destroyImageKHR(this.imageKHRPtr);
+        destroyHardwareBuffer(this.hardwareBufferPtr, this.locked);
+        this.virtualData = null;
+        this.imageKHRPtr = 0L;
+        this.hardwareBufferPtr = 0L;
         super.destroy();
     }
 
-    public static boolean isSupported() {
-        return supported;
-    }
-
     public long getHardwareBufferPtr() {
-        return hardwareBufferPtr;
+        return this.hardwareBufferPtr;
     }
-
-    public static void checkIsSupported() {
-        final short size = 8;
-        GPUImage gpuImage = new GPUImage(size, size);
-        gpuImage.allocateTexture(size, size, null);
-        supported = gpuImage.hardwareBufferPtr != 0 && gpuImage.imageKHRPtr != 0 && gpuImage.virtualData != null;
-        gpuImage.destroy();
-    }
-
-    private native long createHardwareBuffer(short width, short height, boolean cpuAccess);
-
-    private native void destroyHardwareBuffer(long hardwareBufferPtr, boolean locked);
-
-    private native ByteBuffer lockHardwareBuffer(long hardwareBufferPtr);
-
-    private native long createImageKHR(long hardwareBufferPtr, int textureId);
-
-    private native void destroyImageKHR(long imageKHRPtr);
 }

@@ -1,10 +1,9 @@
 package com.winlator.xenvironment.components;
 
+import android.opengl.GLES20;
 import androidx.annotation.Keep;
-
-import com.winlator.renderer.GLRenderer;
 import com.winlator.renderer.Texture;
-import com.winlator.xconnector.Client;
+import com.winlator.xconnector.ConnectedClient;
 import com.winlator.xconnector.ConnectionHandler;
 import com.winlator.xconnector.RequestHandler;
 import com.winlator.xconnector.UnixSocketConfig;
@@ -12,14 +11,19 @@ import com.winlator.xconnector.XConnectorEpoll;
 import com.winlator.xenvironment.EnvironmentComponent;
 import com.winlator.xserver.Drawable;
 import com.winlator.xserver.XServer;
-
 import java.io.IOException;
 
+/* JADX INFO: loaded from: classes.dex */
 public class VirGLRendererComponent extends EnvironmentComponent implements ConnectionHandler, RequestHandler {
-    private final XServer xServer;
-    private final UnixSocketConfig socketConfig;
     private XConnectorEpoll connector;
-    private long sharedEGLContextPtr;
+    private final UnixSocketConfig socketConfig;
+    private final XServer xServer;
+
+    private native void destroyClient(long j);
+
+    private native long handleNewConnection(int i);
+
+    private native void handleRequest(long j);
 
     static {
         System.loadLibrary("virglrenderer");
@@ -30,91 +34,68 @@ public class VirGLRendererComponent extends EnvironmentComponent implements Conn
         this.socketConfig = socketConfig;
     }
 
-    @Override
+    @Override // com.winlator.xenvironment.EnvironmentComponent
     public void start() {
-        if (connector != null) return;
-        connector = new XConnectorEpoll(socketConfig, this, this);
-        connector.start();
+        if (this.connector != null) {
+            return;
+        }
+        XConnectorEpoll xConnectorEpoll = new XConnectorEpoll(this.socketConfig, this, this);
+        this.connector = xConnectorEpoll;
+        xConnectorEpoll.setInitialInputBufferCapacity(0);
+        this.connector.setInitialOutputBufferCapacity(0);
+        this.connector.start();
     }
 
-    @Override
+    @Override // com.winlator.xenvironment.EnvironmentComponent
     public void stop() {
-        if (connector != null) {
-            connector.stop();
-            connector = null;
+        XConnectorEpoll xConnectorEpoll = this.connector;
+        if (xConnectorEpoll != null) {
+            xConnectorEpoll.destroy();
+            this.connector = null;
         }
     }
 
     @Keep
     private void killConnection(int fd) {
-        connector.killConnection(connector.getClient(fd));
+        XConnectorEpoll xConnectorEpoll = this.connector;
+        xConnectorEpoll.killConnection(xConnectorEpoll.getClientWidthFd(fd));
     }
 
-    @Keep
-    private long getSharedEGLContext() {
-        if (sharedEGLContextPtr != 0) return sharedEGLContextPtr;
-        final Thread thread = Thread.currentThread();
-        try {
-            GLRenderer renderer = xServer.getRenderer();
-            renderer.xServerView.queueEvent(() -> {
-                sharedEGLContextPtr = getCurrentEGLContextPtr();
-
-                synchronized(thread) {
-                    thread.notify();
-                }
-            });
-            synchronized (thread) {
-                thread.wait();
-            }
-        }
-        catch (Exception e) {
-            return 0;
-        }
-        return sharedEGLContextPtr;
-    }
-
-    @Override
-    public void handleConnectionShutdown(Client client) {
-        long clientPtr = (long)client.getTag();
+    @Override // com.winlator.xconnector.ConnectionHandler
+    public void handleConnectionShutdown(ConnectedClient client) {
+        long clientPtr = ((Long) client.getTag()).longValue();
         destroyClient(clientPtr);
     }
 
-    @Override
-    public void handleNewConnection(Client client) {
-        getSharedEGLContext();
-        long clientPtr = handleNewConnection(client.clientSocket.fd);
-        client.setTag(clientPtr);
+    @Override // com.winlator.xconnector.ConnectionHandler
+    public void handleNewConnection(ConnectedClient client) {
+        long clientPtr = handleNewConnection(client.fd);
+        client.setTag(Long.valueOf(clientPtr));
     }
 
-    @Override
-    public boolean handleRequest(Client client) throws IOException {
-        long clientPtr = (long)client.getTag();
+    @Override // com.winlator.xconnector.RequestHandler
+    public boolean handleRequest(ConnectedClient client) throws IOException {
+        long clientPtr = ((Long) client.getTag()).longValue();
         handleRequest(clientPtr);
         return true;
     }
 
     @Keep
     private void flushFrontbuffer(int drawableId, int framebuffer) {
-        Drawable drawable = xServer.drawableManager.getDrawable(drawableId);
-        if (drawable == null) return;
-
+        Drawable drawable = this.xServer.drawableManager.getDrawable(drawableId);
+        if (drawable == null) {
+            return;
+        }
         synchronized (drawable.renderLock) {
             drawable.setData(null);
             Texture texture = drawable.getTexture();
-            texture.copyFromFramebuffer(framebuffer, drawable.width, drawable.height);
+            GLES20.glBindFramebuffer(36160, framebuffer);
+            texture.copyFromReadBuffer(drawable.width, drawable.height);
+            GLES20.glBindFramebuffer(36160, 0);
         }
-
         Runnable onDrawListener = drawable.getOnDrawListener();
-        if (onDrawListener != null) onDrawListener.run();
+        if (onDrawListener != null) {
+            onDrawListener.run();
+        }
     }
-
-    private native long handleNewConnection(int fd);
-
-    private native void handleRequest(long clientPtr);
-
-    private native long getCurrentEGLContextPtr();
-
-    private native void destroyClient(long clientPtr);
-
-    private native void destroyRenderer(long clientPtr);
 }

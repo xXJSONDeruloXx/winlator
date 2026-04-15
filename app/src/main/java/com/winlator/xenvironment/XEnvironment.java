@@ -1,74 +1,82 @@
 package com.winlator.xenvironment;
 
 import android.content.Context;
-
 import com.winlator.core.FileUtils;
-import com.winlator.xenvironment.components.GuestProgramLauncherComponent;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+/* JADX INFO: loaded from: classes.dex */
 public class XEnvironment implements Iterable<EnvironmentComponent> {
-    private final Context context;
-    private final ImageFs imageFs;
     private final ArrayList<EnvironmentComponent> components = new ArrayList<>();
+    private final Context context;
+    private final RootFS rootFS;
 
-    public XEnvironment(Context context, ImageFs imageFs) {
+    public XEnvironment(Context context, RootFS rootFS) {
         this.context = context;
-        this.imageFs = imageFs;
+        this.rootFS = rootFS;
     }
 
     public Context getContext() {
-        return context;
+        return this.context;
     }
 
-    public ImageFs getImageFs() {
-        return imageFs;
+    public RootFS getRootFS() {
+        return this.rootFS;
     }
 
     public void addComponent(EnvironmentComponent environmentComponent) {
         environmentComponent.environment = this;
-        components.add(environmentComponent);
+        this.components.add(environmentComponent);
     }
 
     public <T extends EnvironmentComponent> T getComponent(Class<T> componentClass) {
-        for (EnvironmentComponent component : components) {
-            if (component.getClass() == componentClass) return (T)component;
+        Iterator<EnvironmentComponent> it = this.components.iterator();
+        while (it.hasNext()) {
+            T t = (T) it.next();
+            if (t.getClass() == componentClass) {
+                return t;
+            }
         }
         return null;
     }
 
-    @Override
+    @Override // java.lang.Iterable
     public Iterator<EnvironmentComponent> iterator() {
-        return components.iterator();
+        return this.components.iterator();
     }
 
     public File getTmpDir() {
-        File tmpDir = new File(context.getFilesDir(), "tmp");
+        File tmpDir = new File(this.context.getFilesDir(), "tmp");
         if (!tmpDir.isDirectory()) {
             tmpDir.mkdirs();
-            FileUtils.chmod(tmpDir, 0771);
+            FileUtils.chmod(tmpDir, 505);
         }
         return tmpDir;
     }
 
     public void startEnvironmentComponents() {
         FileUtils.clear(getTmpDir());
-        for (EnvironmentComponent environmentComponent : this) environmentComponent.start();
+        for (EnvironmentComponent environmentComponent : this) {
+            environmentComponent.start();
+        }
     }
 
     public void stopEnvironmentComponents() {
-        for (EnvironmentComponent environmentComponent : this) environmentComponent.stop();
+        for (EnvironmentComponent environmentComponent : this) {
+            environmentComponent.stop();
+        }
     }
 
     public void onPause() {
-        GuestProgramLauncherComponent guestProgramLauncherComponent = getComponent(GuestProgramLauncherComponent.class);
-        if (guestProgramLauncherComponent != null) guestProgramLauncherComponent.suspendProcess();
+        for (EnvironmentComponent environmentComponent : this) {
+            environmentComponent.onPause();
+        }
     }
 
     public void onResume() {
-        GuestProgramLauncherComponent guestProgramLauncherComponent = getComponent(GuestProgramLauncherComponent.class);
-        if (guestProgramLauncherComponent != null) guestProgramLauncherComponent.resumeProcess();
+        for (EnvironmentComponent environmentComponent : this) {
+            environmentComponent.onResume();
+        }
     }
 }

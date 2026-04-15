@@ -2,121 +2,156 @@ package com.winlator.inputcontrols;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.Rect;
-
-import androidx.core.graphics.ColorUtils;
-
+import com.winlator.core.Bitmask;
 import com.winlator.core.CubicBezierInterpolator;
 import com.winlator.math.Mathf;
 import com.winlator.widget.InputControlsView;
 import com.winlator.widget.TouchpadView;
-
+import com.winlator.winhandler.MIDIHandler;
+import com.winlator.winhandler.WinHandler;
+import java.util.Arrays;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Arrays;
-
+/* JADX INFO: loaded from: classes.dex */
 public class ControlElement {
-    public static final float STICK_DEAD_ZONE = 0.15f;
-    public static final float DPAD_DEAD_ZONE = 0.3f;
-    public static final float STICK_SENSITIVITY = 3.0f;
-    public static final float TRACKPAD_MIN_SPEED = 0.8f;
-    public static final float TRACKPAD_MAX_SPEED = 20.0f;
-    public static final byte TRACKPAD_ACCELERATION_THRESHOLD = 4;
-    public static final short BUTTON_MIN_TIME_TO_KEEP_PRESSED = 300;
+    private Binding[] bindings;
+    private final Rect boundingBox;
+    private int currentPointerId;
+    private PointF currentPosition;
+    private byte iconId;
+    private final InputControlsView inputControlsView;
+    private CubicBezierInterpolator interpolator;
+    private float opacity;
+    private byte orientation;
+    private Path[] paths;
+    private final Bitmask propertyFlags;
+    private Range range;
+    private float scale;
+    private RangeScroller scroller;
+    private boolean[] states;
+    private String text;
+    private Object touchTime;
+    private short x;
+    private short y;
+    private Type type = Type.BUTTON;
+    private Shape shape = Shape.CIRCLE;
+
     public enum Type {
-        BUTTON, D_PAD, RANGE_BUTTON, STICK, TRACKPAD;
+        BUTTON,
+        D_PAD,
+        RANGE_BUTTON,
+        STICK,
+        TRACKPAD,
+        MIDI_KEY,
+        RADIAL_MENU;
 
         public static String[] names() {
             Type[] types = values();
             String[] names = new String[types.length];
-            for (int i = 0; i < types.length; i++) names[i] = types[i].name().replace("_", "-");
+            for (int i = 0; i < types.length; i++) {
+                names[i] = types[i].name().replace("_", "-");
+            }
             return names;
         }
     }
+
     public enum Shape {
-        CIRCLE, RECT, ROUND_RECT, SQUARE;
+        CIRCLE,
+        RECT,
+        ROUND_RECT,
+        SQUARE;
 
         public static String[] names() {
             Shape[] shapes = values();
             String[] names = new String[shapes.length];
-            for (int i = 0; i < shapes.length; i++) names[i] = shapes[i].name().replace("_", " ");
+            for (int i = 0; i < shapes.length; i++) {
+                names[i] = shapes[i].name().replace("_", " ");
+            }
             return names;
         }
     }
+
     public enum Range {
-        FROM_A_TO_Z(26), FROM_0_TO_9(10), FROM_F1_TO_F12(12), FROM_NP0_TO_NP9(10);
+        FROM_A_TO_Z(26),
+        FROM_0_TO_9(10),
+        FROM_F1_TO_F12(12),
+        FROM_NP0_TO_NP9(10);
+
         public final byte max;
 
         Range(int max) {
-            this.max = (byte)max;
+            this.max = (byte) max;
         }
 
         public static String[] names() {
             Range[] ranges = values();
             String[] names = new String[ranges.length];
-            for (int i = 0; i < ranges.length; i++) names[i] = ranges[i].name().replace("_", " ");
+            for (int i = 0; i < ranges.length; i++) {
+                names[i] = ranges[i].name().replace("_", " ");
+            }
             return names;
         }
     }
-    private final InputControlsView inputControlsView;
-    private Type type = Type.BUTTON;
-    private Shape shape = Shape.CIRCLE;
-    private Binding[] bindings = {Binding.NONE, Binding.NONE, Binding.NONE, Binding.NONE};
-    private float scale = 1.0f;
-    private short x;
-    private short y;
-    private boolean selected = false;
-    private boolean toggleSwitch = false;
-    private int currentPointerId = -1;
-    private final Rect boundingBox = new Rect();
-    private boolean[] states = new boolean[4];
-    private boolean boundingBoxNeedsUpdate = true;
-    private String text = "";
-    private byte iconId;
-    private Range range;
-    private byte orientation;
-    private PointF currentPosition;
-    private RangeScroller scroller;
-    private CubicBezierInterpolator interpolator;
-    private Object touchTime;
 
     public ControlElement(InputControlsView inputControlsView) {
+        Binding binding = Binding.NONE;
+        this.bindings = new Binding[]{binding, binding, binding, binding};
+        this.scale = 1.0f;
+        this.opacity = 1.0f;
+        this.currentPointerId = -1;
+        this.boundingBox = new Rect();
+        this.states = new boolean[4];
+        this.propertyFlags = new Bitmask(new int[]{16});
+        this.text = "";
         this.inputControlsView = inputControlsView;
     }
 
     private void reset() {
+        this.bindings = new Binding[4];
         setBinding(Binding.NONE);
-        scroller = null;
-
-        if (type == Type.D_PAD || type == Type.STICK) {
-            bindings[0] = Binding.KEY_W;
-            bindings[1] = Binding.KEY_D;
-            bindings[2] = Binding.KEY_S;
-            bindings[3] = Binding.KEY_A;
+        this.scroller = null;
+        this.text = "";
+        switch (AnonymousClass1.$SwitchMap$com$winlator$inputcontrols$ControlElement$Type[this.type.ordinal()]) {
+            case 1:
+            case 2:
+                Binding[] bindingArr = this.bindings;
+                bindingArr[0] = Binding.KEY_W;
+                bindingArr[1] = Binding.KEY_D;
+                bindingArr[2] = Binding.KEY_S;
+                bindingArr[3] = Binding.KEY_A;
+                break;
+            case 3:
+                Binding[] bindingArr2 = this.bindings;
+                bindingArr2[0] = Binding.MOUSE_MOVE_UP;
+                bindingArr2[1] = Binding.MOUSE_MOVE_RIGHT;
+                bindingArr2[2] = Binding.MOUSE_MOVE_DOWN;
+                bindingArr2[3] = Binding.MOUSE_MOVE_LEFT;
+                break;
+            case 4:
+                this.scroller = new RangeScroller(this.inputControlsView, this);
+                break;
+            case 5:
+                this.shape = Shape.SQUARE;
+                this.text = "C1";
+                break;
+            case 6:
+                setBindingCount(3);
+                break;
         }
-        else if (type == Type.TRACKPAD) {
-            bindings[0] = Binding.MOUSE_MOVE_UP;
-            bindings[1] = Binding.MOUSE_MOVE_RIGHT;
-            bindings[2] = Binding.MOUSE_MOVE_DOWN;
-            bindings[3] = Binding.MOUSE_MOVE_LEFT;
-        }
-        else if (type == Type.RANGE_BUTTON) {
-            scroller = new RangeScroller(inputControlsView, this);
-        }
-
-        text = "";
-        iconId = 0;
-        range = null;
-        boundingBoxNeedsUpdate = true;
+        this.iconId = (byte) 0;
+        this.range = null;
+        this.propertyFlags.set(16);
     }
 
     public Type getType() {
-        return type;
+        return this.type;
     }
 
     public void setType(Type type) {
@@ -124,27 +159,42 @@ public class ControlElement {
         reset();
     }
 
-    public int getBindingCount() {
-        return bindings.length;
+    public byte getBindingCount() {
+        return (byte) this.bindings.length;
+    }
+
+    public byte getFirstBindingIndex() {
+        byte i = 0;
+        while (true) {
+            Binding[] bindingArr = this.bindings;
+            if (i >= bindingArr.length) {
+                return (byte) 0;
+            }
+            if (bindingArr[i] != Binding.NONE) {
+                return i;
+            }
+            i = (byte) (i + 1);
+        }
     }
 
     public void setBindingCount(int bindingCount) {
-        bindings = new Binding[bindingCount];
+        this.bindings = new Binding[bindingCount];
         setBinding(Binding.NONE);
-        states = new boolean[bindingCount];
-        boundingBoxNeedsUpdate = true;
+        this.states = new boolean[bindingCount];
+        this.propertyFlags.set(16);
     }
 
     public Shape getShape() {
-        return shape;
+        return this.shape;
     }
 
     public void setShape(Shape shape) {
         this.shape = shape;
-        boundingBoxNeedsUpdate = true;
+        this.propertyFlags.set(16);
     }
 
     public Range getRange() {
+        Range range = this.range;
         return range != null ? range : Range.FROM_A_TO_Z;
     }
 
@@ -153,78 +203,96 @@ public class ControlElement {
     }
 
     public byte getOrientation() {
-        return orientation;
+        return this.orientation;
     }
 
     public void setOrientation(byte orientation) {
         this.orientation = orientation;
-        boundingBoxNeedsUpdate = true;
+        this.propertyFlags.set(16);
     }
 
     public boolean isToggleSwitch() {
-        return toggleSwitch;
+        return this.propertyFlags.isSet(8);
     }
 
     public void setToggleSwitch(boolean toggleSwitch) {
-        this.toggleSwitch = toggleSwitch;
+        this.propertyFlags.set(8, toggleSwitch);
+    }
+
+    public boolean isMouseMoveMode() {
+        return this.propertyFlags.isSet(32);
+    }
+
+    public void setMouseMoveMode(boolean mouseMoveMode) {
+        this.propertyFlags.set(32, mouseMoveMode);
     }
 
     public Binding getBindingAt(int index) {
-        return index < bindings.length ? bindings[index] : Binding.NONE;
+        Binding[] bindingArr = this.bindings;
+        return index < bindingArr.length ? bindingArr[index] : Binding.NONE;
     }
 
     public void setBindingAt(int index, Binding binding) {
-        if (index >= bindings.length) {
-            int oldLength = bindings.length;
-            bindings = Arrays.copyOf(bindings, index+1);
-            Arrays.fill(bindings, oldLength-1, bindings.length, Binding.NONE);
-            states = new boolean[bindings.length];
-            boundingBoxNeedsUpdate = true;
+        Binding[] bindingArr = this.bindings;
+        if (index >= bindingArr.length) {
+            int oldLength = bindingArr.length;
+            Binding[] bindingArr2 = (Binding[]) Arrays.copyOf(bindingArr, index + 1);
+            this.bindings = bindingArr2;
+            Arrays.fill(bindingArr2, oldLength, bindingArr2.length, Binding.NONE);
+            this.states = new boolean[this.bindings.length];
+            this.propertyFlags.set(16);
         }
-        bindings[index] = binding;
+        this.bindings[index] = binding;
     }
 
     public void setBinding(Binding binding) {
-        Arrays.fill(bindings, binding);
+        Arrays.fill(this.bindings, binding);
     }
 
     public float getScale() {
-        return scale;
+        return this.scale;
     }
 
     public void setScale(float scale) {
         this.scale = scale;
-        boundingBoxNeedsUpdate = true;
+        this.propertyFlags.set(16);
+    }
+
+    public float getOpacity() {
+        return this.opacity;
+    }
+
+    public void setOpacity(float opacity) {
+        this.opacity = opacity;
     }
 
     public short getX() {
-        return x;
+        return this.x;
     }
 
     public void setX(int x) {
-        this.x = (short)x;
-        boundingBoxNeedsUpdate = true;
+        this.x = (short) x;
+        this.propertyFlags.set(16);
     }
 
     public short getY() {
-        return y;
+        return this.y;
     }
 
     public void setY(int y) {
-        this.y = (short)y;
-        boundingBoxNeedsUpdate = true;
-    }
-
-    public boolean isSelected() {
-        return selected;
+        this.y = (short) y;
+        this.propertyFlags.set(16);
     }
 
     public void setSelected(boolean selected) {
-        this.selected = selected;
+        if (this.type == Type.RADIAL_MENU) {
+            this.propertyFlags.set(4, selected);
+        }
+        this.propertyFlags.set(1, selected);
     }
 
     public String getText() {
-        return text;
+        return this.text;
     }
 
     public void setText(String text) {
@@ -232,529 +300,695 @@ public class ControlElement {
     }
 
     public byte getIconId() {
-        return iconId;
+        return this.iconId;
     }
 
     public void setIconId(int iconId) {
-        this.iconId = (byte)iconId;
+        this.iconId = (byte) iconId;
     }
 
     public Rect getBoundingBox() {
-        if (boundingBoxNeedsUpdate) computeBoundingBox();
-        return boundingBox;
+        if (this.propertyFlags.isSet(16)) {
+            computeBoundingBox();
+        }
+        return this.boundingBox;
     }
 
     private Rect computeBoundingBox() {
-        int snappingSize = inputControlsView.getSnappingSize();
+        int snappingSize = this.inputControlsView.getSnappingSize();
         int halfWidth = 0;
         int halfHeight = 0;
-
-        switch (type) {
-            case BUTTON:
-                switch (shape) {
-                    case RECT:
-                    case ROUND_RECT:
+        switch (AnonymousClass1.$SwitchMap$com$winlator$inputcontrols$ControlElement$Type[this.type.ordinal()]) {
+            case 1:
+                halfWidth = snappingSize * 7;
+                halfHeight = snappingSize * 7;
+                break;
+            case 2:
+            case 3:
+                halfWidth = snappingSize * 6;
+                halfHeight = snappingSize * 6;
+                break;
+            case 4:
+                halfWidth = snappingSize * ((this.bindings.length * 4) / 2);
+                halfHeight = snappingSize * 2;
+                if (this.orientation == 1) {
+                    halfWidth = halfHeight;
+                    halfHeight = halfWidth;
+                }
+                break;
+            case 5:
+            case 7:
+                switch (AnonymousClass1.$SwitchMap$com$winlator$inputcontrols$ControlElement$Shape[this.shape.ordinal()]) {
+                    case 1:
+                    case 2:
                         halfWidth = snappingSize * 4;
                         halfHeight = snappingSize * 2;
                         break;
-                    case SQUARE:
-                        halfWidth = (int)(snappingSize * 2.5f);
-                        halfHeight = (int)(snappingSize * 2.5f);
+                    case 3:
+                        halfWidth = (int) (snappingSize * 2.5f);
+                        halfHeight = (int) (snappingSize * 2.5f);
                         break;
-                    case CIRCLE:
+                    case 4:
                         halfWidth = snappingSize * 3;
                         halfHeight = snappingSize * 3;
                         break;
                 }
                 break;
-            case D_PAD: {
-                halfWidth = snappingSize * 7;
-                halfHeight = snappingSize * 7;
+            case 6:
+                halfWidth = snappingSize * 3;
+                halfHeight = snappingSize * 3;
                 break;
-            }
-            case TRACKPAD:
-            case STICK: {
-                halfWidth = snappingSize * 6;
-                halfHeight = snappingSize * 6;
-                break;
-            }
-            case RANGE_BUTTON: {
-                halfWidth = snappingSize * ((bindings.length * 4) / 2);
-                halfHeight = snappingSize * 2;
-
-                if (orientation == 1) {
-                    int tmp = halfWidth;
-                    halfWidth = halfHeight;
-                    halfHeight = tmp;
-                }
-                break;
-            }
         }
-
-        halfWidth *= scale;
-        halfHeight *= scale;
-        boundingBox.set(x - halfWidth, y - halfHeight, x + halfWidth, y + halfHeight);
-        boundingBoxNeedsUpdate = false;
-        return boundingBox;
+        float f = this.scale;
+        int halfWidth2 = (int) (halfWidth * f);
+        int halfHeight2 = (int) (halfHeight * f);
+        Rect rect = this.boundingBox;
+        short s = this.x;
+        short s2 = this.y;
+        rect.set(s - halfWidth2, s2 - halfHeight2, s + halfWidth2, s2 + halfHeight2);
+        this.propertyFlags.unset(16);
+        this.paths = null;
+        return this.boundingBox;
     }
 
-    private String getDisplayText() {
-        if (text != null && !text.isEmpty()) {
-            return text;
-        }
-        else {
-            Binding binding = getBindingAt(0);
-            String text = binding.toString().replace("NUMPAD ", "NP").replace("BUTTON ", "");
-            if (text.length() > 7) {
-                String[] parts = text.split(" ");
-                StringBuilder sb = new StringBuilder();
-                for (String part : parts) sb.append(part.charAt(0));
-                return (binding.isMouse() ? "M" : "")+ sb;
+    private String getBindingTextAt(int index) {
+        Binding binding = getBindingAt(index);
+        String text = binding.toString().replace("NUMPAD ", "NP").replace("BUTTON ", "");
+        if (text.length() > 7) {
+            String[] parts = text.split(" ");
+            StringBuilder sb = new StringBuilder();
+            for (String part : parts) {
+                sb.append(part.charAt(0));
             }
-            else return text;
-        }
-    }
-
-    private static float getTextSizeForWidth(Paint paint, String text, float desiredWidth) {
-        final byte testTextSize = 48;
-        paint.setTextSize(testTextSize);
-        return testTextSize * desiredWidth / paint.measureText(text);
-    }
-
-    private static String getRangeTextForIndex(Range range, int index) {
-        String text = "";
-        switch (range) {
-            case FROM_A_TO_Z:
-                text = String.valueOf((char)(65 + index));
-                break;
-            case FROM_0_TO_9:
-                text = String.valueOf((index + 1) % 10);
-                break;
-            case FROM_F1_TO_F12:
-                text = "F"+(index + 1);
-                break;
-            case FROM_NP0_TO_NP9:
-                text = "NP"+((index + 1) % 10);
-                break;
+            StringBuilder sb2 = new StringBuilder();
+            sb2.append(binding.isMouse() ? "M" : "");
+            sb2.append((Object) sb);
+            return sb2.toString();
         }
         return text;
     }
 
-    public void draw(Canvas canvas) {
-        int snappingSize = inputControlsView.getSnappingSize();
-        Paint paint = inputControlsView.getPaint();
-        int primaryColor = inputControlsView.getPrimaryColor();
-
-        paint.setColor(selected ? inputControlsView.getSecondaryColor() : primaryColor);
-        paint.setStyle(Paint.Style.STROKE);
-        float strokeWidth = snappingSize * 0.25f;
-        paint.setStrokeWidth(strokeWidth);
-        Rect boundingBox = getBoundingBox();
-
-        switch (type) {
-            case BUTTON: {
-                float cx = boundingBox.centerX();
-                float cy = boundingBox.centerY();
-
-                switch (shape) {
-                    case CIRCLE:
-                        canvas.drawCircle(cx, cy, boundingBox.width() * 0.5f, paint);
-                        break;
-                    case RECT:
-                        canvas.drawRect(boundingBox, paint);
-                        break;
-                    case ROUND_RECT: {
-                        float radius = boundingBox.height() * 0.5f;
-                        canvas.drawRoundRect(boundingBox.left, boundingBox.top, boundingBox.right, boundingBox.bottom, radius, radius, paint);
-                        break;
+    private String getDisplayText() {
+        String str = this.text;
+        if (str != null && !str.isEmpty()) {
+            return this.text;
+        }
+        if (this.type == Type.BUTTON) {
+            StringBuilder sb = new StringBuilder();
+            byte i = 0;
+            while (true) {
+                Binding[] bindingArr = this.bindings;
+                if (i >= bindingArr.length) {
+                    break;
+                }
+                if (bindingArr[i] != Binding.NONE) {
+                    if (sb.length() > 0) {
+                        sb.append("+");
                     }
-                    case SQUARE: {
-                        float radius = snappingSize * 0.75f * scale;
-                        canvas.drawRoundRect(boundingBox.left, boundingBox.top, boundingBox.right, boundingBox.bottom, radius, radius, paint);
-                        break;
-                    }
+                    sb.append(getBindingTextAt(i));
                 }
-
-                if (iconId > 0) {
-                    drawIcon(canvas, cx, cy, boundingBox.width(), boundingBox.height(), iconId);
-                }
-                else {
-                    String text = getDisplayText();
-                    paint.setTextSize(Math.min(getTextSizeForWidth(paint, text, boundingBox.width() - strokeWidth * 2), snappingSize * 2 * scale));
-                    paint.setTextAlign(Paint.Align.CENTER);
-                    paint.setStyle(Paint.Style.FILL);
-                    paint.setColor(primaryColor);
-                    canvas.drawText(text, x, (y - ((paint.descent() + paint.ascent()) * 0.5f)), paint);
-                }
-                break;
+                i = (byte) (i + 1);
             }
-            case D_PAD: {
-                float cx = boundingBox.centerX();
-                float cy = boundingBox.centerY();
-                float offsetX = snappingSize * 2 * scale;
-                float offsetY = snappingSize * 3 * scale;
-                float start = snappingSize * scale;
-                Path path = inputControlsView.getPath();
-                path.reset();
-
-                path.moveTo(cx, cy - start);
-                path.lineTo(cx - offsetX, cy - offsetY);
-                path.lineTo(cx - offsetX, boundingBox.top);
-                path.lineTo(cx + offsetX, boundingBox.top);
-                path.lineTo(cx + offsetX, cy - offsetY);
-                path.close();
-
-                path.moveTo(cx - start, cy);
-                path.lineTo(cx - offsetY, cy - offsetX);
-                path.lineTo(boundingBox.left, cy - offsetX);
-                path.lineTo(boundingBox.left, cy + offsetX);
-                path.lineTo(cx - offsetY, cy + offsetX);
-                path.close();
-
-                path.moveTo(cx, cy + start);
-                path.lineTo(cx - offsetX, cy + offsetY);
-                path.lineTo(cx - offsetX, boundingBox.bottom);
-                path.lineTo(cx + offsetX, boundingBox.bottom);
-                path.lineTo(cx + offsetX, cy + offsetY);
-                path.close();
-
-                path.moveTo(cx + start, cy);
-                path.lineTo(cx + offsetY, cy - offsetX);
-                path.lineTo(boundingBox.right, cy - offsetX);
-                path.lineTo(boundingBox.right, cy + offsetX);
-                path.lineTo(cx + offsetY, cy + offsetX);
-                path.close();
-
-                canvas.drawPath(path, paint);
-                break;
+            if (sb.length() > 0) {
+                return sb.toString();
             }
-            case RANGE_BUTTON: {
-                Range range = getRange();
-                int oldColor = paint.getColor();
-                float radius = snappingSize * 0.75f * scale;
-                float elementSize = scroller.getElementSize();
-                float minTextSize = snappingSize * 2 * scale;
-                float scrollOffset = scroller.getScrollOffset();
-                byte[] rangeIndex = scroller.getRangeIndex();
-                Path path = inputControlsView.getPath();
-                path.reset();
+        }
+        return getBindingTextAt(0);
+    }
 
-                if (orientation == 0) {
-                    float lineTop = boundingBox.top + strokeWidth * 0.5f;
-                    float lineBottom = boundingBox.bottom - strokeWidth * 0.5f;
-                    float startX = boundingBox.left;
-                    canvas.drawRoundRect(startX, boundingBox.top, boundingBox.right, boundingBox.bottom, radius, radius, paint);
+    private static float getTextSizeForWidth(Paint paint, String text, float desiredWidth) {
+        paint.setTextSize(48.0f);
+        return (48.0f * desiredWidth) / paint.measureText(text);
+    }
 
-                    canvas.save();
-                    path.addRoundRect(startX, boundingBox.top, boundingBox.right, boundingBox.bottom, radius, radius, Path.Direction.CW);
-                    canvas.clipPath(path);
-                    startX -= scrollOffset % elementSize;
+    /* JADX INFO: renamed from: com.winlator.inputcontrols.ControlElement$1, reason: invalid class name */
+    static /* synthetic */ class AnonymousClass1 {
+        static final /* synthetic */ int[] $SwitchMap$com$winlator$inputcontrols$ControlElement$Range;
+        static final /* synthetic */ int[] $SwitchMap$com$winlator$inputcontrols$ControlElement$Shape;
+        static final /* synthetic */ int[] $SwitchMap$com$winlator$inputcontrols$ControlElement$Type;
 
-                    for (byte i = rangeIndex[0]; i < rangeIndex[1]; i++) {
-                        int index = i % range.max;
-                        paint.setStyle(Paint.Style.STROKE);
-                        paint.setColor(oldColor);
-
-                        if (startX > boundingBox.left && startX  < boundingBox.right) canvas.drawLine(startX, lineTop, startX, lineBottom, paint);
-                        String text = getRangeTextForIndex(range, index);
-
-                        if (startX < boundingBox.right && startX + elementSize > boundingBox.left) {
-                            paint.setStyle(Paint.Style.FILL);
-                            paint.setColor(primaryColor);
-                            paint.setTextSize(Math.min(getTextSizeForWidth(paint, text, elementSize - strokeWidth * 2), minTextSize));
-                            paint.setTextAlign(Paint.Align.CENTER);
-                            canvas.drawText(text, startX + elementSize * 0.5f, (y - ((paint.descent() + paint.ascent()) * 0.5f)), paint);
-                        }
-                        startX += elementSize;
-                    }
-
-                    paint.setStyle(Paint.Style.STROKE);
-                    paint.setColor(oldColor);
-                    canvas.restore();
-                }
-                else {
-                    float lineLeft = boundingBox.left + strokeWidth * 0.5f;
-                    float lineRight = boundingBox.right - strokeWidth * 0.5f;
-                    float startY = boundingBox.top;
-                    canvas.drawRoundRect(boundingBox.left, startY, boundingBox.right, boundingBox.bottom, radius, radius, paint);
-
-                    canvas.save();
-                    path.addRoundRect(boundingBox.left, startY, boundingBox.right, boundingBox.bottom, radius, radius, Path.Direction.CW);
-                    canvas.clipPath(inputControlsView.getPath());
-                    startY -= scrollOffset % elementSize;
-
-                    for (byte i = rangeIndex[0]; i < rangeIndex[1]; i++) {
-                        paint.setStyle(Paint.Style.STROKE);
-                        paint.setColor(oldColor);
-
-                        if (startY > boundingBox.top && startY < boundingBox.bottom) canvas.drawLine(lineLeft, startY, lineRight, startY, paint);
-                        String text = getRangeTextForIndex(range, i);
-
-                        if (startY < boundingBox.bottom && startY + elementSize > boundingBox.top) {
-                            paint.setStyle(Paint.Style.FILL);
-                            paint.setColor(primaryColor);
-                            paint.setTextSize(Math.min(getTextSizeForWidth(paint, text, boundingBox.width() - strokeWidth * 2), minTextSize));
-                            paint.setTextAlign(Paint.Align.CENTER);
-                            canvas.drawText(text, x, startY + elementSize * 0.5f - ((paint.descent() + paint.ascent()) * 0.5f), paint);
-                        }
-                        startY += elementSize;
-                    }
-
-                    paint.setStyle(Paint.Style.STROKE);
-                    paint.setColor(oldColor);
-                    canvas.restore();
-                }
-                break;
+        static {
+            int[] iArr = new int[Range.values().length];
+            $SwitchMap$com$winlator$inputcontrols$ControlElement$Range = iArr;
+            try {
+                iArr[Range.FROM_A_TO_Z.ordinal()] = 1;
+            } catch (NoSuchFieldError e) {
             }
-            case STICK: {
-                int cx = boundingBox.centerX();
-                int cy = boundingBox.centerY();
-                int oldColor = paint.getColor();
-                canvas.drawCircle(cx, cy, boundingBox.height() * 0.5f, paint);
-
-                float thumbstickX = currentPosition != null ? currentPosition.x : cx;
-                float thumbstickY = currentPosition != null ? currentPosition.y : cy;
-
-                short thumbRadius = (short) (snappingSize * 3.5f * scale);
-                paint.setStyle(Paint.Style.FILL);
-                paint.setColor(ColorUtils.setAlphaComponent(primaryColor, 50));
-                canvas.drawCircle(thumbstickX, thumbstickY, thumbRadius, paint);
-
-                paint.setStyle(Paint.Style.STROKE);
-                paint.setColor(oldColor);
-                canvas.drawCircle(thumbstickX, thumbstickY, thumbRadius + strokeWidth * 0.5f, paint);
-                break;
+            try {
+                $SwitchMap$com$winlator$inputcontrols$ControlElement$Range[Range.FROM_0_TO_9.ordinal()] = 2;
+            } catch (NoSuchFieldError e2) {
             }
-            case TRACKPAD: {
-                float radius = boundingBox.height() * 0.15f;
-                canvas.drawRoundRect(boundingBox.left, boundingBox.top, boundingBox.right, boundingBox.bottom, radius, radius, paint);
-                float offset = strokeWidth * 2.5f;
-                float innerStrokeWidth = strokeWidth * 2;
-                float innerHeight = boundingBox.height() - offset * 2;
-                radius = (innerHeight / boundingBox.height()) * radius - (innerStrokeWidth * 0.5f + strokeWidth * 0.5f);
-                paint.setStrokeWidth(innerStrokeWidth);
-                canvas.drawRoundRect(boundingBox.left + offset, boundingBox.top + offset, boundingBox.right - offset, boundingBox.bottom - offset, radius, radius, paint);
-                break;
+            try {
+                $SwitchMap$com$winlator$inputcontrols$ControlElement$Range[Range.FROM_F1_TO_F12.ordinal()] = 3;
+            } catch (NoSuchFieldError e3) {
+            }
+            try {
+                $SwitchMap$com$winlator$inputcontrols$ControlElement$Range[Range.FROM_NP0_TO_NP9.ordinal()] = 4;
+            } catch (NoSuchFieldError e4) {
+            }
+            int[] iArr2 = new int[Shape.values().length];
+            $SwitchMap$com$winlator$inputcontrols$ControlElement$Shape = iArr2;
+            try {
+                iArr2[Shape.RECT.ordinal()] = 1;
+            } catch (NoSuchFieldError e5) {
+            }
+            try {
+                $SwitchMap$com$winlator$inputcontrols$ControlElement$Shape[Shape.ROUND_RECT.ordinal()] = 2;
+            } catch (NoSuchFieldError e6) {
+            }
+            try {
+                $SwitchMap$com$winlator$inputcontrols$ControlElement$Shape[Shape.SQUARE.ordinal()] = 3;
+            } catch (NoSuchFieldError e7) {
+            }
+            try {
+                $SwitchMap$com$winlator$inputcontrols$ControlElement$Shape[Shape.CIRCLE.ordinal()] = 4;
+            } catch (NoSuchFieldError e8) {
+            }
+            int[] iArr3 = new int[Type.values().length];
+            $SwitchMap$com$winlator$inputcontrols$ControlElement$Type = iArr3;
+            try {
+                iArr3[Type.D_PAD.ordinal()] = 1;
+            } catch (NoSuchFieldError e9) {
+            }
+            try {
+                $SwitchMap$com$winlator$inputcontrols$ControlElement$Type[Type.STICK.ordinal()] = 2;
+            } catch (NoSuchFieldError e10) {
+            }
+            try {
+                $SwitchMap$com$winlator$inputcontrols$ControlElement$Type[Type.TRACKPAD.ordinal()] = 3;
+            } catch (NoSuchFieldError e11) {
+            }
+            try {
+                $SwitchMap$com$winlator$inputcontrols$ControlElement$Type[Type.RANGE_BUTTON.ordinal()] = 4;
+            } catch (NoSuchFieldError e12) {
+            }
+            try {
+                $SwitchMap$com$winlator$inputcontrols$ControlElement$Type[Type.MIDI_KEY.ordinal()] = 5;
+            } catch (NoSuchFieldError e13) {
+            }
+            try {
+                $SwitchMap$com$winlator$inputcontrols$ControlElement$Type[Type.RADIAL_MENU.ordinal()] = 6;
+            } catch (NoSuchFieldError e14) {
+            }
+            try {
+                $SwitchMap$com$winlator$inputcontrols$ControlElement$Type[Type.BUTTON.ordinal()] = 7;
+            } catch (NoSuchFieldError e15) {
             }
         }
     }
 
-    private void drawIcon(Canvas canvas, float cx, float cy, float width, float height, int iconId) {
-        Paint paint = inputControlsView.getPaint();
-        Bitmap icon = inputControlsView.getIcon((byte)iconId);
-        paint.setColorFilter(inputControlsView.getColorFilter());
-        int margin = (int)(inputControlsView.getSnappingSize() * (shape == Shape.CIRCLE || shape == Shape.SQUARE ? 2.0f : 1.0f) * scale);
-        int halfSize = (int)((Math.min(width, height) - margin) * 0.5f);
+    private static Binding getRangeBindingForIndex(Range range, int index) {
+        switch (AnonymousClass1.$SwitchMap$com$winlator$inputcontrols$ControlElement$Range[range.ordinal()]) {
+            case 1:
+                return Binding.valueOf("KEY_" + ((char) (index + 65)));
+            case 2:
+                return Binding.valueOf("KEY_" + ((index + 1) % 10));
+            case 3:
+                return Binding.valueOf("KEY_F" + (index + 1));
+            case 4:
+                return Binding.valueOf("KEY_KP_" + ((index + 1) % 10));
+            default:
+                return Binding.NONE;
+        }
+    }
 
+    private static String getRangeTextForIndex(Range range, int index) {
+        switch (AnonymousClass1.$SwitchMap$com$winlator$inputcontrols$ControlElement$Range[range.ordinal()]) {
+            case 1:
+                return String.valueOf((char) (index + 65));
+            case 2:
+                return String.valueOf((index + 1) % 10);
+            case 3:
+                return "F" + (index + 1);
+            case 4:
+                return "NP" + ((index + 1) % 10);
+            default:
+                return "";
+        }
+    }
+
+    /* JADX WARN: Removed duplicated region for block: B:119:0x06b6  */
+    /* JADX WARN: Removed duplicated region for block: B:132:0x0727  */
+    /* JADX WARN: Removed duplicated region for block: B:83:0x0558  */
+    /* JADX WARN: Removed duplicated region for block: B:96:0x05cb  */
+    /*
+        Code decompiled incorrectly, please refer to instructions dump.
+        To view partially-correct add '--show-bad-code' argument
+    */
+    public void draw(android.graphics.Canvas r48) {
+        /*
+            Method dump skipped, instruction units count: 2302
+            To view this dump add '--comments-level debug' option
+        */
+        throw new UnsupportedOperationException("Method not decompiled: com.winlator.inputcontrols.ControlElement.draw(android.graphics.Canvas):void");
+    }
+
+    private void drawIcon(Canvas canvas, float cx, float cy, float width, float height, int iconId, boolean automargin) {
+        int margin;
+        Paint paint = this.inputControlsView.getPaint();
+        Bitmap icon = this.inputControlsView.getIcon((byte) iconId);
+        paint.setColorFilter(this.propertyFlags.isSet(2) ? this.inputControlsView.getDarkColorFilter() : this.inputControlsView.getLightColorFilter());
+        float snappingSize = this.inputControlsView.getSnappingSize();
+        if (automargin) {
+            Shape shape = this.shape;
+            margin = (int) (((shape == Shape.CIRCLE || shape == Shape.SQUARE) ? 2.0f : 1.0f) * snappingSize * this.scale);
+        } else {
+            margin = 0;
+        }
+        int halfSize = (int) ((Math.min(width, height) - margin) * 0.5f);
         Rect srcRect = new Rect(0, 0, icon.getWidth(), icon.getHeight());
-        Rect dstRect = new Rect((int)(cx - halfSize), (int)(cy - halfSize), (int)(cx + halfSize), (int)(cy + halfSize));
+        Rect dstRect = new Rect((int) (cx - halfSize), (int) (cy - halfSize), (int) (halfSize + cx), (int) (cy + halfSize));
         canvas.drawBitmap(icon, srcRect, dstRect, paint);
         paint.setColorFilter(null);
     }
 
     public JSONObject toJSONObject() {
+        Range range;
         try {
             JSONObject elementJSONObject = new JSONObject();
-            elementJSONObject.put("type", type.name());
-            elementJSONObject.put("shape", shape.name());
-
+            elementJSONObject.put("type", this.type.name());
+            elementJSONObject.put("shape", this.shape.name());
             JSONArray bindingsJSONArray = new JSONArray();
-            for (Binding binding : bindings) bindingsJSONArray.put(binding.name());
-
+            for (Binding binding : this.bindings) {
+                bindingsJSONArray.put(binding.name());
+            }
             elementJSONObject.put("bindings", bindingsJSONArray);
-            elementJSONObject.put("scale", Float.valueOf(scale));
-            elementJSONObject.put("x", (float)x / inputControlsView.getMaxWidth());
-            elementJSONObject.put("y", (float)y / inputControlsView.getMaxHeight());
-            elementJSONObject.put("toggleSwitch", toggleSwitch);
-            elementJSONObject.put("text", text);
-            elementJSONObject.put("iconId", iconId);
-
-            if (type == Type.RANGE_BUTTON && range != null) {
+            elementJSONObject.put("scale", Float.valueOf(this.scale));
+            float f = this.opacity;
+            if (f < 1.0f) {
+                elementJSONObject.put("opacity", Float.valueOf(f));
+            }
+            elementJSONObject.put("x", this.x / this.inputControlsView.getMaxWidth());
+            elementJSONObject.put("y", this.y / this.inputControlsView.getMaxHeight());
+            elementJSONObject.put("toggleSwitch", this.propertyFlags.isSet(8));
+            elementJSONObject.put("text", this.text);
+            elementJSONObject.put("iconId", this.iconId);
+            if (this.type == Type.RANGE_BUTTON && (range = this.range) != null) {
                 elementJSONObject.put("range", range.name());
-                if (orientation != 0) elementJSONObject.put("orientation", orientation);
+                int i = this.orientation;
+                if (i != 0) {
+                    elementJSONObject.put("orientation", i);
+                }
+            }
+            if (this.propertyFlags.isSet(32)) {
+                elementJSONObject.put("mouseMoveMode", true);
             }
             return elementJSONObject;
-        }
-        catch (JSONException e) {
+        } catch (JSONException e) {
             return null;
         }
     }
 
     public boolean containsPoint(float x, float y) {
-        return getBoundingBox().contains((int)(x + 0.5f), (int)(y + 0.5f));
+        if (this.type == Type.RADIAL_MENU && this.propertyFlags.isSet(4)) {
+            float outerRadius = this.boundingBox.width() + (this.inputControlsView.getSnappingSize() * this.scale);
+            return Mathf.distance((float) this.boundingBox.centerX(), (float) this.boundingBox.centerY(), x, y) < outerRadius;
+        }
+        return getBoundingBox().contains((int) (x + 0.5f), (int) (0.5f + y));
     }
 
     private boolean isKeepButtonPressedAfterMinTime() {
         Binding binding = getBindingAt(0);
-        return !toggleSwitch && (binding == Binding.GAMEPAD_BUTTON_L3 || binding == Binding.GAMEPAD_BUTTON_R3);
+        if (this.propertyFlags.isSet(8)) {
+            return false;
+        }
+        return binding == Binding.GAMEPAD_BUTTON_L3 || binding == Binding.GAMEPAD_BUTTON_R3;
     }
 
     public boolean handleTouchDown(int pointerId, float x, float y) {
-        if (currentPointerId == -1 && containsPoint(x, y)) {
-            currentPointerId = pointerId;
-            if (type == Type.BUTTON) {
-                if (isKeepButtonPressedAfterMinTime()) touchTime = System.currentTimeMillis();
-                if (!toggleSwitch || !selected) inputControlsView.handleInputEvent(getBindingAt(0), true);
-                return true;
-            }
-            else if (type == Type.RANGE_BUTTON) {
-                scroller.handleTouchDown(x, y);
-                return true;
-            }
-            else {
-                if (type == Type.TRACKPAD) {
-                    if (currentPosition == null) currentPosition = new PointF();
-                    currentPosition.set(x, y);
-                }
-                return handleTouchMove(pointerId, x, y);
-            }
+        if (this.currentPointerId != -1 || !containsPoint(x, y)) {
+            return false;
         }
-        else return false;
+        this.currentPointerId = pointerId;
+        Type type = this.type;
+        if (type == Type.BUTTON) {
+            if (isKeepButtonPressedAfterMinTime()) {
+                this.touchTime = Long.valueOf(System.currentTimeMillis());
+            }
+            if (!this.propertyFlags.isSet(8) || !this.propertyFlags.isSet(1)) {
+                this.inputControlsView.handleInputEvent(this.bindings, true);
+            }
+            if (this.propertyFlags.isSet(32)) {
+                this.inputControlsView.getTouchpadView().mouseMove(x, y, 0);
+            }
+            this.propertyFlags.set(2);
+            this.inputControlsView.invalidate();
+            return true;
+        }
+        if (type == Type.RANGE_BUTTON) {
+            this.scroller.handleTouchDown(x, y);
+            this.propertyFlags.set(2);
+            this.inputControlsView.invalidate();
+            return true;
+        }
+        if (type == Type.MIDI_KEY) {
+            WinHandler winHandler = this.inputControlsView.getXServer().getWinHandler();
+            if (winHandler != null) {
+                byte note = (byte) (MIDIHandler.parseNoteNumber(this.text) + 12);
+                winHandler.getMIDIhandler().sendShortMsg((byte) -112, (byte) 0, note, (byte) 127);
+                this.propertyFlags.set(2);
+                this.inputControlsView.invalidate();
+            }
+            return true;
+        }
+        if (type == Type.RADIAL_MENU) {
+            if (!this.propertyFlags.isSet(4)) {
+                this.propertyFlags.set(4);
+            } else if (Mathf.distance(this.boundingBox.centerX(), this.boundingBox.centerY(), x, y) < this.boundingBox.width() * 0.5f) {
+                this.propertyFlags.unset(4);
+            }
+            this.inputControlsView.invalidate();
+            return true;
+        }
+        if (type == Type.TRACKPAD) {
+            if (this.currentPosition == null) {
+                this.currentPosition = new PointF();
+            }
+            this.currentPosition.set(x, y);
+        }
+        return handleTouchMove(pointerId, x, y);
     }
 
     public boolean handleTouchMove(int pointerId, float x, float y) {
-        if (pointerId == currentPointerId && (type == Type.D_PAD || type == Type.STICK || type == Type.TRACKPAD)) {
-            float deltaX, deltaY;
-            Rect boundingBox = getBoundingBox();
-            float radius = boundingBox.width() * 0.5f;
-            TouchpadView touchpadView =  inputControlsView.getTouchpadView();
-
-            if (type == Type.TRACKPAD) {
-                if (currentPosition == null) currentPosition = new PointF();
-                float[] deltaPoint = touchpadView.computeDeltaPoint(currentPosition.x, currentPosition.y, x, y);
-                deltaX = deltaPoint[0];
-                deltaY = deltaPoint[1];
-                currentPosition.set(x, y);
-            }
-            else {
-                float localX = x - boundingBox.left;
-                float localY = y - boundingBox.top;
-                float offsetX = localX - radius;
-                float offsetY = localY - radius;
-
-                float distance = Mathf.lengthSq(radius - localX, radius - localY);
-                if (distance > radius * radius) {
-                    float angle = (float)Math.atan2(offsetY, offsetX);
-                    offsetX = (float)(Math.cos(angle) * radius);
-                    offsetY = (float)(Math.sin(angle) * radius);
+        Type type;
+        float offsetX;
+        float offsetY;
+        Rect boundingBox;
+        float radius;
+        TouchpadView touchpadView;
+        int i = this.currentPointerId;
+        if (pointerId == i && ((type = this.type) == Type.D_PAD || type == Type.STICK || type == Type.TRACKPAD)) {
+            Rect boundingBox2 = getBoundingBox();
+            float radius2 = boundingBox2.width() * 0.5f;
+            TouchpadView touchpadView2 = this.inputControlsView.getTouchpadView();
+            Type type2 = this.type;
+            Type type3 = Type.TRACKPAD;
+            if (type2 == type3) {
+                if (this.currentPosition == null) {
+                    this.currentPosition = new PointF();
                 }
-
-                deltaX = Mathf.clamp(offsetX / radius, -1, 1);
-                deltaY = Mathf.clamp(offsetY / radius, -1, 1);
+                PointF pointF = this.currentPosition;
+                float[] deltaPoint = touchpadView2.computeDeltaPoint(pointF.x, pointF.y, x, y);
+                offsetX = deltaPoint[0];
+                offsetY = deltaPoint[1];
+                this.currentPosition.set(x, y);
+            } else {
+                float localX = x - boundingBox2.left;
+                float localY = y - boundingBox2.top;
+                float offsetX2 = localX - radius2;
+                float offsetY2 = localY - radius2;
+                float distance = Mathf.lengthSq(radius2 - localX, radius2 - localY);
+                if (distance > radius2 * radius2) {
+                    float angle = (float) Math.atan2(offsetY2, offsetX2);
+                    radius2 = radius2;
+                    offsetX2 = (float) (Math.cos(angle) * ((double) radius2));
+                    offsetY2 = (float) (Math.sin(angle) * ((double) radius2));
+                }
+                float deltaX = Mathf.clamp(offsetX2 / radius2, -1.0f, 1.0f);
+                offsetX = deltaX;
+                offsetY = Mathf.clamp(offsetY2 / radius2, -1.0f, 1.0f);
             }
-
-            if (type == Type.STICK) {
-                if (currentPosition == null) currentPosition = new PointF();
-                currentPosition.x = boundingBox.left + deltaX * radius + radius;
-                currentPosition.y = boundingBox.top + deltaY * radius + radius;
-                final boolean[] states = {deltaY <= -STICK_DEAD_ZONE, deltaX >= STICK_DEAD_ZONE, deltaY >= STICK_DEAD_ZONE, deltaX <= -STICK_DEAD_ZONE};
-
-                for (byte i = 0; i < 4; i++) {
-                    float value = i == 1 || i == 3 ? deltaX : deltaY;
-                    Binding binding = getBindingAt(i);
+            Type type4 = this.type;
+            float f = 3.0f;
+            byte b = 3;
+            if (type4 == Type.STICK) {
+                if (this.currentPosition == null) {
+                    this.currentPosition = new PointF();
+                }
+                PointF pointF2 = this.currentPosition;
+                pointF2.x = boundingBox2.left + (offsetX * radius2) + radius2;
+                pointF2.y = boundingBox2.top + (offsetY * radius2) + radius2;
+                boolean[] states = new boolean[4];
+                states[0] = offsetY <= -0.15f;
+                states[1] = offsetX >= 0.15f;
+                states[2] = offsetY >= 0.15f;
+                states[3] = offsetX <= -0.15f;
+                byte i2 = 0;
+                for (byte b2 = 4; i2 < b2; b2 = 4) {
+                    float value = (i2 == 1 || i2 == b) ? offsetX : offsetY;
+                    Binding binding = getBindingAt(i2);
                     if (binding.isGamepad()) {
-                        value = Mathf.clamp(Math.max(0, Math.abs(value) - 0.01f) * Mathf.sign(value) * STICK_SENSITIVITY, -1, 1);
-                        inputControlsView.handleInputEvent(binding, true, value);
-                        this.states[i] = true;
+                        this.inputControlsView.handleInputEvent(binding, true, Mathf.clamp(Math.max(0.0f, Math.abs(value) - 0.01f) * Mathf.sign(value) * f, -1.0f, 1.0f));
+                        this.states[i2] = true;
+                    } else {
+                        boolean state = binding.isMouseMove() ? states[i2] || states[(i2 + 2) % 4] : states[i2];
+                        this.inputControlsView.handleInputEvent(binding, state, value);
+                        this.states[i2] = state;
                     }
-                    else {
-                        boolean state = binding.isMouseMove() ? (states[i] || states[(i+2)%4]) : states[i];
-                        inputControlsView.handleInputEvent(binding, state, value);
-                        this.states[i] = state;
-                    }
+                    i2 = (byte) (i2 + 1);
+                    f = 3.0f;
+                    b = 3;
                 }
-
-                inputControlsView.invalidate();
+                this.inputControlsView.invalidate();
+                return true;
             }
-            else if (type == Type.TRACKPAD) {
-                final boolean[] states = {deltaY <= -TRACKPAD_MIN_SPEED, deltaX >= TRACKPAD_MIN_SPEED, deltaY >= TRACKPAD_MIN_SPEED, deltaX <= -TRACKPAD_MIN_SPEED};
+            if (type4 == type3) {
+                boolean[] states2 = new boolean[4];
+                states2[0] = offsetY <= -0.8f;
+                states2[1] = offsetX >= 0.8f;
+                states2[2] = offsetY >= 0.8f;
+                states2[3] = offsetX <= -0.8f;
                 int cursorDx = 0;
                 int cursorDy = 0;
-
-                for (byte i = 0; i < 4; i++) {
-                    float value = (i == 1 || i == 3 ? deltaX : deltaY);
-                    Binding binding = getBindingAt(i);
-                    if (binding.isGamepad()) {
-                        if (interpolator == null) interpolator = new CubicBezierInterpolator();
-                        if (Math.abs(value) > TRACKPAD_ACCELERATION_THRESHOLD) value *= STICK_SENSITIVITY;
-                        interpolator.set(0.075f, 0.95f, 0.45f, 0.95f);
-                        float interpolatedValue = interpolator.getInterpolation(Math.min(1.0f, Math.abs(value / TRACKPAD_MAX_SPEED)));
-                        inputControlsView.handleInputEvent(binding, true, Mathf.clamp(interpolatedValue * Mathf.sign(value), -1, 1));
-                        this.states[i] = true;
+                byte i3 = 0;
+                while (i3 < 4) {
+                    float value2 = (i3 == 1 || i3 == 3) ? offsetX : offsetY;
+                    Binding binding2 = getBindingAt(i3);
+                    if (binding2.isGamepad()) {
+                        if (this.interpolator == null) {
+                            this.interpolator = new CubicBezierInterpolator();
+                        }
+                        if (Math.abs(value2) > 4.0f) {
+                            value2 *= 3.0f;
+                        }
+                        boundingBox = boundingBox2;
+                        radius = radius2;
+                        touchpadView = touchpadView2;
+                        this.interpolator.set(0.075f, 0.95f, 0.45f, 0.95f);
+                        float interpolatedValue = this.interpolator.getInterpolation(Math.min(1.0f, Math.abs(value2 / 20.0f)));
+                        this.inputControlsView.handleInputEvent(binding2, true, Mathf.clamp(Mathf.sign(value2) * interpolatedValue, -1.0f, 1.0f));
+                        this.states[i3] = true;
+                    } else {
+                        boundingBox = boundingBox2;
+                        radius = radius2;
+                        touchpadView = touchpadView2;
+                        if (Math.abs(value2) > 6.0f) {
+                            value2 *= 1.5f;
+                        }
+                        if (binding2 == Binding.MOUSE_MOVE_LEFT || binding2 == Binding.MOUSE_MOVE_RIGHT) {
+                            int cursorDy2 = Mathf.roundPoint(value2);
+                            cursorDx = cursorDy2;
+                        } else if (binding2 == Binding.MOUSE_MOVE_UP || binding2 == Binding.MOUSE_MOVE_DOWN) {
+                            cursorDy = Mathf.roundPoint(value2);
+                        } else {
+                            this.inputControlsView.handleInputEvent(binding2, states2[i3], value2);
+                            this.states[i3] = states2[i3];
+                        }
                     }
-                    else {
-                        if (Math.abs(value) > TouchpadView.CURSOR_ACCELERATION_THRESHOLD) value *= TouchpadView.CURSOR_ACCELERATION;
-                        if (binding == Binding.MOUSE_MOVE_LEFT || binding == Binding.MOUSE_MOVE_RIGHT) {
-                            cursorDx = Mathf.roundPoint(value);
-                        }
-                        else if (binding == Binding.MOUSE_MOVE_UP || binding == Binding.MOUSE_MOVE_DOWN) {
-                            cursorDy = Mathf.roundPoint(value);
-                        }
-                        else {
-                            inputControlsView.handleInputEvent(binding, states[i], value);
-                            this.states[i] = states[i];
-                        }
-                    }
+                    i3 = (byte) (i3 + 1);
+                    boundingBox2 = boundingBox;
+                    radius2 = radius;
+                    touchpadView2 = touchpadView;
                 }
-
-                if (cursorDx != 0 || cursorDy != 0) inputControlsView.getXServer().injectPointerMoveDelta(cursorDx, cursorDy);
-            }
-            else {
-                final boolean[] states = {deltaY <= -DPAD_DEAD_ZONE, deltaX >= DPAD_DEAD_ZONE, deltaY >= DPAD_DEAD_ZONE, deltaX <= -DPAD_DEAD_ZONE};
-
-                for (byte i = 0; i < 4; i++) {
-                    float value = i == 1 || i == 3 ? deltaX : deltaY;
-                    Binding binding = getBindingAt(i);
-                    boolean state = binding.isMouseMove() ? (states[i] || states[(i+2)%4]) : states[i];
-                    inputControlsView.handleInputEvent(binding, state, value);
-                    this.states[i] = state;
+                if (cursorDx != 0 || cursorDy != 0) {
+                    this.inputControlsView.getXServer().injectPointerMoveDelta(cursorDx, cursorDy);
+                    return true;
                 }
+                return true;
             }
-
+            boolean[] states3 = new boolean[4];
+            states3[0] = offsetY <= -0.3f;
+            states3[1] = offsetX >= 0.3f;
+            states3[2] = offsetY >= 0.3f;
+            states3[3] = offsetX <= -0.3f;
+            byte i4 = 0;
+            while (i4 < 4) {
+                float value3 = (i4 == 1 || i4 == 3) ? offsetX : offsetY;
+                Binding binding3 = getBindingAt(i4);
+                boolean state2 = binding3.isMouseMove() ? states3[i4] || states3[(i4 + 2) % 4] : states3[i4];
+                this.inputControlsView.handleInputEvent(binding3, state2, value3);
+                this.states[i4] = state2;
+                i4 = (byte) (i4 + 1);
+            }
             return true;
         }
-        else if (pointerId == currentPointerId && type == Type.RANGE_BUTTON) {
-            scroller.handleTouchMove(x, y);
+        if (pointerId == i && this.type == Type.RANGE_BUTTON) {
+            this.scroller.handleTouchMove(x, y);
+            if (this.scroller.isScrolling()) {
+                this.propertyFlags.unset(2);
+                this.inputControlsView.invalidate();
+                return true;
+            }
             return true;
         }
-        else return false;
-    }
-
-    public boolean handleTouchUp(int pointerId) {
-        if (pointerId == currentPointerId) {
-            if (type == Type.BUTTON) {
-                Binding binding = getBindingAt(0);
-                if (isKeepButtonPressedAfterMinTime() && touchTime != null) {
-                    selected = (System.currentTimeMillis() - (long)touchTime) > BUTTON_MIN_TIME_TO_KEEP_PRESSED;
-                    if (!selected) inputControlsView.handleInputEvent(binding, false);
-                    touchTime = null;
-                    inputControlsView.invalidate();
-                }
-                else if (!toggleSwitch || selected) inputControlsView.handleInputEvent(binding, false);
-
-                if (toggleSwitch) {
-                    selected = !selected;
-                    inputControlsView.invalidate();
-                }
-            }
-            else if (type == Type.RANGE_BUTTON || type == Type.D_PAD || type == Type.STICK || type == Type.TRACKPAD) {
-                for (byte i = 0; i < states.length; i++) {
-                    if (states[i]) inputControlsView.handleInputEvent(getBindingAt(i), false);
-                    states[i] = false;
-                }
-
-                if (type == Type.RANGE_BUTTON) {
-                    scroller.handleTouchUp();
-                }
-                else if (type == Type.STICK) {
-                    inputControlsView.invalidate();
-                }
-
-                if (currentPosition != null) currentPosition = null;
-            }
-            currentPointerId = -1;
+        if (pointerId == i && this.type == Type.BUTTON && this.propertyFlags.isSet(32)) {
+            this.inputControlsView.getTouchpadView().mouseMove(x, y, 2);
             return true;
         }
         return false;
+    }
+
+    public boolean handleTouchUp(int pointerId, float x, float y) {
+        if (pointerId != this.currentPointerId) {
+            return false;
+        }
+        Type type = this.type;
+        if (type == Type.BUTTON) {
+            boolean selected = this.propertyFlags.isSet(1);
+            if (isKeepButtonPressedAfterMinTime() && this.touchTime != null) {
+                selected = System.currentTimeMillis() - ((Long) this.touchTime).longValue() > 300;
+                if (!selected) {
+                    this.inputControlsView.handleInputEvent(this.bindings, false);
+                }
+                this.propertyFlags.set(1, selected);
+                this.touchTime = null;
+            } else if (!this.propertyFlags.isSet(8) || this.propertyFlags.isSet(1)) {
+                this.inputControlsView.handleInputEvent(this.bindings, false);
+            }
+            if (this.propertyFlags.isSet(8)) {
+                this.propertyFlags.set(1, selected ? false : true);
+            }
+            if (this.propertyFlags.isSet(32)) {
+                this.inputControlsView.getTouchpadView().mouseMove(0.0f, 0.0f, 1);
+            }
+            this.propertyFlags.unset(2);
+            this.inputControlsView.invalidate();
+        } else if (type == Type.MIDI_KEY) {
+            WinHandler winHandler = this.inputControlsView.getXServer().getWinHandler();
+            if (winHandler != null) {
+                byte note = (byte) (MIDIHandler.parseNoteNumber(this.text) + 12);
+                winHandler.getMIDIhandler().sendShortMsg((byte) -128, (byte) 0, note, (byte) 127);
+                this.propertyFlags.unset(2);
+                this.inputControlsView.invalidate();
+            }
+        } else if (type == Type.RADIAL_MENU) {
+            if (this.propertyFlags.isSet(4)) {
+                handleRadialMenuClick(x, y);
+            }
+            this.inputControlsView.invalidate();
+        } else if (type == Type.RANGE_BUTTON || type == Type.D_PAD || type == Type.STICK || type == Type.TRACKPAD) {
+            byte i = 0;
+            while (true) {
+                boolean[] zArr = this.states;
+                if (i >= zArr.length) {
+                    break;
+                }
+                if (zArr[i]) {
+                    this.inputControlsView.handleInputEvent(getBindingAt(i), false);
+                }
+                this.states[i] = false;
+                i = (byte) (i + 1);
+            }
+            Type type2 = this.type;
+            if (type2 == Type.RANGE_BUTTON) {
+                this.scroller.handleTouchUp();
+                this.propertyFlags.unset(2);
+                this.inputControlsView.invalidate();
+            } else if (type2 == Type.STICK) {
+                this.inputControlsView.invalidate();
+            }
+            if (this.currentPosition != null) {
+                this.currentPosition = null;
+            }
+        }
+        this.currentPointerId = -1;
+        return true;
+    }
+
+    private void handleRadialMenuClick(float x, float y) {
+        final ControlElement controlElement;
+        int snappingSize;
+        Binding clickedBinding;
+        int i;
+        float outerRadius;
+        char c;
+        ControlElement controlElement2;
+        float f;
+        ControlElement controlElement3 = this;
+        float f2 = x;
+        int snappingSize2 = controlElement3.inputControlsView.getSnappingSize();
+        float cx = controlElement3.boundingBox.centerX();
+        float cy = controlElement3.boundingBox.centerY();
+        float innerRadius = (controlElement3.boundingBox.width() * 0.5f) + (snappingSize2 * 0.5f);
+        float outerRadius2 = controlElement3.boundingBox.width() + (snappingSize2 * controlElement3.scale);
+        float startAngle = 0.0f;
+        Binding clickedBinding2 = Binding.NONE;
+        int i2 = 0;
+        int j = 0;
+        while (true) {
+            if (i2 > controlElement3.bindings.length) {
+                controlElement = controlElement3;
+                break;
+            }
+            float t = (float) i2 / controlElement3.bindings.length;
+            float outerRadius3 = outerRadius2;
+            float endAngle = (float) ((((double) t) * 3.141592653589793d * 2.0d) + 4.71238898038469d);
+            if (i2 <= 0) {
+                snappingSize = snappingSize2;
+                clickedBinding = clickedBinding2;
+                i = i2;
+                outerRadius = outerRadius3;
+                c = 0;
+                controlElement2 = controlElement3;
+                f = f2;
+            } else {
+                float middleAngle = (startAngle + endAngle) * 0.5f;
+                snappingSize = snappingSize2;
+                float touchAreaCenter = (innerRadius + outerRadius3) * 0.5f;
+                clickedBinding = clickedBinding2;
+                i = i2;
+                float touchAreaX = (short) (((double) cx) + (Math.cos(middleAngle) * ((double) touchAreaCenter)));
+                float touchAreaY = (short) (((double) cy) + (Math.sin(middleAngle) * ((double) touchAreaCenter)));
+                float lineAx = (float) (((double) cx) + (Math.cos(startAngle) * ((double) touchAreaCenter)));
+                float lineAy = (float) (((double) cy) + (Math.sin(startAngle) * ((double) touchAreaCenter)));
+                int j2 = j;
+                float lineBx = (float) (((double) cx) + (Math.cos(endAngle) * ((double) touchAreaCenter)));
+                outerRadius = outerRadius3;
+                float lineBy = (float) (((double) cy) + (Math.sin(endAngle) * ((double) touchAreaCenter)));
+                f = x;
+                c = 0;
+                if (Mathf.distance(touchAreaX, touchAreaY, f, y) > Mathf.distance(lineAx, lineAy, lineBx, lineBy) * 0.5f || Mathf.distance(cx, cy, f, y) <= innerRadius || Mathf.distance(cx, cy, f, y) > outerRadius) {
+                    controlElement2 = this;
+                    j = j2 + 1;
+                } else {
+                    controlElement = this;
+                    Binding clickedBinding3 = controlElement.bindings[j2];
+                    clickedBinding2 = clickedBinding3;
+                    break;
+                }
+            }
+            startAngle = endAngle;
+            f2 = f;
+            snappingSize2 = snappingSize;
+            clickedBinding2 = clickedBinding;
+            outerRadius2 = outerRadius;
+            i2 = i + 1;
+            controlElement3 = controlElement2;
+        }
+        if (clickedBinding2 != Binding.NONE) {
+            controlElement.propertyFlags.unset(4);
+            final Binding finalBinding = clickedBinding2;
+            controlElement.inputControlsView.handleInputEvent(finalBinding, true);
+            controlElement.inputControlsView.postDelayed(() -> lambda_handleRadialMenuClick_0(finalBinding), 30L);
+        }
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public /* synthetic */ void lambda_handleRadialMenuClick_0(Binding finalBinding) {
+        this.inputControlsView.handleInputEvent(finalBinding, false);
+    }
+
+    public int getLightColor() {
+        float opacity = this.inputControlsView.isEditMode() ? Math.max(0.15f, this.opacity) : this.opacity;
+        return Color.argb((int) (this.inputControlsView.getOverlayOpacity() * opacity * 255.0f), 255, 255, 255);
+    }
+
+    public int getDarkColor() {
+        float opacity = this.inputControlsView.isEditMode() ? Math.max(0.15f, this.opacity) : this.opacity;
+        return Color.argb((int) (this.inputControlsView.getOverlayOpacity() * opacity * 255.0f), 0, 0, 0);
+    }
+
+    public int getHighlightColor() {
+        return Color.argb((int) (this.inputControlsView.getOverlayOpacity() * 255.0f), 2, 119, 189);
     }
 }

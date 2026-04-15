@@ -1,0 +1,22 @@
+# Build outputs
+/app/build/
+/build/
+.gradle/
+
+# IDE
+.idea/
+*.iml
+
+# Local config (machine-specific paths)
+local.properties
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Gradle
+gradle-wrapper.jar is committed intentionally
+
+# Ghidra project files (large, machine-specific)
+re/ghidra/project/
+re/ghidra/ghidra_install/

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout android:gravity="center_vertical" android:background="?panelBackground" android:layout_width="match_parent" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout android:orientation="vertical" android:paddingLeft="6.0dp" android:paddingTop="6.0dp" android:paddingBottom="6.0dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+        <TextView android:textStyle="bold" android:textColor="?colorAccent" android:id="@+id/TVTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:maxLines="1" />
+        <LinearLayout android:orientation="vertical" android:id="@+id/LLItemList" android:layout_width="match_parent" android:layout_height="wrap_content" />
+    </LinearLayout>
+    <ImageView android:layout_gravity="right|bottom" android:id="@+id/BTMenu" android:visibility="gone" android:layout_width="30.0dp" android:layout_height="30.0dp" android:layout_margin="3.0dp" android:src="@drawable/panel_corner_arrow" app:tint="?colorSecondaryVariant" />
+</FrameLayout>

@@ -1,88 +1,146 @@
 package com.winlator;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.winlator.container.ContainerManager;
+import com.winlator.BaseFileManagerFragment;
+import com.winlator.container.Container;
 import com.winlator.container.Shortcut;
 import com.winlator.contentdialog.ContentDialog;
+import com.winlator.contentdialog.CreateFolderDialog;
 import com.winlator.contentdialog.ShortcutSettingsDialog;
-
+import com.winlator.core.AppUtils;
+import com.winlator.core.ArrayUtils;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ShortcutsFragment extends Fragment {
-    private RecyclerView recyclerView;
-    private TextView emptyTextView;
-    private ContainerManager manager;
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
+/* JADX INFO: loaded from: classes.dex */
+public class ShortcutsFragment extends BaseFileManagerFragment<Shortcut> {
+    @Override // com.winlator.BaseFileManagerFragment, androidx.fragment.app.Fragment
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(false);
+        this.viewStyle = BaseFileManagerFragment.ViewStyle.valueOf(this.preferences.getString("shortcuts_view_style", "GRID"));
     }
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        manager = new ContainerManager(getContext());
-        loadShortcutsList();
-        ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle(R.string.shortcuts);
+    @Override // com.winlator.BaseFileManagerFragment
+    public void refreshContent() {
+        super.refreshContent();
+        Shortcut selectedFolder = !this.folderStack.isEmpty() ? (Shortcut) this.folderStack.peek() : null;
+        ArrayList<Shortcut> shortcuts = this.manager.loadShortcuts(selectedFolder);
+        this.recyclerView.setAdapter(new ShortcutsAdapter(shortcuts));
+        this.emptyTextView.setVisibility(shortcuts.isEmpty() ? 0 : 8);
     }
 
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        FrameLayout frameLayout = (FrameLayout)inflater.inflate(R.layout.shortcuts_fragment, container, false);
-        recyclerView = frameLayout.findViewById(R.id.RecyclerView);
-        emptyTextView = frameLayout.findViewById(R.id.TVEmptyText);
-        recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
-        recyclerView.addItemDecoration(new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL));
-        return frameLayout;
+    @Override // androidx.fragment.app.Fragment
+    public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
+        menuInflater.inflate(R.menu.shortcuts_menu, menu);
+        refreshViewStyleMenuItem(menu.findItem(R.id.menu_item_view_style));
     }
 
-    public void loadShortcutsList() {
-        ArrayList<Shortcut> shortcuts = manager.loadShortcuts();
-        recyclerView.setAdapter(new ShortcutsAdapter(shortcuts));
-        if (shortcuts.isEmpty()) emptyTextView.setVisibility(View.VISIBLE);
+    private void createFolder() {
+        clearClipboard();
+        if (this.manager.getContainers().isEmpty()) {
+            return;
+        }
+        CreateFolderDialog createFolderDialog = new CreateFolderDialog(this.manager);
+        createFolderDialog.setOnCreateFolderListener((container, str) -> lambda_createFolder_0(container, str));
+        createFolderDialog.show();
     }
 
-    private class ShortcutsAdapter extends RecyclerView.Adapter<ShortcutsAdapter.ViewHolder> {
+    /* JADX INFO: Access modifiers changed from: private */
+    public /* synthetic */ void lambda_createFolder_0(Container container, String name) {
+        File desktopDir = new File(container.getUserDir(), "Desktop");
+        File parent = !this.folderStack.isEmpty() ? ((Shortcut) this.folderStack.peek()).file : desktopDir;
+        File file = new File(parent, name);
+        if (file.isDirectory()) {
+            AppUtils.showToast(getContext(), R.string.there_already_file_with_that_name);
+        } else {
+            file.mkdir();
+            refreshContent();
+        }
+    }
+
+    @Override // com.winlator.BaseFileManagerFragment
+    protected void pasteFiles() {
+        if (this.folderStack.isEmpty()) {
+            clearClipboard();
+            AppUtils.showToast(getContext(), R.string.you_cannot_paste_files_here);
+        } else {
+            this.clipboard.targetDir = ((Shortcut) this.folderStack.peek()).file;
+            super.pasteFiles();
+        }
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public void instantiateClipboard(Shortcut shortcut, boolean cutMode) {
+        clearClipboard();
+        File linkFile = shortcut.getLinkFile();
+        File[] files = {new File(shortcut.file.getParentFile(), shortcut.file.getName())};
+        if (shortcut.file.isFile()) {
+            files = (File[]) ArrayUtils.concat(files, new File[]{new File(linkFile.getParentFile(), linkFile.getName())});
+        }
+        this.clipboard = new BaseFileManagerFragment.Clipboard(files, cutMode);
+        this.pasteButton.setVisibility(0);
+    }
+
+    @Override // androidx.fragment.app.Fragment
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
+        int itemId = menuItem.getItemId();
+        if (itemId == R.id.menu_item_view_style) {
+            BaseFileManagerFragment.ViewStyle viewStyle = this.viewStyle;
+            BaseFileManagerFragment.ViewStyle viewStyle2 = BaseFileManagerFragment.ViewStyle.GRID;
+            if (viewStyle == viewStyle2) {
+                viewStyle2 = BaseFileManagerFragment.ViewStyle.LIST;
+            }
+            setViewStyle(viewStyle2);
+            this.preferences.edit().putString("shortcuts_view_style", this.viewStyle.name()).apply();
+            refreshViewStyleMenuItem(menuItem);
+            return true;
+        }
+        if (itemId == R.id.menu_item_new_folder) {
+            createFolder();
+            return true;
+        }
+        return super.onOptionsItemSelected(menuItem);
+    }
+
+    @Override // com.winlator.BaseFileManagerFragment
+    protected String getHomeTitle() {
+        return getString(R.string.shortcuts);
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    class ShortcutsAdapter extends RecyclerView.Adapter<ShortcutsAdapter.ViewHolder> {
         private final List<Shortcut> data;
 
         private class ViewHolder extends RecyclerView.ViewHolder {
-            private final ImageButton menuButton;
             private final ImageView imageView;
-            private final TextView title;
+            private final ImageView menuButton;
+            private final ImageView runButton;
             private final TextView subtitle;
-            private final View innerArea;
+            private final TextView title;
 
             private ViewHolder(View view) {
                 super(view);
-                this.imageView = view.findViewById(R.id.ImageView);
-                this.title = view.findViewById(R.id.TVTitle);
-                this.subtitle = view.findViewById(R.id.TVSubtitle);
-                this.menuButton = view.findViewById(R.id.BTMenu);
-                this.innerArea = view.findViewById(R.id.LLInnerArea);
+                this.imageView = (ImageView) view.findViewById(R.id.ImageView);
+                this.title = (TextView) view.findViewById(R.id.TVTitle);
+                this.subtitle = (TextView) view.findViewById(R.id.TVSubtitle);
+                this.runButton = (ImageView) view.findViewById(R.id.BTRun);
+                this.menuButton = (ImageView) view.findViewById(R.id.BTMenu);
             }
         }
 
@@ -90,59 +148,106 @@ public class ShortcutsFragment extends Fragment {
             this.data = data;
         }
 
-        @NonNull
-        @Override
-        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.shortcut_list_item, parent, false));
+        @Override // androidx.recyclerview.widget.RecyclerView.Adapter
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            int resource = ShortcutsFragment.this.viewStyle == BaseFileManagerFragment.ViewStyle.LIST ? R.layout.file_list_item : R.layout.file_grid_item;
+            return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(resource, parent, false));
         }
 
-        @Override
-        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            final Shortcut item = data.get(position);
-            if (item.icon != null) holder.imageView.setImageBitmap(item.icon);
+        @Override // androidx.recyclerview.widget.RecyclerView.Adapter
+        public void onBindViewHolder(ViewHolder holder, int position) {
+            final Shortcut item = this.data.get(position);
+            if (item.icon != null) {
+                holder.imageView.setImageBitmap(item.icon);
+            } else {
+                int iconResId = item.file.isDirectory() ? R.drawable.container_folder : R.drawable.container_file_link;
+                holder.imageView.setImageResource(iconResId);
+            }
             holder.title.setText(item.name);
             holder.subtitle.setText(item.container.getName());
-            holder.menuButton.setOnClickListener((v) -> showListItemMenu(v, item));
-            holder.innerArea.setOnClickListener((v) -> runFromShortcut(item));
+            if (item.file.isDirectory()) {
+                holder.runButton.setImageResource(R.drawable.icon_open);
+            } else {
+                holder.runButton.setImageResource(R.drawable.icon_run);
+            }
+            holder.imageView.setOnClickListener(view -> lambda_onBindViewHolder_0(item, view));
+            holder.runButton.setOnClickListener(view -> lambda_onBindViewHolder_1(item, view));
+            holder.menuButton.setOnClickListener(view -> lambda_onBindViewHolder_2(view, item));
         }
 
-        @Override
+        /* JADX INFO: Access modifiers changed from: private */
+        public /* synthetic */ void lambda_onBindViewHolder_0(Shortcut item, View v) {
+            runFromShortcut(item);
+        }
+
+        /* JADX INFO: Access modifiers changed from: private */
+        public /* synthetic */ void lambda_onBindViewHolder_1(Shortcut item, View v) {
+            runFromShortcut(item);
+        }
+
+        @Override // androidx.recyclerview.widget.RecyclerView.Adapter
         public final int getItemCount() {
-            return data.size();
+            return this.data.size();
         }
 
-        private void showListItemMenu(View anchorView, final Shortcut shortcut) {
-            final Context context = getContext();
+        /* JADX INFO: Access modifiers changed from: private */
+        /* JADX INFO: renamed from: showListItemMenu, reason: merged with bridge method [inline-methods] */
+        public void lambda_onBindViewHolder_2(View anchorView, final Shortcut shortcut) {
+            final Context context = ShortcutsFragment.this.getContext();
             PopupMenu listItemMenu = new PopupMenu(context, anchorView);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) listItemMenu.setForceShowIcon(true);
-
-            listItemMenu.inflate(R.menu.shortcut_popup_menu);
-            listItemMenu.setOnMenuItemClickListener((menuItem) -> {
-                int itemId = menuItem.getItemId();
-                if (itemId == R.id.shortcut_settings) {
-                    (new ShortcutSettingsDialog(ShortcutsFragment.this, shortcut)).show();
-                }
-                else if (itemId == R.id.shortcut_remove) {
-                    ContentDialog.confirm(context, R.string.do_you_want_to_remove_this_shortcut, () -> {
-                        if (shortcut.file.delete() && shortcut.iconFile != null) shortcut.iconFile.delete();
-                        loadShortcutsList();
-                    });
-                }
-                return true;
-            });
+            if (Build.VERSION.SDK_INT >= 29) {
+                listItemMenu.setForceShowIcon(true);
+            }
+            listItemMenu.inflate(R.menu.file_manager_popup_menu);
+            Menu menu = listItemMenu.getMenu();
+            menu.findItem(R.id.menu_item_rename).setVisible(false);
+            menu.findItem(R.id.menu_item_add_favorite).setVisible(false);
+            menu.findItem(R.id.menu_item_info).setVisible(false);
+            listItemMenu.setOnMenuItemClickListener(menuItem -> lambda_showListItemMenu_4(shortcut, context, menuItem));
             listItemMenu.show();
         }
 
-        private void runFromShortcut(Shortcut shortcut) {
-            Activity activity = getActivity();
-
-            if (!XrActivity.isSupported()) {
-                Intent intent = new Intent(activity, XServerDisplayActivity.class);
-                intent.putExtra("container_id", shortcut.container.id);
-                intent.putExtra("shortcut_path", shortcut.file.getPath());
-                activity.startActivity(intent);
+        /* JADX INFO: Access modifiers changed from: private */
+        /* JADX WARN: Can't fix incorrect switch cases order, some code will duplicate */
+        public /* synthetic */ boolean lambda_showListItemMenu_4(final Shortcut shortcut, Context context, MenuItem menuItem) {
+            int itemId = menuItem.getItemId();
+            if (itemId == R.id.menu_item_copy || itemId == R.id.menu_item_cut) {
+                    ShortcutsFragment.this.instantiateClipboard(shortcut, itemId == R.id.menu_item_cut);
+                    return true;
+            } else if (itemId == R.id.menu_item_remove) {
+                    ShortcutsFragment.this.clearClipboard();
+                    ContentDialog.confirm(context, R.string.do_you_want_to_remove_this_file, () -> lambda_showListItemMenu_3(shortcut));
+                    return true;
+            } else if (itemId == R.id.menu_item_settings) {
+                    ShortcutsFragment.this.clearClipboard();
+                    new ShortcutSettingsDialog(ShortcutsFragment.this, shortcut).show();
+                    return true;
+            } else {
+                    return true;
             }
-            else XrActivity.openIntent(activity, shortcut.container.id, shortcut.file.getPath());
+        }
+
+        /* JADX INFO: Access modifiers changed from: private */
+        public /* synthetic */ void lambda_showListItemMenu_3(Shortcut shortcut) {
+            shortcut.remove();
+            ShortcutsFragment.this.refreshContent();
+        }
+
+        /* JADX WARN: Type inference incomplete: some casts might be missing */
+        private void runFromShortcut(Shortcut shortcut) {
+            AppCompatActivity appCompatActivity = (AppCompatActivity) ShortcutsFragment.this.getActivity();
+            if (shortcut.file.isDirectory()) {
+                ShortcutsFragment.this.folderStack.push(shortcut);
+                ShortcutsFragment.this.refreshContent();
+                ActionBar supportActionBar = appCompatActivity.getSupportActionBar();
+                supportActionBar.setHomeAsUpIndicator(R.drawable.icon_action_bar_back);
+                supportActionBar.setTitle(shortcut.name);
+                return;
+            }
+            Intent intent = new Intent(appCompatActivity, (Class<?>) XServerDisplayActivity.class);
+            intent.putExtra("container_id", shortcut.container.id);
+            intent.putExtra("shortcut_path", shortcut.file.getPath());
+            appCompatActivity.startActivity(intent);
         }
     }
 }

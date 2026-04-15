@@ -5,18 +5,20 @@ import com.winlator.xconnector.XStreamLock;
 import com.winlator.xserver.Pixmap;
 import com.winlator.xserver.Window;
 import com.winlator.xserver.extensions.PresentExtension;
-
 import java.io.IOException;
 
+/* JADX INFO: loaded from: classes.dex */
 public class PresentIdleNotify extends Event {
     private final int eventId;
-    private final Window window;
-    private final Pixmap pixmap;
-    private final int serial;
     private final int idleFence;
+    private final Pixmap pixmap;
+    private final PresentExtension presentExtension;
+    private final int serial;
+    private final Window window;
 
-    public PresentIdleNotify(int eventId, Window window, Pixmap pixmap, int serial, int idleFence) {
+    public PresentIdleNotify(PresentExtension presentExtension, int eventId, Window window, Pixmap pixmap, int serial, int idleFence) {
         super(35);
+        this.presentExtension = presentExtension;
         this.eventId = eventId;
         this.window = window;
         this.serial = serial;
@@ -24,28 +26,41 @@ public class PresentIdleNotify extends Event {
         this.idleFence = idleFence;
     }
 
-    @Override
+    @Override // com.winlator.xserver.events.Event
     public void send(short sequenceNumber, XOutputStream outputStream) throws IOException {
-        try (XStreamLock lock = outputStream.lock()) {
-            outputStream.writeByte(code);
-            outputStream.writeByte(PresentExtension.MAJOR_OPCODE);
+        XStreamLock lock = outputStream.lock();
+        try {
+            outputStream.writeByte(this.code);
+            outputStream.writeByte(this.presentExtension.getMajorOpcode());
             outputStream.writeShort(sequenceNumber);
             outputStream.writeInt(0);
             outputStream.writeShort(getEventType());
-            outputStream.writeShort((short)0);
-            outputStream.writeInt(eventId);
-            outputStream.writeInt(window.id);
-            outputStream.writeInt(serial);
-            outputStream.writeInt(pixmap.id);
-            outputStream.writeInt(idleFence);
+            outputStream.writeShort((short) 0);
+            outputStream.writeInt(this.eventId);
+            outputStream.writeInt(this.window.id);
+            outputStream.writeInt(this.serial);
+            outputStream.writeInt(this.pixmap.id);
+            outputStream.writeInt(this.idleFence);
+            if (lock != null) {
+                lock.close();
+            }
+        } catch (Throwable th) {
+            if (lock != null) {
+                try {
+                    lock.close();
+                } catch (Throwable th2) {
+                    th.addSuppressed(th2);
+                }
+            }
+            throw th;
         }
     }
 
     public static short getEventType() {
-        return 2;
+        return (short) 2;
     }
 
     public static int getEventMask() {
-        return 1<<getEventType();
+        return 1 << getEventType();
     }
 }

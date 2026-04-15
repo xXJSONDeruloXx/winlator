@@ -16,8 +16,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
-
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -25,213 +25,227 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
+import com.winlator.ExternalControllerBindingsActivity;
 import com.winlator.core.AppUtils;
+import com.winlator.core.LocaleHelper;
 import com.winlator.inputcontrols.Binding;
 import com.winlator.inputcontrols.ControlsProfile;
 import com.winlator.inputcontrols.ExternalController;
 import com.winlator.inputcontrols.ExternalControllerBinding;
+import com.winlator.inputcontrols.GamepadState;
 import com.winlator.inputcontrols.InputControlsManager;
 import com.winlator.math.Mathf;
 
+/* JADX INFO: loaded from: classes.dex */
 public class ExternalControllerBindingsActivity extends AppCompatActivity {
+    private ControllerBindingsAdapter adapter;
+    private ExternalController controller;
     private TextView emptyTextView;
     private ControlsProfile profile;
-    private ExternalController controller;
     private RecyclerView recyclerView;
-    private ControllerBindingsAdapter adapter;
 
-    @Override
+    @Override // androidx.fragment.app.FragmentActivity, androidx.activity.ComponentActivity, androidx.core.app.ComponentActivity, android.app.Activity
     protected void onCreate(Bundle savedInstanceState) {
+        AppUtils.setActivityTheme(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.external_controller_bindings_activity);
-
         Intent intent = getIntent();
         int profileId = intent.getIntExtra("profile_id", 0);
-        profile = InputControlsManager.loadProfile(this, ControlsProfile.getProfileFile(this, profileId));
+        this.profile = InputControlsManager.loadProfile(this, ControlsProfile.getProfileFile(this, profileId));
         String controllerId = intent.getStringExtra("controller_id");
-
-        controller = profile.getController(controllerId);
+        ExternalController controller = this.profile.getController(controllerId);
+        this.controller = controller;
         if (controller == null) {
-            controller = profile.addController(controllerId);
-            profile.save();
+            this.controller = this.profile.addController(controllerId);
+            this.profile.save();
         }
-
-        Toolbar toolbar = findViewById(R.id.Toolbar);
-        toolbar.setTitle(controller.getName());
+        Toolbar toolbar = (Toolbar) findViewById(R.id.Toolbar);
+        toolbar.setTitle(this.controller.getName());
         setSupportActionBar(toolbar);
-
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeAsUpIndicator(R.drawable.icon_action_bar_back);
-
-        emptyTextView = findViewById(R.id.TVEmptyText);
-        recyclerView = findViewById(R.id.RecyclerView);
+        this.emptyTextView = (TextView) findViewById(R.id.TVEmptyText);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.RecyclerView);
+        this.recyclerView = recyclerView;
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        recyclerView.setAdapter(adapter = new ControllerBindingsAdapter());
+        DividerItemDecoration itemDecoration = new DividerItemDecoration(this, 1);
+        itemDecoration.setDrawable(ContextCompat.getDrawable(this, R.drawable.list_item_divider));
+        this.recyclerView.addItemDecoration(itemDecoration);
+        RecyclerView recyclerView2 = this.recyclerView;
+        ControllerBindingsAdapter controllerBindingsAdapter = new ControllerBindingsAdapter();
+        this.adapter = controllerBindingsAdapter;
+        recyclerView2.setAdapter(controllerBindingsAdapter);
         updateEmptyTextView();
     }
 
+    @Override // androidx.appcompat.app.AppCompatActivity, android.app.Activity, android.view.ContextThemeWrapper, android.content.ContextWrapper
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(LocaleHelper.setSystemLocale(newBase));
+    }
+
     private void updateControllerBinding(int keyCode, Binding binding) {
-        if (keyCode == KeyEvent.KEYCODE_UNKNOWN) return;
-
-        ExternalControllerBinding controllerBinding = controller.getControllerBinding(keyCode);
         int position;
-        if (controllerBinding == null) {
-            controllerBinding = new ExternalControllerBinding();
-            controllerBinding.setKeyCode(keyCode);
-            controllerBinding.setBinding(binding);
-
-            controller.addControllerBinding(controllerBinding);
-            profile.save();
-            adapter.notifyDataSetChanged();
-            updateEmptyTextView();
-            position = controller.getPosition(controllerBinding);
+        if (keyCode == 0) {
+            return;
         }
-        else animateItemView(position = controller.getPosition(controllerBinding));
-        recyclerView.scrollToPosition(position);
+        ExternalControllerBinding controllerBinding = this.controller.getControllerBinding(keyCode);
+        if (controllerBinding == null) {
+            ExternalControllerBinding controllerBinding2 = new ExternalControllerBinding();
+            controllerBinding2.setKeyCode(keyCode);
+            controllerBinding2.setBinding(binding);
+            this.controller.addControllerBinding(controllerBinding2);
+            this.profile.save();
+            this.adapter.notifyDataSetChanged();
+            updateEmptyTextView();
+            position = this.controller.getPosition(controllerBinding2);
+        } else {
+            position = this.controller.getPosition(controllerBinding);
+            animateItemView(position);
+        }
+        this.recyclerView.scrollToPosition(position);
     }
 
     private void processJoystickInput() {
-        int keyCode = KeyEvent.KEYCODE_UNKNOWN;
+        int keyCode = 0;
         Binding binding = Binding.NONE;
-        final int[] axes = {MotionEvent.AXIS_X, MotionEvent.AXIS_Y, MotionEvent.AXIS_Z, MotionEvent.AXIS_RZ, MotionEvent.AXIS_HAT_X, MotionEvent.AXIS_HAT_Y};
-        final float[] values = {controller.state.thumbLX, controller.state.thumbLY, controller.state.thumbRX, controller.state.thumbRY, controller.state.getDPadX(), controller.state.getDPadY()};
-
-        byte sign;
-        for (int i = 0; i < axes.length; i++) {
-            if ((sign = Mathf.sign(values[i])) != 0) {
-                if (axes[i] == MotionEvent.AXIS_X || axes[i] == MotionEvent.AXIS_Z) {
-                    binding = sign > 0 ? Binding.MOUSE_MOVE_RIGHT : Binding.MOUSE_MOVE_LEFT;
-                }
-                else if (axes[i] == MotionEvent.AXIS_Y || axes[i] == MotionEvent.AXIS_RZ) {
-                    binding = sign > 0 ? Binding.MOUSE_MOVE_DOWN : Binding.MOUSE_MOVE_UP;
-                }
-                else if (axes[i] == MotionEvent.AXIS_HAT_X) {
-                    binding = sign > 0 ? Binding.KEY_D : Binding.KEY_A;
-                }
-                else if (axes[i] == MotionEvent.AXIS_HAT_Y) {
-                    binding = sign > 0 ? Binding.KEY_S : Binding.KEY_W;
-                }
-
-                keyCode = ExternalControllerBinding.getKeyCodeForAxis(axes[i], sign);
+        int[] axes = {0, 1, 11, 14, 15, 16};
+        GamepadState state = this.controller.getGamepadState();
+        float[] values = {state.thumbLX, state.thumbLY, state.thumbRX, state.thumbRY, state.getDPadX(), state.getDPadY()};
+        int i = 0;
+        while (true) {
+            if (i >= axes.length) {
                 break;
             }
+            byte sign = Mathf.sign(values[i]);
+            if (sign == 0) {
+                i++;
+            } else {
+                if (axes[i] == 0 || axes[i] == 11) {
+                    binding = sign > 0 ? Binding.MOUSE_MOVE_RIGHT : Binding.MOUSE_MOVE_LEFT;
+                } else if (axes[i] == 1 || axes[i] == 14) {
+                    binding = sign > 0 ? Binding.MOUSE_MOVE_DOWN : Binding.MOUSE_MOVE_UP;
+                } else if (axes[i] == 15) {
+                    binding = sign > 0 ? Binding.KEY_D : Binding.KEY_A;
+                } else if (axes[i] == 16) {
+                    binding = sign > 0 ? Binding.KEY_S : Binding.KEY_W;
+                }
+                keyCode = ExternalControllerBinding.getKeyCodeForAxis(axes[i], sign);
+            }
         }
-
         updateControllerBinding(keyCode, binding);
     }
 
-    @Override
+    @Override // android.app.Activity, android.view.Window.Callback
     public boolean dispatchGenericMotionEvent(MotionEvent event) {
-        if (event.getDeviceId() == controller.getDeviceId() && controller.updateStateFromMotionEvent(event)) {
-            if (controller.state.isPressed(ExternalController.IDX_BUTTON_L2)) updateControllerBinding(KeyEvent.KEYCODE_BUTTON_L2, Binding.NONE);
-            if (controller.state.isPressed(ExternalController.IDX_BUTTON_R2)) updateControllerBinding(KeyEvent.KEYCODE_BUTTON_R2, Binding.NONE);
+        if (event.getDeviceId() == this.controller.getDeviceId() && this.controller.updateStateFromMotionEvent(event)) {
+            GamepadState state = this.controller.getGamepadState();
+            if (state.isPressed(10)) {
+                updateControllerBinding(104, Binding.NONE);
+            }
+            if (state.isPressed(11)) {
+                updateControllerBinding(105, Binding.NONE);
+            }
             processJoystickInput();
             return true;
         }
         return super.dispatchGenericMotionEvent(event);
     }
 
-    @Override
+    @Override // androidx.appcompat.app.AppCompatActivity, androidx.core.app.ComponentActivity, android.app.Activity, android.view.Window.Callback
     public boolean dispatchKeyEvent(KeyEvent event) {
-        if (event.getDeviceId() == controller.getDeviceId() && event.getRepeatCount() == 0) {
-            if (event.getAction() == KeyEvent.ACTION_DOWN) updateControllerBinding(event.getKeyCode(), Binding.NONE);
+        if (event.getDeviceId() == this.controller.getDeviceId() && event.getRepeatCount() == 0) {
+            if (event.getAction() == 0) {
+                updateControllerBinding(event.getKeyCode(), Binding.NONE);
+                return true;
+            }
             return true;
         }
-        else return super.dispatchKeyEvent(event);
+        return super.dispatchKeyEvent(event);
     }
 
-    @Override
+    @Override // android.app.Activity
     public boolean onOptionsItemSelected(MenuItem menuItem) {
         finish();
         return true;
     }
 
-    private class ControllerBindingsAdapter extends RecyclerView.Adapter<ControllerBindingsAdapter.ViewHolder> {
-        private class ViewHolder extends RecyclerView.ViewHolder {
+    /* JADX INFO: Access modifiers changed from: private */
+    class ControllerBindingsAdapter extends RecyclerView.Adapter<ControllerBindingsAdapter.ViewHolder> {
+
+        /* JADX INFO: Access modifiers changed from: private */
+        class ViewHolder extends RecyclerView.ViewHolder {
+            private final Spinner binding;
+            private final Spinner bindingType;
             private final ImageButton removeButton;
             private final TextView title;
-            private final Spinner bindingType;
-            private final Spinner binding;
 
             private ViewHolder(View view) {
                 super(view);
-                this.title = view.findViewById(R.id.TVTitle);
-                this.bindingType = view.findViewById(R.id.SBindingType);
-                this.binding = view.findViewById(R.id.SBinding);
-                this.removeButton = view.findViewById(R.id.BTRemove);
+                this.title = (TextView) view.findViewById(R.id.TVTitle);
+                this.bindingType = (Spinner) view.findViewById(R.id.SBindingType);
+                this.binding = (Spinner) view.findViewById(R.id.SBinding);
+                this.removeButton = (ImageButton) view.findViewById(R.id.BTRemove);
             }
         }
 
-        @Override
+        private ControllerBindingsAdapter() {
+        }
+
+        @Override // androidx.recyclerview.widget.RecyclerView.Adapter
         public final ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.external_controller_binding_list_item, parent, false));
         }
 
-        @Override
+        @Override // androidx.recyclerview.widget.RecyclerView.Adapter
         public void onBindViewHolder(ViewHolder holder, int position) {
-            final ExternalControllerBinding item = controller.getControllerBindingAt(position);
+            final ExternalControllerBinding item = ExternalControllerBindingsActivity.this.controller.getControllerBindingAt(position);
             holder.title.setText(item.toString());
             loadBindingSpinner(holder, item);
-            holder.removeButton.setOnClickListener((view) -> {
-                controller.removeControllerBinding(item);
-                profile.save();
-                notifyDataSetChanged();
-                updateEmptyTextView();
-            });
+            holder.removeButton.setOnClickListener(view -> lambda_onBindViewHolder_0(item, view));
         }
 
-        @Override
+        /* JADX INFO: Access modifiers changed from: private */
+        public /* synthetic */ void lambda_onBindViewHolder_0(ExternalControllerBinding item, View view) {
+            ExternalControllerBindingsActivity.this.controller.removeControllerBinding(item);
+            ExternalControllerBindingsActivity.this.profile.save();
+            notifyDataSetChanged();
+            ExternalControllerBindingsActivity.this.updateEmptyTextView();
+        }
+
+        @Override // androidx.recyclerview.widget.RecyclerView.Adapter
         public final int getItemCount() {
-            return controller.getControllerBindingCount();
+            return ExternalControllerBindingsActivity.this.controller.getControllerBindingCount();
         }
 
-        private void loadBindingSpinner(ViewHolder holder, final ExternalControllerBinding item) {
+        private void loadBindingSpinner(final ViewHolder holder, final ExternalControllerBinding item) {
             final Context $this = ExternalControllerBindingsActivity.this;
-
-            Runnable update = () -> {
-                String[] bindingEntries = null;
-                switch (holder.bindingType.getSelectedItemPosition()) {
-                    case 0:
-                        bindingEntries = Binding.keyboardBindingLabels();
-                        break;
-                    case 1:
-                        bindingEntries = Binding.mouseBindingLabels();
-                        break;
-                    case 2:
-                        bindingEntries = Binding.gamepadBindingLabels();
-                        break;
+            final Runnable update = new Runnable() { // from class: com.winlator.ExternalControllerBindingsActivity$ControllerBindingsAdapter$$ExternalSyntheticLambda1
+                @Override // java.lang.Runnable
+                public final void run() {
+                    lambda_loadBindingSpinner_1(holder, $this, item);
                 }
-
-                holder.binding.setAdapter(new ArrayAdapter<>($this, android.R.layout.simple_spinner_dropdown_item, bindingEntries));
-                AppUtils.setSpinnerSelectionFromValue(holder.binding, item.getBinding().toString());
             };
-
-            holder.bindingType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
+            holder.bindingType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() { // from class: com.winlator.ExternalControllerBindingsActivity.ControllerBindingsAdapter.1
+                @Override // android.widget.AdapterView.OnItemSelectedListener
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     update.run();
                 }
 
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {}
+                @Override // android.widget.AdapterView.OnItemSelectedListener
+                public void onNothingSelected(AdapterView<?> parent) {
+                }
             });
-
             Binding selectedBinding = item.getBinding();
             if (selectedBinding.isKeyboard()) {
                 holder.bindingType.setSelection(0, false);
-            }
-            else if (selectedBinding.isMouse()) {
+            } else if (selectedBinding.isMouse()) {
                 holder.bindingType.setSelection(1, false);
-            }
-            else if (selectedBinding.isGamepad()) {
+            } else if (selectedBinding.isGamepad()) {
                 holder.bindingType.setSelection(2, false);
             }
-
-            holder.binding.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
+            holder.binding.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() { // from class: com.winlator.ExternalControllerBindingsActivity.ControllerBindingsAdapter.2
+                @Override // android.widget.AdapterView.OnItemSelectedListener
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     Binding binding = Binding.NONE;
                     switch (holder.bindingType.getSelectedItemPosition()) {
@@ -245,37 +259,63 @@ public class ExternalControllerBindingsActivity extends AppCompatActivity {
                             binding = Binding.gamepadBindingValues()[position];
                             break;
                     }
-
                     if (binding != item.getBinding()) {
                         item.setBinding(binding);
-                        profile.save();
+                        ExternalControllerBindingsActivity.this.profile.save();
                     }
                 }
 
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {}
+                @Override // android.widget.AdapterView.OnItemSelectedListener
+                public void onNothingSelected(AdapterView<?> parent) {
+                }
             });
-
             update.run();
+        }
+
+        /* JADX INFO: Access modifiers changed from: private */
+        public /* synthetic */ void lambda_loadBindingSpinner_1(ViewHolder holder, Context $this, ExternalControllerBinding item) {
+            String[] bindingEntries = null;
+            switch (holder.bindingType.getSelectedItemPosition()) {
+                case 0:
+                    bindingEntries = Binding.keyboardBindingLabels();
+                    break;
+                case 1:
+                    bindingEntries = Binding.mouseBindingLabels();
+                    break;
+                case 2:
+                    bindingEntries = Binding.gamepadBindingLabels();
+                    break;
+            }
+            holder.binding.setAdapter((SpinnerAdapter) new ArrayAdapter($this, android.R.layout.simple_spinner_dropdown_item, bindingEntries));
+            AppUtils.setSpinnerSelectionFromValue(holder.binding, item.getBinding().toString());
         }
     }
 
-    private void updateEmptyTextView() {
-        emptyTextView.setVisibility(adapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
+    /* JADX INFO: Access modifiers changed from: private */
+    public void updateEmptyTextView() {
+        this.emptyTextView.setVisibility(this.adapter.getItemCount() == 0 ? 0 : 8);
     }
 
     private void animateItemView(int position) {
-        final ControllerBindingsAdapter.ViewHolder holder = (ControllerBindingsAdapter.ViewHolder)recyclerView.findViewHolderForAdapterPosition(position);
+        final ControllerBindingsAdapter.ViewHolder holder = (ControllerBindingsAdapter.ViewHolder) this.recyclerView.findViewHolderForAdapterPosition(position);
         if (holder != null) {
-            final int color = ContextCompat.getColor(this, R.color.colorAccent);
-            final ValueAnimator animator = ValueAnimator.ofFloat(0.4f, 0.0f);
-            animator.setDuration(200);
+            final int color = AppUtils.getThemeColor(this, com.google.android.material.R.attr.colorAccent);
+            ValueAnimator animator = ValueAnimator.ofFloat(0.4f, 0.0f);
+            animator.setDuration(200L);
             animator.setInterpolator(new AccelerateDecelerateInterpolator());
-            animator.addUpdateListener((animation) -> {
-                float alpha = (float)animation.getAnimatedValue();
-                holder.itemView.setBackgroundColor(Color.argb((int)(alpha * 255), Color.red(color), Color.green(color), Color.blue(color)));
+            animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() { // from class: com.winlator.ExternalControllerBindingsActivity$$ExternalSyntheticLambda0
+                @Override // android.animation.ValueAnimator.AnimatorUpdateListener
+                public final void onAnimationUpdate(ValueAnimator valueAnimator) {
+                    ExternalControllerBindingsActivity.lambda_animateItemView_0(holder, color, valueAnimator);
+                }
             });
             animator.start();
         }
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public static /* synthetic */ void lambda_animateItemView_0(ControllerBindingsAdapter.ViewHolder holder, int color, ValueAnimator animation) {
+        float alpha = ((Float) animation.getAnimatedValue()).floatValue();
+        holder.itemView.setBackgroundColor(Color.argb((int) (255.0f * alpha), Color.red(color), Color.green(color), Color.blue(color)));
     }
 }

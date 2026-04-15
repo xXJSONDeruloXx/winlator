@@ -4,48 +4,45 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
-import androidx.annotation.Nullable;
-
 import com.winlator.R;
-
 import java.util.Arrays;
 import java.util.List;
 
+/* JADX INFO: loaded from: classes.dex */
 public class CPUListView extends LinearLayout {
     private List<String> checkedCPUList;
     private final byte numProcessors;
 
-    public CPUListView(Context context) {
-        this(context, null);
-    }
-
-    public CPUListView(Context context, @Nullable AttributeSet attrs) {
+    public CPUListView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public CPUListView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public CPUListView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        setOrientation(HORIZONTAL);
-        numProcessors = (byte)Runtime.getRuntime().availableProcessors();
+        setOrientation(0);
+        this.numProcessors = (byte) Runtime.getRuntime().availableProcessors();
         refreshContent();
     }
 
     private void refreshContent() {
         removeAllViews();
         LayoutInflater inflater = LayoutInflater.from(getContext());
-
-        for (int i = 0; i < numProcessors; i++) {
-            View itemView = inflater.inflate(R.layout.cpu_list_item, this, false);
-            String tag = "CPU"+i;
-            CheckBox checkBox = itemView.findViewById(R.id.CheckBox);
+        for (int i = 0; i < this.numProcessors; i++) {
+            boolean z = false;
+            View itemView = inflater.inflate(R.layout.cpu_list_item, (ViewGroup) this, false);
+            String tag = "CPU" + i;
+            CheckBox checkBox = (CheckBox) itemView.findViewById(R.id.CheckBox);
             checkBox.setTag(tag);
-            checkBox.setChecked(checkedCPUList == null || checkedCPUList.contains(String.valueOf(i)));
-
-            ((TextView)itemView.findViewById(R.id.TextView)).setText(tag);
+            List<String> list = this.checkedCPUList;
+            if (list == null || list.contains(String.valueOf(i))) {
+                z = true;
+            }
+            checkBox.setChecked(z);
+            ((TextView) itemView.findViewById(R.id.TextView)).setText(tag);
             addView(itemView);
         }
     }
@@ -55,32 +52,31 @@ public class CPUListView extends LinearLayout {
         refreshContent();
     }
 
-    public void setCheckedCPUList(int from, int to) {
-        checkedCPUList.clear();
-        for (int i = from; i < to; i++) checkedCPUList.add(String.valueOf(i));
-        refreshContent();
-    }
-
     public String getCheckedCPUListAsString() {
         String cpuList = "";
-
-        for (int i = 0; i < numProcessors; i++) {
-            CheckBox checkBox = findViewWithTag("CPU"+i);
-            if (checkBox.isChecked()) cpuList += (!cpuList.isEmpty() ? "," : "")+i;
+        for (int i = 0; i < this.numProcessors; i++) {
+            CheckBox checkBox = (CheckBox) findViewWithTag("CPU" + i);
+            if (checkBox.isChecked()) {
+                StringBuilder sb = new StringBuilder();
+                sb.append(cpuList);
+                sb.append(!cpuList.isEmpty() ? "," : "");
+                sb.append(i);
+                cpuList = sb.toString();
+            }
         }
         return cpuList;
     }
 
     public boolean[] getCheckedCPUList() {
-        boolean[] cpuList = new boolean[numProcessors];
-        for (int i = 0; i < numProcessors; i++) {
-            CheckBox checkBox = findViewWithTag("CPU"+i);
+        boolean[] cpuList = new boolean[this.numProcessors];
+        for (int i = 0; i < this.numProcessors; i++) {
+            CheckBox checkBox = (CheckBox) findViewWithTag("CPU" + i);
             cpuList[i] = checkBox.isChecked();
         }
         return cpuList;
     }
 
     public byte getNumProcessors() {
-        return numProcessors;
+        return this.numProcessors;
     }
 }

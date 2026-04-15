@@ -1,8 +1,9 @@
 package com.winlator.xserver;
 
-import com.winlator.xconnector.Client;
+import com.winlator.xconnector.ConnectedClient;
 import com.winlator.xconnector.ConnectionHandler;
 
+/* JADX INFO: loaded from: classes.dex */
 public class XClientConnectionHandler implements ConnectionHandler {
     private final XServer xServer;
 
@@ -10,14 +11,17 @@ public class XClientConnectionHandler implements ConnectionHandler {
         this.xServer = xServer;
     }
 
-    @Override
-    public void handleNewConnection(Client client) {
-        client.createIOStreams();
-        client.setTag(new XClient(xServer, client.getInputStream(), client.getOutputStream()));
+    @Override // com.winlator.xconnector.ConnectionHandler
+    public ConnectedClient newConnectedClient(long clientPtr, int fd) {
+        return new XClient(clientPtr, fd, this.xServer);
     }
 
-    @Override
-    public void handleConnectionShutdown(Client client) {
-        ((XClient)client.getTag()).freeResources();
+    @Override // com.winlator.xconnector.ConnectionHandler
+    public void handleNewConnection(ConnectedClient client) {
+    }
+
+    @Override // com.winlator.xconnector.ConnectionHandler
+    public void handleConnectionShutdown(ConnectedClient client) {
+        ((XClient) client).freeResources();
     }
 }

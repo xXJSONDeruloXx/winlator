@@ -1,13 +1,16 @@
 package com.winlator.xserver;
 
-import com.winlator.xserver.events.Event;
+import com.winlator.core.Bitmask;
+import com.winlator.xserver.Window;
+import com.winlator.xserver.WindowManager;
 import com.winlator.xserver.events.PointerWindowEvent;
 
+/* JADX INFO: loaded from: classes.dex */
 public class GrabManager implements WindowManager.OnWindowModificationListener {
-    private Window window;
+    private EventListener eventListener;
     private boolean ownerEvents;
     private boolean releaseWithButtons;
-    private EventListener eventListener;
+    private Window window;
     private final XServer xServer;
 
     public GrabManager(XServer xServer) {
@@ -15,7 +18,7 @@ public class GrabManager implements WindowManager.OnWindowModificationListener {
         xServer.windowManager.addOnWindowModificationListener(this);
     }
 
-    @Override
+    @Override // com.winlator.xserver.WindowManager.OnWindowModificationListener
     public void onUnmapWindow(Window window) {
         if (window != null && window.getMapState() != Window.MapState.VIEWABLE) {
             deactivatePointerGrab();
@@ -23,36 +26,43 @@ public class GrabManager implements WindowManager.OnWindowModificationListener {
     }
 
     public Window getWindow() {
-        return window;
+        return this.window;
     }
 
     public boolean isOwnerEvents() {
-        return ownerEvents;
+        return this.ownerEvents;
     }
 
     public boolean isReleaseWithButtons() {
-        return releaseWithButtons;
+        return this.releaseWithButtons;
     }
 
     public EventListener getEventListener() {
-        return eventListener;
+        return this.eventListener;
     }
 
     public XClient getClient() {
-        return eventListener != null ? eventListener.client : null;
+        EventListener eventListener = this.eventListener;
+        if (eventListener != null) {
+            return eventListener.client;
+        }
+        return null;
     }
 
     public void deactivatePointerGrab() {
+        Window window = this.window;
         if (window != null) {
-            xServer.inputDeviceManager.sendEnterLeaveNotify(window, xServer.inputDeviceManager.getPointWindow(), PointerWindowEvent.Mode.UNGRAB);
-            window = null;
-            eventListener = null;
+            InputDeviceManager inputDeviceManager = this.xServer.inputDeviceManager;
+            inputDeviceManager.sendEnterLeaveNotify(window, inputDeviceManager.getPointWindow(), PointerWindowEvent.Mode.UNGRAB);
+            this.window = null;
+            this.eventListener = null;
         }
     }
 
     private void activatePointerGrab(Window window, EventListener eventListener, boolean ownerEvents, boolean releaseWithButtons) {
         if (this.window == null) {
-            xServer.inputDeviceManager.sendEnterLeaveNotify(xServer.inputDeviceManager.getPointWindow(), window, PointerWindowEvent.Mode.GRAB);
+            InputDeviceManager inputDeviceManager = this.xServer.inputDeviceManager;
+            inputDeviceManager.sendEnterLeaveNotify(inputDeviceManager.getPointWindow(), window, PointerWindowEvent.Mode.GRAB);
         }
         this.window = window;
         this.releaseWithButtons = releaseWithButtons;
@@ -66,6 +76,6 @@ public class GrabManager implements WindowManager.OnWindowModificationListener {
 
     public void activatePointerGrab(Window window) {
         EventListener eventListener = window.getButtonPressListener();
-        activatePointerGrab(window, eventListener, eventListener.isInterestedIn(Event.OWNER_GRAB_BUTTON), true);
+        activatePointerGrab(window, eventListener, eventListener.isInterestedIn(16777216), true);
     }
 }

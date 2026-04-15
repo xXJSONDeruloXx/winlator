@@ -1,99 +1,365 @@
 package com.winlator.inputcontrols;
 
-import androidx.annotation.NonNull;
-
 import com.winlator.xserver.Pointer;
 import com.winlator.xserver.XKeycode;
-
 import java.util.ArrayList;
 
+/* JADX INFO: loaded from: classes.dex */
 public enum Binding {
-    NONE, MOUSE_LEFT_BUTTON, MOUSE_MIDDLE_BUTTON, MOUSE_RIGHT_BUTTON, MOUSE_MOVE_LEFT, MOUSE_MOVE_RIGHT, MOUSE_MOVE_UP, MOUSE_MOVE_DOWN, MOUSE_SCROLL_UP, MOUSE_SCROLL_DOWN, KEY_UP, KEY_RIGHT, KEY_DOWN, KEY_LEFT, KEY_ENTER, KEY_ESC, KEY_BKSP, KEY_DEL, KEY_TAB, KEY_SPACE, KEY_CTRL_L, KEY_CTRL_R, KEY_SHIFT_L, KEY_SHIFT_R, KEY_ALT_L, KEY_ALT_R, KEY_HOME, KEY_PRTSCN, KEY_PG_UP, KEY_PG_DOWN, KEY_CAPS_LOCK, KEY_NUM_LOCK, KEY_0, KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9, KEY_A, KEY_B, KEY_C, KEY_D, KEY_E, KEY_F, KEY_G, KEY_H, KEY_I, KEY_J, KEY_K, KEY_L, KEY_M, KEY_N, KEY_O, KEY_P, KEY_Q, KEY_R, KEY_S, KEY_T, KEY_U, KEY_V, KEY_W, KEY_X, KEY_Y, KEY_Z, KEY_BRACKET_LEFT, KEY_BRACKET_RIGHT, KEY_BACKSLASH, KEY_SLASH, KEY_SEMICOLON, KEY_COMMA, KEY_PERIOD, KEY_APOSTROPHE, KEY_KP_ADD, KEY_MINUS, KEY_F1, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F11, KEY_F12, KEY_KP_0, KEY_KP_1, KEY_KP_2, KEY_KP_3, KEY_KP_4, KEY_KP_5, KEY_KP_6, KEY_KP_7, KEY_KP_8, KEY_KP_9, GAMEPAD_BUTTON_A, GAMEPAD_BUTTON_B, GAMEPAD_BUTTON_X, GAMEPAD_BUTTON_Y, GAMEPAD_BUTTON_L1, GAMEPAD_BUTTON_R1, GAMEPAD_BUTTON_SELECT, GAMEPAD_BUTTON_START, GAMEPAD_BUTTON_L3, GAMEPAD_BUTTON_R3, GAMEPAD_BUTTON_L2, GAMEPAD_BUTTON_R2, GAMEPAD_LEFT_THUMB_UP, GAMEPAD_LEFT_THUMB_RIGHT, GAMEPAD_LEFT_THUMB_DOWN, GAMEPAD_LEFT_THUMB_LEFT, GAMEPAD_RIGHT_THUMB_UP, GAMEPAD_RIGHT_THUMB_RIGHT, GAMEPAD_RIGHT_THUMB_DOWN, GAMEPAD_RIGHT_THUMB_LEFT, GAMEPAD_DPAD_UP, GAMEPAD_DPAD_RIGHT, GAMEPAD_DPAD_DOWN, GAMEPAD_DPAD_LEFT;
+    NONE,
+    MOUSE_LEFT_BUTTON,
+    MOUSE_MIDDLE_BUTTON,
+    MOUSE_RIGHT_BUTTON,
+    MOUSE_MOVE_LEFT,
+    MOUSE_MOVE_RIGHT,
+    MOUSE_MOVE_UP,
+    MOUSE_MOVE_DOWN,
+    MOUSE_SCROLL_UP,
+    MOUSE_SCROLL_DOWN,
+    KEY_UP,
+    KEY_RIGHT,
+    KEY_DOWN,
+    KEY_LEFT,
+    KEY_ENTER,
+    KEY_ESC,
+    KEY_BKSP,
+    KEY_DEL,
+    KEY_INSERT,
+    KEY_TAB,
+    KEY_SPACE,
+    KEY_CTRL_L,
+    KEY_CTRL_R,
+    KEY_SHIFT_L,
+    KEY_SHIFT_R,
+    KEY_ALT_L,
+    KEY_ALT_R,
+    KEY_HOME,
+    KEY_PRTSCN,
+    KEY_PG_UP,
+    KEY_PG_DOWN,
+    KEY_END,
+    KEY_CAPS_LOCK,
+    KEY_NUM_LOCK,
+    KEY_0,
+    KEY_1,
+    KEY_2,
+    KEY_3,
+    KEY_4,
+    KEY_5,
+    KEY_6,
+    KEY_7,
+    KEY_8,
+    KEY_9,
+    KEY_A,
+    KEY_B,
+    KEY_C,
+    KEY_D,
+    KEY_E,
+    KEY_F,
+    KEY_G,
+    KEY_H,
+    KEY_I,
+    KEY_J,
+    KEY_K,
+    KEY_L,
+    KEY_M,
+    KEY_N,
+    KEY_O,
+    KEY_P,
+    KEY_Q,
+    KEY_R,
+    KEY_S,
+    KEY_T,
+    KEY_U,
+    KEY_V,
+    KEY_W,
+    KEY_X,
+    KEY_Y,
+    KEY_Z,
+    KEY_BRACKET_LEFT,
+    KEY_BRACKET_RIGHT,
+    KEY_BACKSLASH,
+    KEY_SLASH,
+    KEY_SEMICOLON,
+    KEY_COMMA,
+    KEY_PERIOD,
+    KEY_APOSTROPHE,
+    KEY_KP_ADD,
+    KEY_MINUS,
+    KEY_F1,
+    KEY_F2,
+    KEY_F3,
+    KEY_F4,
+    KEY_F5,
+    KEY_F6,
+    KEY_F7,
+    KEY_F8,
+    KEY_F9,
+    KEY_F10,
+    KEY_F11,
+    KEY_F12,
+    KEY_KP_0,
+    KEY_KP_1,
+    KEY_KP_2,
+    KEY_KP_3,
+    KEY_KP_4,
+    KEY_KP_5,
+    KEY_KP_6,
+    KEY_KP_7,
+    KEY_KP_8,
+    KEY_KP_9,
+    GAMEPAD_BUTTON_A,
+    GAMEPAD_BUTTON_B,
+    GAMEPAD_BUTTON_X,
+    GAMEPAD_BUTTON_Y,
+    GAMEPAD_BUTTON_L1,
+    GAMEPAD_BUTTON_R1,
+    GAMEPAD_BUTTON_SELECT,
+    GAMEPAD_BUTTON_START,
+    GAMEPAD_BUTTON_L3,
+    GAMEPAD_BUTTON_R3,
+    GAMEPAD_BUTTON_L2,
+    GAMEPAD_BUTTON_R2,
+    GAMEPAD_LEFT_THUMB_UP,
+    GAMEPAD_LEFT_THUMB_RIGHT,
+    GAMEPAD_LEFT_THUMB_DOWN,
+    GAMEPAD_LEFT_THUMB_LEFT,
+    GAMEPAD_RIGHT_THUMB_UP,
+    GAMEPAD_RIGHT_THUMB_RIGHT,
+    GAMEPAD_RIGHT_THUMB_DOWN,
+    GAMEPAD_RIGHT_THUMB_LEFT,
+    GAMEPAD_DPAD_UP,
+    GAMEPAD_DPAD_RIGHT,
+    GAMEPAD_DPAD_DOWN,
+    GAMEPAD_DPAD_LEFT;
+
     public final XKeycode keycode;
 
     Binding() {
         XKeycode keycode;
         try {
             keycode = XKeycode.valueOf(name());
-        }
-        catch (IllegalArgumentException e) {
-            keycode = XKeycode.KEY_NONE;
+        } catch (IllegalArgumentException e) {
+            XKeycode keycode2 = XKeycode.KEY_NONE;
             String name = name();
             if (name.equals("KEY_PG_UP")) {
-                keycode = XKeycode.KEY_PRIOR;
-            }
-            else if (name.equals("KEY_PG_DOWN")) {
-                keycode = XKeycode.KEY_NEXT;
+                XKeycode keycode3 = XKeycode.KEY_PRIOR;
+                keycode = keycode3;
+            } else if (!name.equals("KEY_PG_DOWN")) {
+                keycode = keycode2;
+            } else {
+                XKeycode keycode4 = XKeycode.KEY_NEXT;
+                keycode = keycode4;
             }
         }
         this.keycode = keycode;
     }
 
-    @NonNull
-    @Override
+    /* JADX INFO: renamed from: com.winlator.inputcontrols.Binding$1, reason: invalid class name */
+    static /* synthetic */ class AnonymousClass1 {
+        static final /* synthetic */ int[] $SwitchMap$com$winlator$inputcontrols$Binding;
+
+        static {
+            int[] iArr = new int[Binding.values().length];
+            $SwitchMap$com$winlator$inputcontrols$Binding = iArr;
+            try {
+                iArr[Binding.KEY_SHIFT_L.ordinal()] = 1;
+            } catch (NoSuchFieldError e) {
+            }
+            try {
+                $SwitchMap$com$winlator$inputcontrols$Binding[Binding.KEY_SHIFT_R.ordinal()] = 2;
+            } catch (NoSuchFieldError e2) {
+            }
+            try {
+                $SwitchMap$com$winlator$inputcontrols$Binding[Binding.KEY_CTRL_L.ordinal()] = 3;
+            } catch (NoSuchFieldError e3) {
+            }
+            try {
+                $SwitchMap$com$winlator$inputcontrols$Binding[Binding.KEY_CTRL_R.ordinal()] = 4;
+            } catch (NoSuchFieldError e4) {
+            }
+            try {
+                $SwitchMap$com$winlator$inputcontrols$Binding[Binding.KEY_ALT_L.ordinal()] = 5;
+            } catch (NoSuchFieldError e5) {
+            }
+            try {
+                $SwitchMap$com$winlator$inputcontrols$Binding[Binding.KEY_ALT_R.ordinal()] = 6;
+            } catch (NoSuchFieldError e6) {
+            }
+            try {
+                $SwitchMap$com$winlator$inputcontrols$Binding[Binding.KEY_BRACKET_LEFT.ordinal()] = 7;
+            } catch (NoSuchFieldError e7) {
+            }
+            try {
+                $SwitchMap$com$winlator$inputcontrols$Binding[Binding.KEY_BRACKET_RIGHT.ordinal()] = 8;
+            } catch (NoSuchFieldError e8) {
+            }
+            try {
+                $SwitchMap$com$winlator$inputcontrols$Binding[Binding.KEY_BACKSLASH.ordinal()] = 9;
+            } catch (NoSuchFieldError e9) {
+            }
+            try {
+                $SwitchMap$com$winlator$inputcontrols$Binding[Binding.KEY_SLASH.ordinal()] = 10;
+            } catch (NoSuchFieldError e10) {
+            }
+            try {
+                $SwitchMap$com$winlator$inputcontrols$Binding[Binding.KEY_SEMICOLON.ordinal()] = 11;
+            } catch (NoSuchFieldError e11) {
+            }
+            try {
+                $SwitchMap$com$winlator$inputcontrols$Binding[Binding.KEY_COMMA.ordinal()] = 12;
+            } catch (NoSuchFieldError e12) {
+            }
+            try {
+                $SwitchMap$com$winlator$inputcontrols$Binding[Binding.KEY_PERIOD.ordinal()] = 13;
+            } catch (NoSuchFieldError e13) {
+            }
+            try {
+                $SwitchMap$com$winlator$inputcontrols$Binding[Binding.KEY_APOSTROPHE.ordinal()] = 14;
+            } catch (NoSuchFieldError e14) {
+            }
+            try {
+                $SwitchMap$com$winlator$inputcontrols$Binding[Binding.KEY_MINUS.ordinal()] = 15;
+            } catch (NoSuchFieldError e15) {
+            }
+            try {
+                $SwitchMap$com$winlator$inputcontrols$Binding[Binding.KEY_KP_ADD.ordinal()] = 16;
+            } catch (NoSuchFieldError e16) {
+            }
+            try {
+                $SwitchMap$com$winlator$inputcontrols$Binding[Binding.MOUSE_LEFT_BUTTON.ordinal()] = 17;
+            } catch (NoSuchFieldError e17) {
+            }
+            try {
+                $SwitchMap$com$winlator$inputcontrols$Binding[Binding.MOUSE_MIDDLE_BUTTON.ordinal()] = 18;
+            } catch (NoSuchFieldError e18) {
+            }
+            try {
+                $SwitchMap$com$winlator$inputcontrols$Binding[Binding.MOUSE_RIGHT_BUTTON.ordinal()] = 19;
+            } catch (NoSuchFieldError e19) {
+            }
+            try {
+                $SwitchMap$com$winlator$inputcontrols$Binding[Binding.MOUSE_SCROLL_UP.ordinal()] = 20;
+            } catch (NoSuchFieldError e20) {
+            }
+            try {
+                $SwitchMap$com$winlator$inputcontrols$Binding[Binding.MOUSE_SCROLL_DOWN.ordinal()] = 21;
+            } catch (NoSuchFieldError e21) {
+            }
+        }
+    }
+
+    @Override // java.lang.Enum
     public String toString() {
-        switch (this) {
-            case KEY_SHIFT_L:
+        switch (AnonymousClass1.$SwitchMap$com$winlator$inputcontrols$Binding[ordinal()]) {
+            case 1:
                 return "L SHIFT";
-            case KEY_SHIFT_R:
+            case 2:
                 return "R SHIFT";
-            case KEY_CTRL_L:
+            case 3:
                 return "L CTRL";
-            case KEY_CTRL_R:
+            case 4:
                 return "R CTRL";
-            case KEY_ALT_L:
+            case 5:
                 return "L ALT";
-            case KEY_ALT_R:
+            case 6:
                 return "R ALT";
-            case KEY_BRACKET_LEFT:
+            case 7:
                 return "[";
-            case KEY_BRACKET_RIGHT:
+            case 8:
                 return "]";
-            case KEY_BACKSLASH:
+            case 9:
                 return "\\";
-            case KEY_SLASH:
+            case 10:
                 return "/";
-            case KEY_SEMICOLON:
+            case 11:
                 return ";";
-            case KEY_COMMA:
+            case 12:
                 return ",";
-            case KEY_PERIOD:
+            case 13:
                 return ".";
-            case KEY_APOSTROPHE:
+            case 14:
                 return "'";
-            case KEY_MINUS:
+            case 15:
                 return "-";
-            case KEY_KP_ADD:
+            case 16:
                 return "+";
             default:
                 return super.toString().replaceAll("^(MOUSE_)|(KEY_)|(GAMEPAD_)", "").replace("KP_", "NUMPAD_").replace("_", " ");
         }
     }
 
-    public static Binding fromString(String name) {
-        switch (name) {
-            case "KEY_CTRL":
-                return Binding.KEY_CTRL_L;
-            case "KEY_SHIFT":
-                return Binding.KEY_SHIFT_L;
-            case "KEY_ALT":
-                return Binding.KEY_ALT_L;
-            default:
-                return valueOf(name);
-        }
+    /* JADX WARN: Can't fix incorrect switch cases order, some code will duplicate */
+    /* JADX WARN: Removed duplicated region for block: B:14:0x0026  */
+    /*
+        Code decompiled incorrectly, please refer to instructions dump.
+        To view partially-correct add '--show-bad-code' argument
+    */
+    public static com.winlator.inputcontrols.Binding fromString(java.lang.String r1) {
+        /*
+            int r0 = r1.hashCode()
+            switch(r0) {
+                case -96200823: goto L1c;
+                case 1312809067: goto L12;
+                case 2056785506: goto L8;
+                default: goto L7;
+            }
+        L7:
+            goto L26
+        L8:
+            java.lang.String r0 = "KEY_SHIFT"
+            boolean r0 = r1.equals(r0)
+            if (r0 == 0) goto L7
+            r0 = 1
+            goto L27
+        L12:
+            java.lang.String r0 = "KEY_CTRL"
+            boolean r0 = r1.equals(r0)
+            if (r0 == 0) goto L7
+            r0 = 0
+            goto L27
+        L1c:
+            java.lang.String r0 = "KEY_ALT"
+            boolean r0 = r1.equals(r0)
+            if (r0 == 0) goto L7
+            r0 = 2
+            goto L27
+        L26:
+            r0 = -1
+        L27:
+            switch(r0) {
+                case 0: goto L35;
+                case 1: goto L32;
+                case 2: goto L2f;
+                default: goto L2a;
+            }
+        L2a:
+            com.winlator.inputcontrols.Binding r0 = valueOf(r1)
+            return r0
+        L2f:
+            com.winlator.inputcontrols.Binding r0 = com.winlator.inputcontrols.Binding.KEY_ALT_L
+            return r0
+        L32:
+            com.winlator.inputcontrols.Binding r0 = com.winlator.inputcontrols.Binding.KEY_SHIFT_L
+            return r0
+        L35:
+            com.winlator.inputcontrols.Binding r0 = com.winlator.inputcontrols.Binding.KEY_CTRL_L
+            return r0
+        */
+        throw new UnsupportedOperationException("Method not decompiled: com.winlator.inputcontrols.Binding.fromString(java.lang.String):com.winlator.inputcontrols.Binding");
     }
 
     public Pointer.Button getPointerButton() {
-        switch (this) {
-            case MOUSE_LEFT_BUTTON:
+        switch (AnonymousClass1.$SwitchMap$com$winlator$inputcontrols$Binding[ordinal()]) {
+            case 17:
                 return Pointer.Button.BUTTON_LEFT;
-            case MOUSE_MIDDLE_BUTTON:
+            case 18:
                 return Pointer.Button.BUTTON_MIDDLE;
-            case MOUSE_RIGHT_BUTTON:
+            case 19:
                 return Pointer.Button.BUTTON_RIGHT;
-            case MOUSE_SCROLL_UP:
+            case 20:
                 return Pointer.Button.BUTTON_SCROLL_UP;
-            case MOUSE_SCROLL_DOWN:
+            case 21:
                 return Pointer.Button.BUTTON_SCROLL_DOWN;
             default:
                 return null;
@@ -118,37 +384,61 @@ public enum Binding {
 
     public static String[] mouseBindingLabels() {
         ArrayList<String> names = new ArrayList<>();
-        for (Binding binding : values()) if (binding.isMouse()) names.add(binding.toString());
-        return names.toArray(new String[0]);
+        for (Binding binding : values()) {
+            if (binding.isMouse()) {
+                names.add(binding.toString());
+            }
+        }
+        return (String[]) names.toArray(new String[0]);
     }
 
     public static String[] keyboardBindingLabels() {
         ArrayList<String> labels = new ArrayList<>();
-        for (Binding binding : values()) if (binding.isKeyboard()) labels.add(binding.toString());
-        return labels.toArray(new String[0]);
+        for (Binding binding : values()) {
+            if (binding.isKeyboard()) {
+                labels.add(binding.toString());
+            }
+        }
+        return (String[]) labels.toArray(new String[0]);
     }
 
     public static String[] gamepadBindingLabels() {
         ArrayList<String> names = new ArrayList<>();
-        for (Binding binding : values()) if (binding.isGamepad()) names.add(binding.toString());
-        return names.toArray(new String[0]);
+        for (Binding binding : values()) {
+            if (binding.isGamepad()) {
+                names.add(binding.toString());
+            }
+        }
+        return (String[]) names.toArray(new String[0]);
     }
 
     public static Binding[] mouseBindingValues() {
         ArrayList<Binding> labels = new ArrayList<>();
-        for (Binding binding : values()) if (binding.isMouse()) labels.add(binding);
-        return labels.toArray(new Binding[0]);
+        for (Binding binding : values()) {
+            if (binding.isMouse()) {
+                labels.add(binding);
+            }
+        }
+        return (Binding[]) labels.toArray(new Binding[0]);
     }
 
     public static Binding[] keyboardBindingValues() {
         ArrayList<Binding> values = new ArrayList<>();
-        for (Binding binding : values()) if (binding.isKeyboard()) values.add(binding);
-        return values.toArray(new Binding[0]);
+        for (Binding binding : values()) {
+            if (binding.isKeyboard()) {
+                values.add(binding);
+            }
+        }
+        return (Binding[]) values.toArray(new Binding[0]);
     }
 
     public static Binding[] gamepadBindingValues() {
         ArrayList<Binding> labels = new ArrayList<>();
-        for (Binding binding : values()) if (binding.isGamepad()) labels.add(binding);
-        return labels.toArray(new Binding[0]);
+        for (Binding binding : values()) {
+            if (binding.isGamepad()) {
+                labels.add(binding);
+            }
+        }
+        return (Binding[]) labels.toArray(new Binding[0]);
     }
 }

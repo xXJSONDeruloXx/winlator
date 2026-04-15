@@ -1,9 +1,10 @@
 package com.winlator.xserver;
 
 import android.util.SparseArray;
-
+import com.winlator.xserver.XResourceManager;
 import com.winlator.xserver.events.SelectionClear;
 
+/* JADX INFO: loaded from: classes.dex */
 public class SelectionManager implements XResourceManager.OnResourceLifecycleListener {
     private final SparseArray<Selection> selections = new SparseArray<>();
 
@@ -12,8 +13,8 @@ public class SelectionManager implements XResourceManager.OnResourceLifecycleLis
     }
 
     public static class Selection {
-        public Window owner;
         private XClient client;
+        public Window owner;
     }
 
     public void setSelection(int atom, Window owner, XClient client, int timestamp) {
@@ -26,18 +27,22 @@ public class SelectionManager implements XResourceManager.OnResourceLifecycleLis
     }
 
     public Selection getSelection(int atom) {
-        Selection selection = selections.get(atom);
-        if (selection != null) return selection;
-        selection = new Selection();
-        selections.put(atom, selection);
-        return selection;
+        Selection selection = this.selections.get(atom);
+        if (selection != null) {
+            return selection;
+        }
+        Selection selection2 = new Selection();
+        this.selections.put(atom, selection2);
+        return selection2;
     }
 
-    @Override
+    @Override // com.winlator.xserver.XResourceManager.OnResourceLifecycleListener
     public void onFreeResource(XResource resource) {
-        for (int i = 0; i < selections.size(); i++) {
-            Selection selection = selections.valueAt(i);
-            if (selection.owner == resource) selection.owner = null;
+        for (int i = 0; i < this.selections.size(); i++) {
+            Selection selection = this.selections.valueAt(i);
+            if (selection.owner == resource) {
+                selection.owner = null;
+            }
         }
     }
 }

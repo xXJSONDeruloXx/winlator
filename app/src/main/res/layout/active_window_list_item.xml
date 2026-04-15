@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:background="?panelBackground" android:padding="8.0dp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginRight="8.0dp"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="4.0dp">
+        <ImageView android:id="@+id/IVIcon" android:layout_width="22.0dp" android:layout_height="22.0dp" />
+        <TextView android:textSize="14.0dp" android:ellipsize="start" android:id="@+id/TVName" android:paddingLeft="6.0dp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" />
+    </LinearLayout>
+    <FrameLayout android:layout_width="wrap_content" android:layout_height="wrap_content">
+        <ImageView android:id="@+id/IVWindow" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+        <ImageView android:id="@+id/IVDashedFrame" android:visibility="gone" android:layout_width="116.0dp" android:layout_height="116.0dp" android:src="@drawable/dashed_frame" app:tint="#bdbdbd" />
+        <ImageView android:layout_gravity="center" android:id="@+id/IVHidden" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:src="@drawable/icon_hide" app:tint="#bdbdbd" />
+    </FrameLayout>
+</LinearLayout>

@@ -1,7 +1,6 @@
 package com.winlator.core;
 
 import android.os.Process;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -9,96 +8,143 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.concurrent.Executors;
 
+/* JADX INFO: loaded from: classes.dex */
 public abstract class ProcessHelper {
-    public static final boolean PRINT_DEBUG = false; // FIXME change to false
     private static final ArrayList<Callback<String>> debugCallbacks = new ArrayList<>();
-    private static final byte SIGCONT = 18;
-    private static final byte SIGSTOP = 19;
+
+    public enum PState {
+        RUNNING,
+        SLEEPING,
+        WAITING,
+        ZOMBIE,
+        STOPPED,
+        DEAD,
+        OTHER
+    }
+
+    public static class PStat {
+        public int pid = 0;
+        public String name = "";
+        public PState state = PState.OTHER;
+        public int parentPID = 0;
+        public boolean guestProcess = false;
+
+        public String toString() {
+            return this.pid + " " + this.name + " " + this.state + " " + this.parentPID + " " + this.guestProcess;
+        }
+    }
 
     public static void suspendProcess(int pid) {
-        Process.sendSignal(pid, SIGSTOP);
+        Process.sendSignal(pid, 19);
     }
 
     public static void resumeProcess(int pid) {
-        Process.sendSignal(pid, SIGCONT);
+        Process.sendSignal(pid, 18);
     }
 
-    public static int exec(String command) {
-        return exec(command, null);
+    public static int exec(String command, EnvVars envVars, File workingDir) {
+        return exec(command, envVars, workingDir, null);
     }
 
-    public static int exec(String command, String[] envp) {
-        return exec(command, envp, null);
-    }
-
-    public static int exec(String command, String[] envp, File workingDir) {
-        return exec(command, envp, workingDir, null);
-    }
-
-    public static int exec(String command, String[] envp, File workingDir, Callback<Integer> terminationCallback) {
+    public static int exec(String command, EnvVars envVars, File workingDir, Callback<Integer> terminationCallback) {
         int pid = -1;
         try {
-            java.lang.Process process = Runtime.getRuntime().exec(splitCommand(command), envp, workingDir);
+            ProcessBuilder processBuilder = new ProcessBuilder(splitCommand(command)).directory(workingDir);
+            if (debugCallbacks.isEmpty()) {
+                processBuilder.redirectOutput(new File("/dev/null")).redirectErrorStream(true);
+            }
+            Map<String, String> environment = processBuilder.environment();
+            for (String name : envVars) {
+                environment.put(name, envVars.get(name));
+            }
+            java.lang.Process process = processBuilder.start();
             Field pidField = process.getClass().getDeclaredField("pid");
             pidField.setAccessible(true);
             pid = pidField.getInt(process);
             pidField.setAccessible(false);
-
             if (!debugCallbacks.isEmpty()) {
                 createDebugThread(process.getInputStream());
                 createDebugThread(process.getErrorStream());
             }
-
-            if (terminationCallback != null) createWaitForThread(process, terminationCallback);
+            if (terminationCallback != null) {
+                createWaitForThread(process, terminationCallback);
+            }
+        } catch (Exception e) {
         }
-        catch (Exception e) {}
         return pid;
     }
 
     private static void createDebugThread(final InputStream inputStream) {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    if (PRINT_DEBUG) System.out.println(line);
-                    synchronized (debugCallbacks) {
-                        if (!debugCallbacks.isEmpty()) {
-                            for (Callback<String> callback : debugCallbacks) callback.call(line);
-                        }
-                    }
-                }
+        Executors.newSingleThreadExecutor().execute(new Runnable() { // from class: com.winlator.core.ProcessHelper$$ExternalSyntheticLambda1
+            @Override // java.lang.Runnable
+            public final void run() {
+                ProcessHelper.lambda_createDebugThread_0(inputStream);
             }
-            catch (IOException e) {}
         });
     }
 
-    private static void createWaitForThread(java.lang.Process process, final Callback<Integer> terminationCallback) {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            try {
-                int status = process.waitFor();
-                terminationCallback.call(status);
+    /* JADX INFO: Access modifiers changed from: private */
+    public static /* synthetic */ void lambda_createDebugThread_0(InputStream inputStream) {
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                    ArrayList<Callback<String>> arrayList = debugCallbacks;
+                    synchronized (arrayList) {
+                        if (!arrayList.isEmpty()) {
+                            for (Callback<String> callback : arrayList) {
+                                callback.call(line);
+                            }
+                        }
+                    }
             }
-            catch (InterruptedException e) {}
+            reader.close();
+        } catch (IOException e) {
+            return;
+        }
+    }
+
+    private static void createWaitForThread(final java.lang.Process process, final Callback<Integer> terminationCallback) {
+        Executors.newSingleThreadExecutor().execute(new Runnable() { // from class: com.winlator.core.ProcessHelper$$ExternalSyntheticLambda2
+            @Override // java.lang.Runnable
+            public final void run() {
+                ProcessHelper.lambda_createWaitForThread_1(process, terminationCallback);
+            }
         });
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public static /* synthetic */ void lambda_createWaitForThread_1(java.lang.Process process, Callback terminationCallback) {
+        try {
+            int status = process.waitFor();
+            terminationCallback.call(Integer.valueOf(status));
+        } catch (InterruptedException e) {
+        }
     }
 
     public static void removeAllDebugCallbacks() {
-        synchronized (debugCallbacks) {
-            debugCallbacks.clear();
+        ArrayList<Callback<String>> arrayList = debugCallbacks;
+        synchronized (arrayList) {
+            arrayList.clear();
         }
     }
 
     public static void addDebugCallback(Callback<String> callback) {
-        synchronized (debugCallbacks) {
-            if (!debugCallbacks.contains(callback)) debugCallbacks.add(callback);
+        ArrayList<Callback<String>> arrayList = debugCallbacks;
+        synchronized (arrayList) {
+            if (!arrayList.contains(callback)) {
+                arrayList.add(callback);
+            }
         }
     }
 
     public static void removeDebugCallback(Callback<String> callback) {
-        synchronized (debugCallbacks) {
-            debugCallbacks.remove(callback);
+        ArrayList<Callback<String>> arrayList = debugCallbacks;
+        synchronized (arrayList) {
+            arrayList.remove(callback);
         }
     }
 
@@ -106,67 +152,58 @@ public abstract class ProcessHelper {
         ArrayList<String> result = new ArrayList<>();
         boolean startedQuotes = false;
         String value = "";
-        char currChar, nextChar;
-        for (int i = 0, count = command.length(); i < count; i++) {
-            currChar = command.charAt(i);
-
-            if (startedQuotes) {
-                if (currChar == '"') {
-                    startedQuotes = false;
-                    if (!value.isEmpty()) {
-                        value += '"';
-                        result.add(value);
-                        value = "";
+        int i = 0;
+        int count = command.length();
+        while (true) {
+            if (i < count) {
+                char currChar = command.charAt(i);
+                if (startedQuotes) {
+                    if (currChar == '\"') {
+                        startedQuotes = false;
+                        if (!value.isEmpty()) {
+                            result.add(value + '\"');
+                            value = "";
+                        }
+                    } else {
+                        value = value + currChar;
+                    }
+                } else if (currChar == '\"') {
+                    startedQuotes = true;
+                    value = value + '\"';
+                } else {
+                    char nextChar = i < count + (-1) ? command.charAt(i + 1) : (char) 0;
+                    if (currChar == ' ' || (currChar == '\\' && nextChar == ' ')) {
+                        if (currChar == '\\') {
+                            value = value + ' ';
+                            i++;
+                        } else if (!value.isEmpty()) {
+                            result.add(value);
+                            value = "";
+                        }
+                    } else {
+                        value = value + currChar;
+                        if (i == count - 1) {
+                            result.add(value);
+                            value = "";
+                        }
                     }
                 }
-                else value += currChar;
-            }
-            else if (currChar == '"') {
-                startedQuotes = true;
-                value += '"';
-            }
-            else {
-                nextChar = i < count-1 ? command.charAt(i+1) : '\0';
-                if (currChar == ' ' || (currChar == '\\' && nextChar == ' ')) {
-                    if (currChar == '\\') {
-                        value += ' ';
-                        i++;
-                    }
-                    else if (!value.isEmpty()) {
-                        result.add(value);
-                        value = "";
-                    }
-                }
-                else {
-                    value += currChar;
-                    if (i == count-1) {
-                        result.add(value);
-                        value = "";
-                    }
-                }
+                i++;
+            } else {
+                return (String[]) result.toArray(new String[0]);
             }
         }
-
-        return result.toArray(new String[0]);
-    }
-
-    public static String getAffinityMaskAsHexString(String cpuList) {
-        String[] values = cpuList.split(",");
-        int affinityMask = 0;
-        for (String value : values) {
-            byte index = Byte.parseByte(value);
-            affinityMask |= (int)Math.pow(2, index);
-        }
-        return Integer.toHexString(affinityMask);
     }
 
     public static int getAffinityMask(String cpuList) {
-        if (cpuList == null || cpuList.isEmpty()) return 0;
+        if (cpuList == null || cpuList.isEmpty()) {
+            return 0;
+        }
         String[] values = cpuList.split(",");
         int affinityMask = 0;
         for (String value : values) {
             byte index = Byte.parseByte(value);
-            affinityMask |= (int)Math.pow(2, index);
+            affinityMask |= (int) Math.pow(2.0d, index);
         }
         return affinityMask;
     }
@@ -174,14 +211,31 @@ public abstract class ProcessHelper {
     public static int getAffinityMask(boolean[] cpuList) {
         int affinityMask = 0;
         for (int i = 0; i < cpuList.length; i++) {
-            if (cpuList[i]) affinityMask |= (int)Math.pow(2, i);
+            if (cpuList[i]) {
+                affinityMask |= (int) Math.pow(2.0d, i);
+            }
         }
         return affinityMask;
     }
 
-    public static int getAffinityMask(int from, int to) {
-        int affinityMask = 0;
-        for (int i = from; i < to; i++) affinityMask |= (int)Math.pow(2, i);
-        return affinityMask;
+    /* JADX WARN: Can't fix incorrect switch cases order, some code will duplicate */
+    /* JADX WARN: Failed to restore switch over string. Please report as a decompilation issue */
+    /* JADX WARN: Multi-variable type inference failed */
+    /* JADX WARN: Removed duplicated region for block: B:21:0x0072  */
+    /*
+        Code decompiled incorrectly, please refer to instructions dump.
+        To view partially-correct add '--show-bad-code' argument
+    */
+    public static java.util.List<com.winlator.core.ProcessHelper.PStat> getChildProcesses() {
+        /*
+            Method dump skipped, instruction units count: 378
+            To view this dump add '--comments-level debug' option
+        */
+        throw new UnsupportedOperationException("Method not decompiled: com.winlator.core.ProcessHelper.getChildProcesses():java.util.List");
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public static /* synthetic */ boolean lambda_getChildProcesses_2(File file, String name) {
+        return new File(file, name).isDirectory() && name.matches("[0-9]+");
     }
 }

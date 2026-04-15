@@ -1,16 +1,15 @@
 package com.winlator.core;
 
+import android.R;
 import android.app.Activity;
 import android.app.Dialog;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.TextView;
-
 import com.google.android.material.progressindicator.CircularProgressIndicator;
-import com.winlator.R;
 import com.winlator.math.Mathf;
 
+/* JADX INFO: loaded from: classes.dex */
 public class DownloadProgressDialog {
     private final Activity activity;
     private Dialog dialog;
@@ -20,22 +19,20 @@ public class DownloadProgressDialog {
     }
 
     private void create() {
-        if (dialog != null) return;
-        dialog = new Dialog(activity, android.R.style.Theme_Translucent_NoTitleBar_Fullscreen);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setCancelable(false);
-        dialog.setCanceledOnTouchOutside(false);
-        dialog.setContentView(R.layout.download_progress_dialog);
-
-        Window window = dialog.getWindow();
-        if (window != null) {
-            window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-            window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+        if (this.dialog != null) {
+            return;
         }
-    }
-
-    public void show() {
-        show(null);
+        Dialog dialog = new Dialog(this.activity, android.R.style.Theme_Translucent_NoTitleBar_Fullscreen);
+        this.dialog = dialog;
+        dialog.requestWindowFeature(1);
+        this.dialog.setCancelable(false);
+        this.dialog.setCanceledOnTouchOutside(false);
+        this.dialog.setContentView(com.winlator.R.layout.download_progress_dialog);
+        Window window = this.dialog.getWindow();
+        if (window != null) {
+            window.clearFlags(16);
+            window.clearFlags(8);
+        }
     }
 
     public void show(int textResId) {
@@ -47,41 +44,54 @@ public class DownloadProgressDialog {
     }
 
     public void show(int textResId, final Runnable onCancelCallback) {
-        if (isShowing()) return;
+        if (isShowing()) {
+            return;
+        }
         close();
-        if (dialog == null) create();
-
-        if (textResId > 0) ((TextView)dialog.findViewById(R.id.TextView)).setText(textResId);
-
+        if (this.dialog == null) {
+            create();
+        }
+        if (textResId > 0) {
+            ((TextView) this.dialog.findViewById(com.winlator.R.id.TextView)).setText(textResId);
+        }
         setProgress(0);
         if (onCancelCallback != null) {
-            dialog.findViewById(R.id.BTCancel).setOnClickListener((v) -> onCancelCallback.run());
-            dialog.findViewById(R.id.LLBottomBar).setVisibility(View.VISIBLE);
+            this.dialog.findViewById(com.winlator.R.id.BTCancel).setOnClickListener(new View.OnClickListener() { // from class: com.winlator.core.DownloadProgressDialog$$ExternalSyntheticLambda0
+                @Override // android.view.View.OnClickListener
+                public final void onClick(View view) {
+                    onCancelCallback.run();
+                }
+            });
+            this.dialog.findViewById(com.winlator.R.id.LLBottomBar).setVisibility(0);
         }
-        dialog.show();
+        this.dialog.show();
     }
 
     public void setProgress(int progress) {
-        if (dialog == null) return;
-        progress = Mathf.clamp(progress, 0, 100);
-        ((CircularProgressIndicator)dialog.findViewById(R.id.CircularProgressIndicator)).setProgress(progress);
-        ((TextView)dialog.findViewById(R.id.TVProgress)).setText(progress+"%");
+        if (this.dialog == null) {
+            return;
+        }
+        int progress2 = Mathf.clamp(progress, 0, 100);
+        ((CircularProgressIndicator) this.dialog.findViewById(com.winlator.R.id.CircularProgressIndicator)).setProgress(progress2);
+        ((TextView) this.dialog.findViewById(com.winlator.R.id.TVProgress)).setText(progress2 + "%");
     }
 
     public void close() {
         try {
+            Dialog dialog = this.dialog;
             if (dialog != null) {
                 dialog.dismiss();
             }
+        } catch (Exception e) {
         }
-        catch (Exception e) {}
     }
 
     public void closeOnUiThread() {
-        activity.runOnUiThread(this::close);
+        this.activity.runOnUiThread(() -> close());
     }
 
     public boolean isShowing() {
+        Dialog dialog = this.dialog;
         return dialog != null && dialog.isShowing();
     }
 }

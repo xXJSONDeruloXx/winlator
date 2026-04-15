@@ -1,46 +1,52 @@
 package com.winlator.xserver;
 
+/* JADX INFO: loaded from: classes.dex */
 public class GraphicsContext extends XResource {
-    public static final int FLAG_FUNCTION = 1<<0;
-    public static final int FLAG_PLANE_MASK = 1<<1;
-    public static final int FLAG_FOREGROUND = 1<<2;
-    public static final int FLAG_BACKGROUND = 1<<3;
-    public static final int FLAG_LINE_WIDTH = 1<<4;
-    public static final int FLAG_LINE_STYLE = 1<<5;
-    public static final int FLAG_CAP_STYLE = 1<<6;
-    public static final int FLAG_JOIN_STYLE = 1<<7;
-    public static final int FLAG_FILL_STYLE = 1<<8;
-    public static final int FLAG_FILL_RULE = 1<<9;
-    public static final int FLAG_TILE = 1<<10;
-    public static final int FLAG_STIPPLE = 1<<11;
-    public static final int FLAG_TILE_STIPPLE_X_ORIGIN = 1<<12;
-    public static final int FLAG_TILE_STIPPLE_Y_ORIGIN	= 1<<13;
-    public static final int FLAG_FONT = 1<<14;
-    public static final int FLAG_SUBWINDOW_MODE	= 1<<15;
-    public static final int FLAG_GRAPHICS_EXPOSURES = 1<<16;
-    public static final int FLAG_CLIP_X_ORIGIN = 1<<17;
-    public static final int FLAG_CLIP_Y_ORIGIN = 1<<18;
-    public static final int FLAG_CLIP_MASK = 1<<19;
-    public static final int FLAG_DASH_OFFSET = 1<<20;
-    public static final int FLAG_DASHES = 1<<21;
-    public static final int FLAG_ARC_MODE = 1<<22;
-    public enum Function {CLEAR, AND, AND_REVERSE, COPY, AND_INVERTED, NO_OP, XOR, OR, NOR, EQUIV, INVERT, OR_REVERSE, COPY_INVERTED, OR_INVERTED, NAND, SET}
-    public enum SubwindowMode {CLIP_BY_CHILDREN, INCLUDE_INFERIORS}
+    private int background;
     public final Drawable drawable;
-    private Function function = Function.COPY;
-    private int background = 0xffffff;
-    private int foreground = 0x000000;
-    private int lineWidth = 1;
-    private int planeMask = -1;
-    private SubwindowMode subwindowMode = SubwindowMode.CLIP_BY_CHILDREN;
+    private int foreground;
+    private Function function;
+    private int lineWidth;
+    private int planeMask;
+    private SubwindowMode subwindowMode;
+
+    public enum Function {
+        CLEAR,
+        AND,
+        AND_REVERSE,
+        COPY,
+        AND_INVERTED,
+        NO_OP,
+        XOR,
+        OR,
+        NOR,
+        EQUIV,
+        INVERT,
+        OR_REVERSE,
+        COPY_INVERTED,
+        OR_INVERTED,
+        NAND,
+        SET
+    }
+
+    public enum SubwindowMode {
+        CLIP_BY_CHILDREN,
+        INCLUDE_INFERIORS
+    }
 
     public GraphicsContext(int id, Drawable drawable) {
         super(id);
+        this.function = Function.COPY;
+        this.background = 16777215;
+        this.foreground = 0;
+        this.lineWidth = 1;
+        this.planeMask = -1;
+        this.subwindowMode = SubwindowMode.CLIP_BY_CHILDREN;
         this.drawable = drawable;
     }
 
     public int getForeground() {
-        return foreground;
+        return this.foreground;
     }
 
     public void setForeground(int foreground) {
@@ -56,15 +62,11 @@ public class GraphicsContext extends XResource {
     }
 
     public int getLineWidth() {
-        return lineWidth;
+        return this.lineWidth;
     }
 
     public void setLineWidth(int lineWidth) {
         this.lineWidth = lineWidth;
-    }
-
-    public int getPlaneMask() {
-        return planeMask;
     }
 
     public void setPlaneMask(int planeMask) {
@@ -72,15 +74,11 @@ public class GraphicsContext extends XResource {
     }
 
     public Function getFunction() {
-        return function;
+        return this.function;
     }
 
     public void setFunction(Function function) {
         this.function = function;
-    }
-
-    public SubwindowMode getSubwindowMode() {
-        return subwindowMode;
     }
 
     public void setSubwindowMode(SubwindowMode subwindowMode) {

@@ -1,6 +1,9 @@
 package com.winlator;
 
-import android.app.Activity;
+import android.app.PictureInPictureParams;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -9,36 +12,46 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowInsets;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.Spinner;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import android.widget.SpinnerAdapter;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.preference.PreferenceManager;
-
 import com.google.android.material.navigation.NavigationView;
+import com.winlator.alsaserver.ALSAClient;
 import com.winlator.container.Container;
 import com.winlator.container.ContainerManager;
+import com.winlator.container.DXWrappers;
+import com.winlator.container.GraphicsDrivers;
 import com.winlator.container.Shortcut;
+import com.winlator.contentdialog.ActiveWindowsDialog;
 import com.winlator.contentdialog.ContentDialog;
 import com.winlator.contentdialog.DXVKConfigDialog;
 import com.winlator.contentdialog.DebugDialog;
+import com.winlator.contentdialog.ScreenEffectDialog;
+import com.winlator.contentdialog.TurnipConfigDialog;
+import com.winlator.contentdialog.VKD3DConfigDialog;
+import com.winlator.contentdialog.VirGLConfigDialog;
+import com.winlator.contentdialog.WineD3DConfigDialog;
 import com.winlator.core.AppUtils;
+import com.winlator.core.Callback;
 import com.winlator.core.DefaultVersion;
 import com.winlator.core.EnvVars;
 import com.winlator.core.FileUtils;
-import com.winlator.core.GPUInformation;
+import com.winlator.core.GeneralComponents;
 import com.winlator.core.KeyValueSet;
-import com.winlator.core.OnExtractFileListener;
+import com.winlator.core.LocaleHelper;
 import com.winlator.core.PreloaderDialog;
 import com.winlator.core.ProcessHelper;
+import com.winlator.core.StringUtils;
 import com.winlator.core.TarCompressorUtils;
+import com.winlator.core.Win32AppWorkarounds;
 import com.winlator.core.WineInfo;
+import com.winlator.core.WineInstaller;
 import com.winlator.core.WineRegistryEditor;
 import com.winlator.core.WineStartMenuCreator;
 import com.winlator.core.WineThemeManager;
@@ -53,10 +66,11 @@ import com.winlator.widget.InputControlsView;
 import com.winlator.widget.MagnifierView;
 import com.winlator.widget.TouchpadView;
 import com.winlator.widget.XServerView;
+import com.winlator.winhandler.GamepadHandler;
 import com.winlator.winhandler.TaskManagerDialog;
 import com.winlator.winhandler.WinHandler;
 import com.winlator.xconnector.UnixSocketConfig;
-import com.winlator.xenvironment.ImageFs;
+import com.winlator.xenvironment.RootFS;
 import com.winlator.xenvironment.XEnvironment;
 import com.winlator.xenvironment.components.ALSAServerComponent;
 import com.winlator.xenvironment.components.GuestProgramLauncherComponent;
@@ -64,583 +78,752 @@ import com.winlator.xenvironment.components.NetworkInfoUpdateComponent;
 import com.winlator.xenvironment.components.PulseAudioComponent;
 import com.winlator.xenvironment.components.SysVSharedMemoryComponent;
 import com.winlator.xenvironment.components.VirGLRendererComponent;
+import com.winlator.xenvironment.components.VortekRendererComponent;
 import com.winlator.xenvironment.components.XServerComponent;
 import com.winlator.xserver.Property;
 import com.winlator.xserver.ScreenInfo;
 import com.winlator.xserver.Window;
 import com.winlator.xserver.WindowManager;
 import com.winlator.xserver.XServer;
-
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Objects;
+import java.util.concurrent.Executors;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.concurrent.Executors;
-
+/* JADX INFO: loaded from: classes.dex */
 public class XServerDisplayActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
-    private XServerView xServerView;
-    private InputControlsView inputControlsView;
-    private TouchpadView touchpadView;
-    private XEnvironment environment;
-    private DrawerLayout drawerLayout;
-    private ContainerManager containerManager;
+    private KeyValueSet audioDriverConfig;
+    private ClipboardManager clipboardManager;
     private Container container;
-    private XServer xServer;
-    private InputControlsManager inputControlsManager;
-    private ImageFs imageFs;
-    private FrameRating frameRating;
+    private DebugDialog debugDialog;
+    private DrawerLayout drawerLayout;
+    private KeyValueSet[] dxwrapperConfig;
     private Runnable editInputControlsCallback;
-    private Shortcut shortcut;
-    private String graphicsDriver = Container.DEFAULT_GRAPHICS_DRIVER;
-    private String audioDriver = Container.DEFAULT_AUDIO_DRIVER;
-    private String dxwrapper = Container.DEFAULT_DXWRAPPER;
-    private KeyValueSet dxwrapperConfig;
-    private WineInfo wineInfo;
-    private final EnvVars envVars = new EnvVars();
-    private boolean firstTimeBoot = false;
+    private XEnvironment environment;
+    private FrameRating frameRating;
+    private KeyValueSet[] graphicsDriverConfig;
+    private InputControlsManager inputControlsManager;
+    private InputControlsView inputControlsView;
+    private MagnifierView magnifierView;
+    private EnvVars overrideEnvVars;
     private SharedPreferences preferences;
-    private OnExtractFileListener onExtractFileListener;
+    private RootFS rootFS;
+    private String screenEffectProfile;
+    private Shortcut shortcut;
+    private TouchpadView touchpadView;
+    private Win32AppWorkarounds win32AppWorkarounds;
+    private String wincomponents;
+    private WineInfo wineInfo;
+    private XServer xServer;
+    private XServerView xServerView;
+    private String[] graphicsDriver = {"vortek", "gladio"};
+    private String audioDriver = "alsa";
+    private String dxwrapper = "dxvk";
+    private ScreenInfo screenInfo = new ScreenInfo("1280x720");
+    private final EnvVars envVars = new EnvVars();
     private final WinHandler winHandler = new WinHandler(this);
     private float globalCursorSpeed = 1.0f;
-    private MagnifierView magnifierView;
-    private DebugDialog debugDialog;
-    private short taskAffinityMask = 0;
-    private short taskAffinityMaskWoW64 = 0;
+    private boolean capturePointerOnExternalMouse = true;
     private int frameRatingWindowId = -1;
 
-    @Override
+    @Override // androidx.fragment.app.FragmentActivity, androidx.activity.ComponentActivity, androidx.core.app.ComponentActivity, android.app.Activity
     public void onCreate(Bundle savedInstanceState) {
+        int preferredInputApiIdx;
+        AppUtils.setActivityTheme(this);
         super.onCreate(savedInstanceState);
         AppUtils.hideSystemUI(this);
         AppUtils.keepScreenOn(this);
         setContentView(R.layout.xserver_display_activity);
-
         final PreloaderDialog preloaderDialog = new PreloaderDialog(this);
-        preferences = PreferenceManager.getDefaultSharedPreferences(this);
-
-        drawerLayout = findViewById(R.id.DrawerLayout);
-        drawerLayout.setOnApplyWindowInsetsListener((view, windowInsets) -> windowInsets.replaceSystemWindowInsets(0, 0, 0, 0));
-        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-
-        NavigationView navigationView = findViewById(R.id.NavigationView);
+        SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        this.preferences = defaultSharedPreferences;
+        boolean useAndroidClipboardOnWine = defaultSharedPreferences.getBoolean("use_android_clipboard_on_wine", false);
+        this.clipboardManager = useAndroidClipboardOnWine ? (ClipboardManager) getSystemService("clipboard") : null;
+        DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.DrawerLayout);
+        this.drawerLayout = drawerLayout;
+        drawerLayout.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() { // from class: com.winlator.XServerDisplayActivity$$ExternalSyntheticLambda0
+            @Override // android.view.View.OnApplyWindowInsetsListener
+            public final WindowInsets onApplyWindowInsets(View view, WindowInsets windowInsets) {
+                return XServerDisplayActivity.lambda_onCreate_0(view, windowInsets);
+            }
+        });
+        this.drawerLayout.setDrawerLockMode(1);
+        NavigationView navigationView = (NavigationView) findViewById(R.id.NavigationView);
         ProcessHelper.removeAllDebugCallbacks();
-        boolean enableLogs = preferences.getBoolean("enable_wine_debug", false) || preferences.getBoolean("enable_box86_64_logs", false);
-        if (enableLogs) ProcessHelper.addDebugCallback(debugDialog = new DebugDialog(this));
+        boolean enableLogs = this.preferences.getBoolean("enable_wine_debug", false) || this.preferences.getInt("box64_logs", 0) >= 1;
+        if (enableLogs) {
+            DebugDialog debugDialog = new DebugDialog(this);
+            this.debugDialog = debugDialog;
+            ProcessHelper.addDebugCallback(debugDialog);
+        }
         Menu menu = navigationView.getMenu();
-        menu.findItem(R.id.main_menu_logs).setVisible(enableLogs);
-        if (XrActivity.isSupported()) menu.findItem(R.id.main_menu_magnifier).setVisible(false);
+        menu.findItem(R.id.menu_item_logs).setVisible(enableLogs);
         navigationView.setNavigationItemSelectedListener(this);
-
-        imageFs = ImageFs.find(this);
-
-        String screenSize = Container.DEFAULT_SCREEN_SIZE;
+        this.rootFS = RootFS.find(this);
         if (!isGenerateWineprefix()) {
-            containerManager = new ContainerManager(this);
-            container = containerManager.getContainerById(getIntent().getIntExtra("container_id", 0));
-            containerManager.activateContainer(container);
-
-            boolean wineprefixNeedsUpdate = container.getExtra("wineprefixNeedsUpdate").equals("t");
-            if (wineprefixNeedsUpdate) {
-                preloaderDialog.show(R.string.updating_system_files);
-                WineUtils.updateWineprefix(this, (status) -> {
-                    if (status == 0) {
-                        container.putExtra("wineprefixNeedsUpdate", null);
-                        container.putExtra("wincomponents", null);
-                        container.saveData();
-                        AppUtils.restartActivity(this);
+            ContainerManager containerManager = new ContainerManager(this);
+            Container containerById = containerManager.getContainerById(getIntent().getIntExtra("container_id", 0));
+            this.container = containerById;
+            containerManager.activateContainer(containerById);
+            boolean wineprefixNeedsUpdate = this.container.getExtra("wineprefixNeedsUpdate").equals("t");
+            if (!wineprefixNeedsUpdate) {
+                this.win32AppWorkarounds = new Win32AppWorkarounds(this);
+                String wineVersion = this.container.getWineVersion();
+                WineInfo wineInfoFromIdentifier = WineInfo.fromIdentifier(this, wineVersion);
+                this.wineInfo = wineInfoFromIdentifier;
+                if (wineInfoFromIdentifier != WineInfo.MAIN_WINE_INFO) {
+                    this.rootFS.setWinePath(wineInfoFromIdentifier.path);
+                }
+                String shortcutPath = getIntent().getStringExtra("shortcut_path");
+                if (shortcutPath != null && !shortcutPath.isEmpty()) {
+                    this.shortcut = new Shortcut(this.container, new File(shortcutPath));
+                }
+                String graphicsDriver = this.container.getGraphicsDriver();
+                this.audioDriver = this.container.getAudioDriver();
+                String dxwrapper = this.container.getDXWrapper();
+                this.wincomponents = this.container.getWinComponents();
+                String dxwrapperConfig = this.container.getDXWrapperConfig();
+                String graphicsDriverConfig = this.container.getGraphicsDriverConfig();
+                this.audioDriverConfig = new KeyValueSet(this.container.getAudioDriverConfig());
+                this.screenInfo = new ScreenInfo(this.container.getScreenSize());
+                int preferredInputApiIdx2 = this.preferences.getInt("preferred_input_api", GamepadHandler.PreferredInputApi.AUTO.ordinal());
+                Shortcut shortcut = this.shortcut;
+                if (shortcut != null) {
+                    int preferredInputApiIdx3 = preferredInputApiIdx2;
+                    graphicsDriver = shortcut.getExtra("graphicsDriver", this.container.getGraphicsDriver());
+                    this.audioDriver = this.shortcut.getExtra("audioDriver", this.container.getAudioDriver());
+                    dxwrapper = this.shortcut.getExtra("dxwrapper", this.container.getDXWrapper());
+                    this.wincomponents = this.shortcut.getExtra("wincomponents", this.container.getWinComponents());
+                    dxwrapperConfig = this.shortcut.getExtra("dxwrapperConfig", this.container.getDXWrapperConfig());
+                    String graphicsDriverConfig2 = this.shortcut.getExtra("graphicsDriverConfig", this.container.getGraphicsDriverConfig());
+                    this.audioDriverConfig = new KeyValueSet(this.shortcut.getExtra("audioDriverConfig", this.container.getAudioDriverConfig()));
+                    this.screenInfo = new ScreenInfo(this.shortcut.getExtra("screenSize", this.container.getScreenSize()));
+                    String dinputMapperType = this.shortcut.getExtra("dinputMapperType");
+                    if (!dinputMapperType.isEmpty()) {
+                        this.winHandler.gamepadHandler.setDInputMapperType(Byte.parseByte(dinputMapperType));
                     }
-                    else finish();
-                });
+                    String preferredInputApi = this.shortcut.getExtra("preferredInputApi");
+                    if (!preferredInputApi.isEmpty()) {
+                        preferredInputApiIdx3 = Byte.parseByte(preferredInputApi);
+                    }
+                    this.win32AppWorkarounds.applyStartupWorkarounds(!this.shortcut.wmClass.isEmpty() ? this.shortcut.wmClass : this.shortcut.path);
+                    preferredInputApiIdx = preferredInputApiIdx3;
+                    graphicsDriverConfig = graphicsDriverConfig2;
+                } else {
+                    Intent intent = getIntent();
+                    if (intent.hasExtra("exec_path")) {
+                        this.win32AppWorkarounds.applyStartupWorkarounds(FileUtils.getName(intent.getStringExtra("exec_path")));
+                    }
+                    preferredInputApiIdx = preferredInputApiIdx2;
+                }
+                this.graphicsDriver = GraphicsDrivers.parseIdentifiers(graphicsDriver);
+                this.graphicsDriverConfig = GraphicsDrivers.parseConfigs(graphicsDriver, graphicsDriverConfig);
+                this.dxwrapper = DXWrappers.parseIdentifier(dxwrapper);
+                this.dxwrapperConfig = DXWrappers.parseConfigs(dxwrapper, dxwrapperConfig);
+                this.winHandler.gamepadHandler.setPreferredInputApi(GamepadHandler.PreferredInputApi.values()[preferredInputApiIdx]);
+            } else {
+                preloaderDialog.show(R.string.updating_system_files);
+                WineUtils.updateWineprefix(this, (Callback<Integer>) status -> lambda_onCreate_1(status));
                 return;
             }
-
-            taskAffinityMask = (short)ProcessHelper.getAffinityMask(container.getCPUList(true));
-            taskAffinityMaskWoW64 = (short)ProcessHelper.getAffinityMask(container.getCPUListWoW64(true));
-            firstTimeBoot = container.getExtra("appVersion").isEmpty();
-
-            String wineVersion = container.getWineVersion();
-            wineInfo = WineInfo.fromIdentifier(this, wineVersion);
-
-            if (wineInfo != WineInfo.MAIN_WINE_VERSION) imageFs.setWinePath(wineInfo.path);
-
-            String shortcutPath = getIntent().getStringExtra("shortcut_path");
-            if (shortcutPath != null && !shortcutPath.isEmpty()) shortcut = new Shortcut(container, new File(shortcutPath));
-
-            graphicsDriver = container.getGraphicsDriver();
-            audioDriver = container.getAudioDriver();
-            dxwrapper = container.getDXWrapper();
-            String dxwrapperConfig = container.getDXWrapperConfig();
-            screenSize = container.getScreenSize();
-
-            if (shortcut != null) {
-                graphicsDriver = shortcut.getExtra("graphicsDriver", container.getGraphicsDriver());
-                audioDriver = shortcut.getExtra("audioDriver", container.getAudioDriver());
-                dxwrapper = shortcut.getExtra("dxwrapper", container.getDXWrapper());
-                dxwrapperConfig = shortcut.getExtra("dxwrapperConfig", container.getDXWrapperConfig());
-                screenSize = shortcut.getExtra("screenSize", container.getScreenSize());
-
-                String dinputMapperType = shortcut.getExtra("dinputMapperType");
-                if (!dinputMapperType.isEmpty()) winHandler.setDInputMapperType(Byte.parseByte(dinputMapperType));
-            }
-
-            if (dxwrapper.equals("dxvk")) this.dxwrapperConfig = DXVKConfigDialog.parseConfig(dxwrapperConfig);
-
-            if (!wineInfo.isWin64()) {
-                onExtractFileListener = (file, size) -> {
-                    String path = file.getPath();
-                    if (path.contains("system32/")) return null;
-                    return new File(path.replace("syswow64/", "system32/"));
-                };
-            }
         }
-
         preloaderDialog.show(R.string.starting_up);
-
-        inputControlsManager = new InputControlsManager(this);
-        xServer = new XServer(new ScreenInfo(screenSize));
-        xServer.setWinHandler(winHandler);
-        boolean[] winStarted = {false};
-        xServer.windowManager.addOnWindowModificationListener(new WindowManager.OnWindowModificationListener() {
-            @Override
+        this.inputControlsManager = new InputControlsManager(this);
+        XServer xServer = new XServer(this, this.screenInfo);
+        this.xServer = xServer;
+        xServer.setWinHandler(this.winHandler);
+        final boolean[] flags = new boolean[2];
+        flags[0] = false;
+        flags[1] = this.shortcut != null || getIntent().hasExtra("exec_path");
+        this.xServer.windowManager.addOnWindowModificationListener(new WindowManager.OnWindowModificationListener() { // from class: com.winlator.XServerDisplayActivity.1
+            @Override // com.winlator.xserver.WindowManager.OnWindowModificationListener
             public void onUpdateWindowContent(Window window) {
-                if (!winStarted[0] && window.isApplicationWindow()) {
-                    xServerView.getRenderer().setCursorVisible(true);
-                    preloaderDialog.closeOnUiThread();
-                    winStarted[0] = true;
+                if (window.id == XServerDisplayActivity.this.frameRatingWindowId) {
+                    XServerDisplayActivity.this.frameRating.update();
                 }
-
-                if (window.id == frameRatingWindowId) frameRating.update();
             }
 
-            @Override
-            public void onModifyWindowProperty(Window window, Property property) {
-                changeFrameRatingVisibility(window, property);
-            }
-
-            @Override
+            @Override // com.winlator.xserver.WindowManager.OnWindowModificationListener
             public void onMapWindow(Window window) {
-                assignTaskAffinity(window);
+                if (!flags[0] && window.isRenderable() && !window.getClassName().isEmpty()) {
+                    XServerDisplayActivity.this.xServerView.getRenderer().setCursorVisible(true);
+                    preloaderDialog.closeOnUiThread();
+                    flags[0] = true;
+                }
+                if (flags[1] && window.attributes.isViewable() && window.isDesktopWindow()) {
+                    window.attributes.setViewable(false);
+                    if (window.attributes.isEnabled()) {
+                        window.disableAllDescendants();
+                    }
+                }
+                if (XServerDisplayActivity.this.win32AppWorkarounds != null) {
+                    XServerDisplayActivity.this.win32AppWorkarounds.applyWindowWorkarounds(window);
+                }
+                XServerDisplayActivity.this.changeFrameRatingVisibility(window, true);
             }
 
-            @Override
+            @Override // com.winlator.xserver.WindowManager.OnWindowModificationListener
             public void onUnmapWindow(Window window) {
-                changeFrameRatingVisibility(window, null);
+                XServerDisplayActivity.this.changeFrameRatingVisibility(window, false);
             }
         });
-
         setupUI();
-
         Executors.newSingleThreadExecutor().execute(() -> {
-            if (!isGenerateWineprefix()) {
-                setupWineSystemFiles();
-                extractGraphicsDriverFiles();
-                changeWineAudioDriver();
+            try {
+                lambda_onCreate_2();
+            } catch (Throwable e) {
+                throw new RuntimeException(e);
             }
-            setupXEnvironment();
         });
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    /* JADX INFO: Access modifiers changed from: private */
+    public static /* synthetic */ WindowInsets lambda_onCreate_0(View view, WindowInsets windowInsets) {
+        return windowInsets.replaceSystemWindowInsets(0, 0, 0, 0);
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public /* synthetic */ void lambda_onCreate_1(Integer status) {
+        if (status.intValue() == 0) {
+            this.container.putExtra("wineprefixNeedsUpdate", null);
+            this.container.putExtra("wincomponents", null);
+            this.container.saveData();
+            AppUtils.restartActivity(this);
+            return;
+        }
+        finish();
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public /* synthetic */ void lambda_onCreate_2() throws Throwable {
+        if (!isGenerateWineprefix()) {
+            setupWineSystemFiles();
+            extractGraphicsDriverFiles();
+            changeWineAudioDriver();
+        }
+        setupXEnvironment();
+    }
+
+    @Override // androidx.appcompat.app.AppCompatActivity, android.app.Activity, android.view.ContextThemeWrapper, android.content.ContextWrapper
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(LocaleHelper.setSystemLocale(newBase));
+    }
+
+    @Override // androidx.fragment.app.FragmentActivity, androidx.activity.ComponentActivity, android.app.Activity
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Runnable runnable;
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == MainActivity.EDIT_INPUT_CONTROLS_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            if (editInputControlsCallback != null) {
-                editInputControlsCallback.run();
-                editInputControlsCallback = null;
+        if (requestCode == 3 && resultCode == -1 && (runnable = this.editInputControlsCallback) != null) {
+            runnable.run();
+            this.editInputControlsCallback = null;
+        }
+    }
+
+    @Override // android.app.Activity, android.view.Window.Callback
+    public void onWindowFocusChanged(boolean hasFocus) {
+        ClipboardManager clipboardManager;
+        ClipData primaryClip;
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            if (this.capturePointerOnExternalMouse) {
+                this.touchpadView.requestPointerCapture();
+            }
+            if (this.winHandler != null && (clipboardManager = this.clipboardManager) != null && clipboardManager.hasPrimaryClip() && (primaryClip = this.clipboardManager.getPrimaryClip()) != null && primaryClip.getItemCount() > 0) {
+                this.winHandler.setClipboardData(primaryClip.getItemAt(0).getText().toString());
             }
         }
     }
 
-    @Override
+    @Override // androidx.fragment.app.FragmentActivity, android.app.Activity
     public void onResume() {
         super.onResume();
-        if (environment != null) {
-            xServerView.onResume();
-            environment.onResume();
+        if (this.environment != null) {
+            this.xServerView.onResume();
+            this.environment.onResume();
         }
     }
 
-    @Override
+    @Override // androidx.fragment.app.FragmentActivity, android.app.Activity
     public void onPause() {
         super.onPause();
-        if (environment != null) {
-            environment.onPause();
-            xServerView.onPause();
+        if (this.environment != null && !isInPictureInPictureMode()) {
+            this.environment.onPause();
+            this.xServerView.onPause();
         }
     }
 
-    @Override
+    @Override // androidx.appcompat.app.AppCompatActivity, androidx.fragment.app.FragmentActivity, android.app.Activity
     protected void onDestroy() {
-        winHandler.stop();
-        if (environment != null) environment.stopEnvironmentComponents();
+        this.winHandler.stop();
+        XEnvironment xEnvironment = this.environment;
+        if (xEnvironment != null) {
+            xEnvironment.stopEnvironmentComponents();
+        }
         super.onDestroy();
     }
 
-    @Override
+    @Override // androidx.activity.ComponentActivity, android.app.Activity
     public void onBackPressed() {
-        if (environment != null) {
-            if (!drawerLayout.isDrawerOpen(GravityCompat.START)) {
-                drawerLayout.openDrawer(GravityCompat.START);
+        if (this.environment != null) {
+            if (!this.drawerLayout.isDrawerOpen(8388611)) {
+                this.drawerLayout.openDrawer(8388611);
+            } else {
+                this.drawerLayout.closeDrawers();
             }
-            else drawerLayout.closeDrawers();
         }
     }
 
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        final GLRenderer renderer = xServerView.getRenderer();
-        switch (item.getItemId()) {
-            case R.id.main_menu_keyboard:
-                AppUtils.showKeyboard(this);
-                drawerLayout.closeDrawers();
-                break;
-            case R.id.main_menu_input_controls:
-                showInputControlsDialog();
-                drawerLayout.closeDrawers();
-                break;
-            case R.id.main_menu_toggle_fullscreen:
-                renderer.toggleFullscreen();
-                drawerLayout.closeDrawers();
-                break;
-            case R.id.main_menu_task_manager:
-                (new TaskManagerDialog(this)).show();
-                drawerLayout.closeDrawers();
-                break;
-            case R.id.main_menu_magnifier:
-                if (magnifierView == null) {
-                    final FrameLayout container = findViewById(R.id.FLXServerDisplay);
-                    magnifierView = new MagnifierView(this);
-                    magnifierView.setZoomButtonCallback((value) -> {
-                        renderer.setMagnifierZoom(Mathf.clamp(renderer.getMagnifierZoom() + value, 1.0f, 3.0f));
-                        magnifierView.setZoomValue(renderer.getMagnifierZoom());
-                    });
-                    magnifierView.setZoomValue(renderer.getMagnifierZoom());
-                    magnifierView.setHideButtonCallback(() -> {
-                        container.removeView(magnifierView);
-                        magnifierView = null;
-                    });
-                    container.addView(magnifierView);
-                }
-                drawerLayout.closeDrawers();
-                break;
-            case R.id.main_menu_logs:
-                debugDialog.show();
-                drawerLayout.closeDrawers();
-                break;
-            case R.id.main_menu_touchpad_help:
-                showTouchpadHelpDialog();
-                break;
-            case R.id.main_menu_exit:
+    @Override // com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener
+    public boolean onNavigationItemSelected(MenuItem item) {
+        final GLRenderer renderer = this.xServerView.getRenderer();
+        int itemId = item.getItemId();
+        if (itemId == R.id.menu_item_active_windows) {
+                new ActiveWindowsDialog(this).show();
+                this.drawerLayout.closeDrawers();
+        } else if (itemId == R.id.menu_item_exit) {
                 exit();
-                break;
+        } else if (itemId == R.id.menu_item_input_controls) {
+                showInputControlsDialog();
+                this.drawerLayout.closeDrawers();
+        } else if (itemId == R.id.menu_item_keyboard) {
+                AppUtils.showKeyboard(this);
+                this.drawerLayout.closeDrawers();
+        } else if (itemId == R.id.menu_item_logs) {
+                this.debugDialog.show();
+                this.drawerLayout.closeDrawers();
+        } else if (itemId == R.id.menu_item_magnifier) {
+                if (this.magnifierView == null) {
+                    final FrameLayout container = (FrameLayout) findViewById(R.id.FLXServerDisplay);
+                    MagnifierView magnifierView = new MagnifierView(this);
+                    this.magnifierView = magnifierView;
+                    magnifierView.setZoomButtonCallback((Callback<Float>) value -> lambda_onNavigationItemSelected_3(renderer, value));
+                    this.magnifierView.setZoomValue(renderer.getMagnifierZoom());
+                    this.magnifierView.setHideButtonCallback(() -> lambda_onNavigationItemSelected_4(container));
+                    container.addView(this.magnifierView);
+                }
+                this.drawerLayout.closeDrawers();
+        } else if (itemId == R.id.menu_item_pip_mode) {
+                PictureInPictureParams pipParams = new PictureInPictureParams.Builder().setAspectRatio(this.screenInfo.aspectRatio()).build();
+                enterPictureInPictureMode(pipParams);
+                this.drawerLayout.closeDrawers();
+        } else if (itemId == R.id.menu_item_screen_effect) {
+                new ScreenEffectDialog(this).show();
+                this.drawerLayout.closeDrawers();
+        } else if (itemId == R.id.menu_item_task_manager) {
+                new TaskManagerDialog(this).show();
+                this.drawerLayout.closeDrawers();
+        } else if (itemId == R.id.menu_item_toggle_fullscreen) {
+                renderer.toggleFullscreen();
+                this.drawerLayout.closeDrawers();
+        } else if (itemId == R.id.menu_item_touchpad_help) {
+                showTouchpadHelpDialog();
         }
         return true;
     }
 
+    /* JADX INFO: Access modifiers changed from: private */
+    public /* synthetic */ void lambda_onNavigationItemSelected_3(GLRenderer renderer, Float value) {
+        renderer.setMagnifierZoom(Mathf.clamp(renderer.getMagnifierZoom() + value.floatValue(), 1.0f, 3.0f));
+        this.magnifierView.setZoomValue(renderer.getMagnifierZoom());
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public /* synthetic */ void lambda_onNavigationItemSelected_4(FrameLayout container) {
+        container.removeView(this.magnifierView);
+        this.magnifierView = null;
+    }
+
+    public SharedPreferences getPreferences() {
+        return this.preferences;
+    }
+
     private void exit() {
-        winHandler.stop();
-        if (environment != null) environment.stopEnvironmentComponents();
+        this.winHandler.stop();
+        XEnvironment xEnvironment = this.environment;
+        if (xEnvironment != null) {
+            xEnvironment.stopEnvironmentComponents();
+        }
+        Intent intent = getIntent();
+        if (intent.hasExtra("exec_path")) {
+            AppUtils.RestartApplicationOptions options = new AppUtils.RestartApplicationOptions();
+            options.containerId = this.container.id;
+            options.startPath = FileUtils.getDirname(intent.getStringExtra("exec_path"));
+            AppUtils.restartApplication(this, options);
+            return;
+        }
         AppUtils.restartApplication(this);
     }
 
-    private void setupWineSystemFiles() {
+    private void setupWineSystemFiles() throws Throwable {
         String appVersion = String.valueOf(AppUtils.getVersionCode(this));
-        String imgVersion = String.valueOf(imageFs.getVersion());
+        String rfsVersion = String.valueOf(this.rootFS.getVersion());
         boolean containerDataChanged = false;
-
-        if (!container.getExtra("appVersion").equals(appVersion) || !container.getExtra("imgVersion").equals(imgVersion)) {
-            applyGeneralPatches(container);
-            container.putExtra("appVersion", appVersion);
-            container.putExtra("imgVersion", imgVersion);
+        boolean wineprefixWasUpdated = WineUtils.isWineprefixWasUpdated(this.container);
+        if (!this.container.getExtra("appVersion").equals(appVersion) || !this.container.getExtra("rfsVersion").equals(rfsVersion) || wineprefixWasUpdated) {
+            applyGeneralPatches(this.container);
+            this.container.putExtra("appVersion", appVersion);
+            this.container.putExtra("rfsVersion", rfsVersion);
             containerDataChanged = true;
         }
-
-        String dxwrapper = this.dxwrapper;
-        if (dxwrapper.equals("dxvk")) dxwrapper = "dxvk-"+dxwrapperConfig.get("version");
-
-        if (!dxwrapper.equals(container.getExtra("dxwrapper"))) {
-            extractDXWrapperFiles(dxwrapper);
-            container.putExtra("dxwrapper", dxwrapper);
+        if (verifyUserRegistry()) {
             containerDataChanged = true;
         }
-
-        if (dxwrapper.equals("cnc-ddraw")) envVars.put("CNC_DDRAW_CONFIG_FILE", "C:\\ProgramData\\cnc-ddraw\\ddraw.ini");
-
-        String wincomponents = shortcut != null ? shortcut.getExtra("wincomponents", container.getWinComponents()) : container.getWinComponents();
-        if (!wincomponents.equals(container.getExtra("wincomponents"))) {
+        if (extractDXWrapperFiles()) {
+            containerDataChanged = true;
+        }
+        if (!this.wincomponents.equals(this.container.getExtra("wincomponents"))) {
             extractWinComponentFiles();
-            container.putExtra("wincomponents", wincomponents);
+            this.container.putExtra("wincomponents", this.wincomponents);
             containerDataChanged = true;
         }
-
-        String desktopTheme = container.getDesktopTheme();
-        if (!(desktopTheme+","+xServer.screenInfo).equals(container.getExtra("desktopTheme"))) {
-            WineThemeManager.apply(this, new WineThemeManager.ThemeInfo(desktopTheme), xServer.screenInfo);
-            container.putExtra("desktopTheme", desktopTheme+","+xServer.screenInfo);
+        String desktopTheme = this.container.getDesktopTheme();
+        if (!(desktopTheme + "," + this.xServer.screenInfo).equals(this.container.getExtra("desktopTheme"))) {
+            WineThemeManager.apply(this, new WineThemeManager.ThemeInfo(desktopTheme), this.xServer.screenInfo);
+            this.container.putExtra("desktopTheme", desktopTheme + "," + this.xServer.screenInfo);
             containerDataChanged = true;
         }
-
-        WineStartMenuCreator.create(this, container);
-        WineUtils.createDosdevicesSymlinks(container);
-
-        String startupSelection = String.valueOf(container.getStartupSelection());
-        if (!startupSelection.equals(container.getExtra("startupSelection"))) {
-            WineUtils.changeServicesStatus(container, container.getStartupSelection() != Container.STARTUP_SELECTION_NORMAL);
-            container.putExtra("startupSelection", startupSelection);
+        WineStartMenuCreator.create(this, this.container);
+        WineUtils.createDosdevicesSymlinks(this.container, true);
+        String startupSelection = String.valueOf((int) this.container.getStartupSelection());
+        if (!startupSelection.equals(this.container.getExtra("startupSelection")) || wineprefixWasUpdated) {
+            Container container = this.container;
+            WineUtils.changeServicesStatus(container, container.getStartupSelection() != 0);
+            this.container.putExtra("startupSelection", startupSelection);
             containerDataChanged = true;
         }
-
-        if (containerDataChanged) container.saveData();
+        boolean openAndroidBrowserFromWine = this.preferences.getBoolean("open_android_browser_from_wine", true);
+        String openAndroidBrowserFromWineStr = openAndroidBrowserFromWine ? "t" : "f";
+        if (!openAndroidBrowserFromWineStr.equals(this.container.getExtra("openAndroidBrowserFromWine")) || wineprefixWasUpdated) {
+            WineUtils.changeBrowsersRegistryKey(this.container, openAndroidBrowserFromWine);
+            this.container.putExtra("openAndroidBrowserFromWine", openAndroidBrowserFromWineStr);
+            containerDataChanged = true;
+        }
+        if (containerDataChanged) {
+            this.container.saveData();
+        }
     }
 
     private void setupXEnvironment() {
-        envVars.put("MESA_DEBUG", "silent");
-        envVars.put("MESA_NO_ERROR", "1");
-        envVars.put("WINEPREFIX", ImageFs.WINEPREFIX);
-
-        boolean enableWineDebug = preferences.getBoolean("enable_wine_debug", false);
-        String wineDebugChannels = preferences.getString("wine_debug_channels", SettingsFragment.DEFAULT_WINE_DEBUG_CHANNELS);
-        envVars.put("WINEDEBUG", enableWineDebug && !wineDebugChannels.isEmpty() ? "+"+wineDebugChannels.replace(",", ",+") : "-all");
-
-        String rootPath = imageFs.getRootDir().getPath();
-        FileUtils.clear(imageFs.getTmpDir());
-
+        String str;
+        String rootPath = this.rootFS.getRootDir().getPath();
+        this.envVars.put("MESA_DEBUG", "silent");
+        this.envVars.put("MESA_NO_ERROR", "1");
+        this.envVars.put("WINEPREFIX", rootPath + "/home/xuser/.wine");
+        this.envVars.put("WINE_DO_NOT_CREATE_DXGI_DEVICE_MANAGER", "1");
+        boolean enableWineDebug = this.preferences.getBoolean("enable_wine_debug", false);
+        String wineDebugChannels = this.preferences.getString("wine_debug_channels", "warn,err,fixme");
+        EnvVars envVars = this.envVars;
+        if (!enableWineDebug || wineDebugChannels.isEmpty()) {
+            str = "-all";
+        } else {
+            str = "+" + wineDebugChannels.replace(",", ",+");
+        }
+        envVars.put("WINEDEBUG", str);
+        FileUtils.clear(this.rootFS.getTmpDir());
         GuestProgramLauncherComponent guestProgramLauncherComponent = new GuestProgramLauncherComponent();
-
+        Container container = this.container;
         if (container != null) {
-            if (container.getStartupSelection() == Container.STARTUP_SELECTION_AGGRESSIVE) winHandler.killProcess("services.exe");
-
-            boolean wow64Mode = container.isWoW64Mode();
-            String guestExecutable = wineInfo.getExecutable(this, wow64Mode)+" explorer /desktop=shell,"+xServer.screenInfo+" "+getWineStartCommand();
-            guestProgramLauncherComponent.setWoW64Mode(wow64Mode);
+            if (container.getHUDMode() == FrameRating.Mode.FULL.ordinal()) {
+                this.envVars.put("X11_WND_GPU_INFO", "1");
+            }
+            if (this.container.getStartupSelection() == 2) {
+                this.winHandler.killProcess("services.exe");
+            }
+            String desktopName = (this.shortcut != null || getIntent().hasExtra("exec_path")) ? "nogui" : "shell";
+            String guestExecutable = "wine explorer /desktop=" + desktopName + "," + this.xServer.screenInfo + " " + getWineStartCommand();
             guestProgramLauncherComponent.setGuestExecutable(guestExecutable);
-
-            envVars.putAll(container.getEnvVars());
-            if (shortcut != null) envVars.putAll(shortcut.getExtra("envVars"));
-            if (!envVars.has("WINEESYNC")) envVars.put("WINEESYNC", "1");
-
-            ArrayList<String> bindingPaths = new ArrayList<>();
-            for (String[] drive : container.drivesIterator()) bindingPaths.add(drive[1]);
-            guestProgramLauncherComponent.setBindingPaths(bindingPaths.toArray(new String[0]));
-            guestProgramLauncherComponent.setBox86Preset(shortcut != null ? shortcut.getExtra("box86Preset", container.getBox86Preset()) : container.getBox86Preset());
-            guestProgramLauncherComponent.setBox64Preset(shortcut != null ? shortcut.getExtra("box64Preset", container.getBox64Preset()) : container.getBox64Preset());
+            this.envVars.putAll(this.container.getEnvVars());
+            Shortcut shortcut = this.shortcut;
+            if (shortcut != null) {
+                this.envVars.putAll(shortcut.getExtra("envVars"));
+            }
+            if (!this.envVars.has("WINEESYNC")) {
+                this.envVars.put("WINEESYNC", "1");
+            }
+            Shortcut shortcut2 = this.shortcut;
+            guestProgramLauncherComponent.setBox64Preset(shortcut2 != null ? shortcut2.getExtra("box64Preset", this.container.getBox64Preset()) : this.container.getBox64Preset());
         }
-
-        environment = new XEnvironment(this, imageFs);
-        environment.addComponent(new SysVSharedMemoryComponent(xServer, UnixSocketConfig.createSocket(rootPath, UnixSocketConfig.SYSVSHM_SERVER_PATH)));
-        environment.addComponent(new XServerComponent(xServer, UnixSocketConfig.createSocket(rootPath, UnixSocketConfig.XSERVER_PATH)));
-        environment.addComponent(new NetworkInfoUpdateComponent());
-
-        if (audioDriver.equals("alsa")) {
-            envVars.put("ANDROID_ALSA_SERVER", UnixSocketConfig.ALSA_SERVER_PATH);
-            envVars.put("ANDROID_ASERVER_USE_SHM", "true");
-            environment.addComponent(new ALSAServerComponent(UnixSocketConfig.createSocket(rootPath, UnixSocketConfig.ALSA_SERVER_PATH)));
+        XEnvironment xEnvironment = new XEnvironment(this, this.rootFS);
+        this.environment = xEnvironment;
+        xEnvironment.addComponent(new SysVSharedMemoryComponent(this.xServer, UnixSocketConfig.create(rootPath, "/tmp/.sysvshm/SM0")));
+        this.environment.addComponent(new XServerComponent(this.xServer, UnixSocketConfig.create(rootPath, "/tmp/.X11-unix/X0")));
+        this.environment.addComponent(new NetworkInfoUpdateComponent());
+        if (this.audioDriver.equals("alsa")) {
+            this.envVars.put("ANDROID_ALSA_SERVER", rootPath + "/tmp/.sound/AS0");
+            this.envVars.put("ANDROID_ASERVER_USE_SHM", "true");
+            ALSAClient.Options options = ALSAClient.Options.fromKeyValueSet(this.audioDriverConfig);
+            this.environment.addComponent(new ALSAServerComponent(UnixSocketConfig.create(rootPath, "/tmp/.sound/AS0"), options));
+        } else if (this.audioDriver.equals("pulseaudio")) {
+            PulseAudioComponent pulseAudioComponent = new PulseAudioComponent(UnixSocketConfig.create(rootPath, "/tmp/.sound/PS0"));
+            this.envVars.put("PULSE_SERVER", rootPath + "/tmp/.sound/PS0");
+            if (!this.audioDriverConfig.isEmpty()) {
+                this.envVars.put("PULSE_LATENCY_MSEC", Integer.valueOf(this.audioDriverConfig.getInt("latencyMillis", 16)));
+                pulseAudioComponent.setVolume(this.audioDriverConfig.getFloat("volume", 1.0f));
+                pulseAudioComponent.setPerformanceMode(this.audioDriverConfig.getInt("performanceMode", 1));
+            } else {
+                this.envVars.put("PULSE_LATENCY_MSEC", (byte) 16);
+            }
+            this.environment.addComponent(pulseAudioComponent);
         }
-        else if (audioDriver.equals("pulseaudio")) {
-            envVars.put("PULSE_SERVER", UnixSocketConfig.PULSE_SERVER_PATH);
-            environment.addComponent(new PulseAudioComponent(UnixSocketConfig.createSocket(rootPath, UnixSocketConfig.PULSE_SERVER_PATH)));
+        if (this.graphicsDriver[0].equals("vortek")) {
+            VortekRendererComponent.Options options2 = VortekRendererComponent.Options.fromKeyValueSet(this, this.graphicsDriverConfig[0]);
+            VortekRendererComponent vortekRendererComponent = new VortekRendererComponent(this.xServer, UnixSocketConfig.create(rootPath, "/tmp/.vortek/V0"), options2);
+            this.environment.addComponent(vortekRendererComponent);
         }
-
-        if (graphicsDriver.equals("virgl")) {
-            environment.addComponent(new VirGLRendererComponent(xServer, UnixSocketConfig.createSocket(rootPath, UnixSocketConfig.VIRGL_SERVER_PATH)));
+        if (this.graphicsDriver[1].equals("virgl")) {
+            this.environment.addComponent(new VirGLRendererComponent(this.xServer, UnixSocketConfig.create(rootPath, "/tmp/.virgl/V0")));
         }
+        guestProgramLauncherComponent.setEnvVars(this.envVars);
+        guestProgramLauncherComponent.setTerminationCallback((Callback<Integer>) status -> lambda_setupXEnvironment_5(status));
+        this.environment.addComponent(guestProgramLauncherComponent);
+        if (isGenerateWineprefix()) {
+            WineInfo wineInfo = (WineInfo) getIntent().getParcelableExtra("wine_info");
+            this.wineInfo = wineInfo;
+            if (wineInfo != null) {
+                WineInstaller.generateWineprefix(wineInfo, this.environment);
+            }
+        }
+        EnvVars envVars2 = this.overrideEnvVars;
+        if (envVars2 != null) {
+            this.envVars.putAll(envVars2);
+            this.overrideEnvVars = null;
+        }
+        this.environment.startEnvironmentComponents();
+        this.winHandler.start();
+        this.envVars.clear();
+        this.graphicsDriver = null;
+        this.dxwrapperConfig = null;
+        this.graphicsDriverConfig = null;
+        this.audioDriver = null;
+        this.audioDriverConfig = null;
+        this.wincomponents = null;
+    }
 
-        guestProgramLauncherComponent.setEnvVars(envVars);
-        guestProgramLauncherComponent.setTerminationCallback((status) -> exit());
-        environment.addComponent(guestProgramLauncherComponent);
-
-        if (isGenerateWineprefix()) generateWineprefix();
-        environment.startEnvironmentComponents();
-
-        winHandler.start();
-        envVars.clear();
-        dxwrapperConfig = null;
+    /* JADX INFO: Access modifiers changed from: private */
+    public /* synthetic */ void lambda_setupXEnvironment_5(Integer status) {
+        exit();
     }
 
     private void setupUI() {
-        FrameLayout rootView = findViewById(R.id.FLXServerDisplay);
-        xServerView = new XServerView(this, xServer);
+        ControlsProfile profile;
+        FrameLayout rootView = (FrameLayout) findViewById(R.id.FLXServerDisplay);
+        XServerView xServerView = new XServerView(this, this.xServer);
+        this.xServerView = xServerView;
         final GLRenderer renderer = xServerView.getRenderer();
         renderer.setCursorVisible(false);
-
-        if (shortcut != null) {
-            if (shortcut.getExtra("forceFullscreen", "0").equals("1")) renderer.setForceFullscreenWMClass(shortcut.wmClass);
-            renderer.setUnviewableWMClasses("explorer.exe");
+        renderer.setCursorColor(this.preferences.getInt("cursor_color", 16777215));
+        renderer.setCursorScale(this.preferences.getFloat("cursor_scale", 1.0f));
+        Shortcut shortcut = this.shortcut;
+        renderer.setForceWindowsFullscreen(shortcut != null && shortcut.getExtra("forceFullscreen", "0").equals("1"));
+        this.xServer.setRenderer(renderer);
+        rootView.addView(this.xServerView);
+        this.globalCursorSpeed = this.preferences.getFloat("cursor_speed", 1.0f);
+        this.capturePointerOnExternalMouse = this.preferences.getBoolean("capture_pointer_on_external_mouse", true);
+        TouchpadView touchpadView = new TouchpadView(this, this.xServer, this.capturePointerOnExternalMouse);
+        this.touchpadView = touchpadView;
+        touchpadView.setSensitivity(this.globalCursorSpeed);
+        this.touchpadView.setMoveCursorToTouchpoint(this.preferences.getBoolean("move_cursor_to_touchpoint", false));
+        this.touchpadView.setFourFingersTapCallback(() -> lambda_setupUI_6());
+        rootView.addView(this.touchpadView);
+        InputControlsView inputControlsView = new InputControlsView(this);
+        this.inputControlsView = inputControlsView;
+        inputControlsView.setOverlayOpacity(this.preferences.getFloat("overlay_opacity", 0.4f));
+        this.inputControlsView.setTouchpadView(this.touchpadView);
+        this.inputControlsView.setXServer(this.xServer);
+        this.inputControlsView.setVisibility(8);
+        rootView.addView(this.inputControlsView);
+        Container container = this.container;
+        if (container != null && container.getHUDMode() != FrameRating.Mode.DISABLED.ordinal()) {
+            FrameRating frameRating = new FrameRating(this);
+            this.frameRating = frameRating;
+            frameRating.setMode(FrameRating.Mode.values()[this.container.getHUDMode()]);
+            this.frameRating.setVisibility(8);
+            rootView.addView(this.frameRating);
         }
-
-        xServer.setRenderer(renderer);
-        rootView.addView(xServerView);
-
-        globalCursorSpeed = preferences.getFloat("cursor_speed", 1.0f);
-        touchpadView = new TouchpadView(this, xServer);
-        touchpadView.setSensitivity(globalCursorSpeed);
-        touchpadView.setFourFingersTapCallback(() -> {
-            if (!drawerLayout.isDrawerOpen(GravityCompat.START)) drawerLayout.openDrawer(GravityCompat.START);
-        });
-        rootView.addView(touchpadView);
-
-        inputControlsView = new InputControlsView(this);
-        inputControlsView.setOverlayOpacity(preferences.getFloat("overlay_opacity", InputControlsView.DEFAULT_OVERLAY_OPACITY));
-        inputControlsView.setTouchpadView(touchpadView);
-        inputControlsView.setXServer(xServer);
-        inputControlsView.setVisibility(View.GONE);
-        rootView.addView(inputControlsView);
-
-        if (container != null && container.isShowFPS()) {
-            frameRating = new FrameRating(this);
-            frameRating.setVisibility(View.GONE);
-            rootView.addView(frameRating);
-        }
-
-        if (shortcut != null) {
-            String controlsProfile = shortcut.getExtra("controlsProfile");
-            if (!controlsProfile.isEmpty()) {
-                ControlsProfile profile = inputControlsManager.getProfile(Integer.parseInt(controlsProfile));
-                if (profile != null) showInputControls(profile);
+        Shortcut shortcut2 = this.shortcut;
+        if (shortcut2 != null) {
+            String controlsProfile = shortcut2.getExtra("controlsProfile");
+            if (!controlsProfile.isEmpty() && (profile = this.inputControlsManager.getProfile(Integer.parseInt(controlsProfile))) != null) {
+                showInputControls(profile);
             }
         }
+        DrawerLayout drawerLayout = this.drawerLayout;
+        Objects.requireNonNull(renderer);
+        AppUtils.observeSoftKeyboardVisibility(drawerLayout, new Callback() { // from class: com.winlator.XServerDisplayActivity$$ExternalSyntheticLambda5
+            @Override // com.winlator.core.Callback
+            public final void call(Object obj) {
+                renderer.setScreenOffsetYRelativeToCursor(((Boolean) obj).booleanValue());
+            }
+        });
+    }
 
-        AppUtils.observeSoftKeyboardVisibility(drawerLayout, renderer::setScreenOffsetYRelativeToCursor);
+    /* JADX INFO: Access modifiers changed from: private */
+    public /* synthetic */ void lambda_setupUI_6() {
+        if (!this.drawerLayout.isDrawerOpen(8388611)) {
+            this.drawerLayout.openDrawer(8388611);
+        }
     }
 
     private void showInputControlsDialog() {
-        final ContentDialog dialog = new ContentDialog(this, R.layout.input_controls_dialog);
+        ContentDialog dialog = new ContentDialog(this, R.layout.input_controls_dialog);
         dialog.setTitle(R.string.input_controls);
         dialog.setIcon(R.drawable.icon_input_controls);
-
-        final Spinner sProfile = dialog.findViewById(R.id.SProfile);
-        Runnable loadProfileSpinner = () -> {
-            ArrayList<ControlsProfile> profiles = inputControlsManager.getProfiles(true);
-            ArrayList<String> profileItems = new ArrayList<>();
-            int selectedPosition = 0;
-            profileItems.add("-- "+getString(R.string.disabled)+" --");
-            for (int i = 0; i < profiles.size(); i++) {
-                ControlsProfile profile = profiles.get(i);
-                if (profile == inputControlsView.getProfile()) selectedPosition = i + 1;
-                profileItems.add(profile.getName());
-            }
-
-            sProfile.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, profileItems));
-            sProfile.setSelection(selectedPosition);
-        };
+        final Spinner sProfile = (Spinner) dialog.findViewById(R.id.SProfile);
+        final Runnable loadProfileSpinner = () -> lambda_showInputControlsDialog_7(sProfile);
         loadProfileSpinner.run();
-
-        final CheckBox cbRelativeMouseMovement = dialog.findViewById(R.id.CBRelativeMouseMovement);
-        cbRelativeMouseMovement.setChecked(xServer.isRelativeMouseMovement());
-
-        final CheckBox cbShowTouchscreenControls = dialog.findViewById(R.id.CBShowTouchscreenControls);
-        cbShowTouchscreenControls.setChecked(inputControlsView.isShowTouchscreenControls());
-
-        dialog.findViewById(R.id.BTSettings).setOnClickListener((v) -> {
-            int position = sProfile.getSelectedItemPosition();
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.putExtra("edit_input_controls", true);
-            intent.putExtra("selected_profile_id", position > 0 ? inputControlsManager.getProfiles().get(position - 1).id : 0);
-            editInputControlsCallback = () -> {
-                hideInputControls();
-                inputControlsManager.loadProfiles(true);
-                loadProfileSpinner.run();
-            };
-            startActivityForResult(intent, MainActivity.EDIT_INPUT_CONTROLS_REQUEST_CODE);
-        });
-
-        dialog.setOnConfirmCallback(() -> {
-            xServer.setRelativeMouseMovement(cbRelativeMouseMovement.isChecked());
-            inputControlsView.setShowTouchscreenControls(cbShowTouchscreenControls.isChecked());
-            int position = sProfile.getSelectedItemPosition();
-            if (position > 0) {
-                showInputControls(inputControlsManager.getProfiles().get(position - 1));
-            }
-            else hideInputControls();
-        });
-
+        final CheckBox cbRelativeMouseMovement = (CheckBox) dialog.findViewById(R.id.CBRelativeMouseMovement);
+        cbRelativeMouseMovement.setChecked(this.xServer.isRelativeMouseMovement());
+        final CheckBox cbShowTouchscreenControls = (CheckBox) dialog.findViewById(R.id.CBShowTouchscreenControls);
+        cbShowTouchscreenControls.setChecked(this.inputControlsView.isShowTouchscreenControls());
+        dialog.findViewById(R.id.BTSettings).setOnClickListener(view -> lambda_showInputControlsDialog_9(sProfile, loadProfileSpinner, view));
+        dialog.setOnConfirmCallback(() -> lambda_showInputControlsDialog_10(cbRelativeMouseMovement, cbShowTouchscreenControls, sProfile));
         dialog.show();
     }
 
+    /* JADX INFO: Access modifiers changed from: private */
+    public /* synthetic */ void lambda_showInputControlsDialog_7(Spinner sProfile) {
+        ArrayList<ControlsProfile> profiles = this.inputControlsManager.getProfiles(true);
+        ArrayList<String> profileItems = new ArrayList<>();
+        int selectedPosition = 0;
+        profileItems.add("-- " + getString(R.string.disabled) + " --");
+        for (int i = 0; i < profiles.size(); i++) {
+            ControlsProfile profile = profiles.get(i);
+            if (profile == this.inputControlsView.getProfile()) {
+                selectedPosition = i + 1;
+            }
+            profileItems.add(profile.getName());
+        }
+        sProfile.setAdapter((SpinnerAdapter) new ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, profileItems));
+        sProfile.setSelection(selectedPosition);
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public /* synthetic */ void lambda_showInputControlsDialog_9(Spinner sProfile, final Runnable loadProfileSpinner, View v) {
+        int position = sProfile.getSelectedItemPosition();
+        Intent intent = new Intent(this, (Class<?>) MainActivity.class);
+        intent.putExtra("edit_input_controls", true);
+        intent.putExtra("selected_profile_id", position > 0 ? this.inputControlsManager.getProfiles().get(position - 1).id : 0);
+        this.editInputControlsCallback = () -> lambda_showInputControlsDialog_8(loadProfileSpinner);
+        startActivityForResult(intent, 3);
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public /* synthetic */ void lambda_showInputControlsDialog_8(Runnable loadProfileSpinner) {
+        hideInputControls();
+        this.inputControlsManager.loadProfiles(true);
+        loadProfileSpinner.run();
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public /* synthetic */ void lambda_showInputControlsDialog_10(CheckBox cbRelativeMouseMovement, CheckBox cbShowTouchscreenControls, Spinner sProfile) {
+        this.xServer.setRelativeMouseMovement(cbRelativeMouseMovement.isChecked());
+        this.inputControlsView.setShowTouchscreenControls(cbShowTouchscreenControls.isChecked());
+        int position = sProfile.getSelectedItemPosition();
+        if (position > 0) {
+            showInputControls(this.inputControlsManager.getProfiles().get(position - 1));
+        } else {
+            hideInputControls();
+        }
+    }
+
     private void showInputControls(ControlsProfile profile) {
-        inputControlsView.setVisibility(View.VISIBLE);
-        inputControlsView.requestFocus();
-        inputControlsView.setProfile(profile);
-
-        touchpadView.setSensitivity(profile.getCursorSpeed() * globalCursorSpeed);
-        touchpadView.setPointerButtonRightEnabled(false);
-
-        inputControlsView.invalidate();
+        this.inputControlsView.setVisibility(0);
+        this.inputControlsView.requestFocus();
+        this.inputControlsView.setProfile(profile);
+        this.touchpadView.setSensitivity(profile.getCursorSpeed() * this.globalCursorSpeed);
+        this.touchpadView.setPointerButtonRightEnabled(false);
+        GLRenderer renderer = this.xServerView.getRenderer();
+        if (profile.isDisableMouseInput()) {
+            renderer.setCursorVisible(false);
+            this.touchpadView.setEnabled(false);
+        } else {
+            renderer.setCursorVisible(true);
+            this.touchpadView.setEnabled(true);
+        }
+        this.inputControlsView.invalidate();
     }
 
     private void hideInputControls() {
-        inputControlsView.setShowTouchscreenControls(true);
-        inputControlsView.setVisibility(View.GONE);
-        inputControlsView.setProfile(null);
-
-        touchpadView.setSensitivity(globalCursorSpeed);
-        touchpadView.setPointerButtonLeftEnabled(true);
-        touchpadView.setPointerButtonRightEnabled(true);
-
-        inputControlsView.invalidate();
+        this.inputControlsView.setShowTouchscreenControls(true);
+        this.inputControlsView.setVisibility(8);
+        this.inputControlsView.setProfile(null);
+        this.touchpadView.setSensitivity(this.globalCursorSpeed);
+        this.touchpadView.setPointerButtonLeftEnabled(true);
+        this.touchpadView.setPointerButtonRightEnabled(true);
+        if (!this.touchpadView.isEnabled()) {
+            this.touchpadView.setEnabled(true);
+            this.xServerView.getRenderer().setCursorVisible(true);
+        }
+        this.inputControlsView.invalidate();
     }
 
     private void extractGraphicsDriverFiles() {
-        String cacheId = graphicsDriver;
-        if (graphicsDriver.equals("turnip")) {
-            cacheId += "-"+DefaultVersion.TURNIP+"-"+DefaultVersion.ZINK;
+        String cacheId;
+        boolean changed;
+        File rootDir;
+        this.envVars.put("vblank_mode", "0");
+        if (this.graphicsDriver[0].equals("turnip")) {
+            cacheId = "" + this.graphicsDriver[0] + "-" + this.graphicsDriverConfig[0].get("version", "26.1.0");
+        } else {
+            cacheId = "" + this.graphicsDriver[0] + "-" + DefaultVersion.valueOf(this.graphicsDriver[0]);
         }
-        else if (graphicsDriver.equals("virgl")) {
-            cacheId += "-"+DefaultVersion.VIRGL;
-        }
-
-        boolean changed = !cacheId.equals(container.getExtra("graphicsDriver"));
-        File rootDir = imageFs.getRootDir();
-
+        String cacheId2 = cacheId + "-" + this.graphicsDriver[1] + "-" + DefaultVersion.valueOf(this.graphicsDriver[1]);
+        changed = !cacheId2.equals(this.container.getExtra("graphicsDriver"));
+        rootDir = this.rootFS.getRootDir();
+        File libDir = this.rootFS.getLibDir();
         if (changed) {
-            FileUtils.delete(new File(imageFs.getLib32Dir(), "libvulkan_freedreno.so"));
-            FileUtils.delete(new File(imageFs.getLib64Dir(), "libvulkan_freedreno.so"));
-            FileUtils.delete(new File(imageFs.getLib32Dir(), "libGL.so.1.7.0"));
-            FileUtils.delete(new File(imageFs.getLib64Dir(), "libGL.so.1.7.0"));
-            container.putExtra("graphicsDriver", cacheId);
-            container.saveData();
+            FileUtils.delete(new File(libDir, "libvulkan_freedreno.so"));
+            FileUtils.delete(new File(libDir, "libvulkan_vortek.so"));
+            FileUtils.delete(new File(libDir, "libGL.so.1.7.0"));
+            File vulkanICDDir = new File(rootDir, "/usr/share/vulkan/icd.d");
+            FileUtils.delete(vulkanICDDir);
+            vulkanICDDir.mkdirs();
+            this.container.putExtra("graphicsDriver", cacheId2);
+            this.container.saveData();
         }
-
-        if (graphicsDriver.equals("turnip")) {
-            if (dxwrapper.equals("dxvk")) {
-                DXVKConfigDialog.setEnvVars(this, dxwrapperConfig, envVars);
-            }
-            else if (dxwrapper.equals("vkd3d")) envVars.put("VKD3D_FEATURE_LEVEL", "12_1");
-
-            envVars.put("GALLIUM_DRIVER", "zink");
-            envVars.put("TU_OVERRIDE_HEAP_SIZE", "4096");
-            if (!envVars.has("MESA_VK_WSI_PRESENT_MODE")) envVars.put("MESA_VK_WSI_PRESENT_MODE", "mailbox");
-            envVars.put("vblank_mode", "0");
-
-            if (!GPUInformation.isAdreno6xx(this)) {
-                EnvVars userEnvVars = new EnvVars(container.getEnvVars());
-                String tuDebug = userEnvVars.get("TU_DEBUG");
-                if (!tuDebug.contains("sysmem")) userEnvVars.put("TU_DEBUG", (!tuDebug.isEmpty() ? tuDebug+"," : "")+"sysmem");
-                container.setEnvVars(userEnvVars.toString());
-            }
-
-            boolean useDRI3 = preferences.getBoolean("use_dri3", true);
-            if (!useDRI3) {
-                envVars.put("MESA_VK_WSI_PRESENT_MODE", "immediate");
-                envVars.put("MESA_VK_WSI_DEBUG", "sw");
-            }
-
+        if (this.graphicsDriver[0].equals("turnip")) {
+            this.envVars.put("MESA_VK_WSI_PRESENT_MODE", "mailbox");
+            TurnipConfigDialog.setEnvVars(this, this.graphicsDriverConfig[0], this.envVars);
             if (changed) {
-                TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "graphics_driver/turnip-"+DefaultVersion.TURNIP+".tzst", rootDir);
-                TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "graphics_driver/zink-"+DefaultVersion.ZINK+".tzst", rootDir);
+                String version = this.graphicsDriverConfig[0].get("version", "26.1.0");
+                GeneralComponents.extractFile(GeneralComponents.Type.TURNIP, this, version, "26.1.0");
             }
+        } else if (this.graphicsDriver[0].equals("vortek") && changed) {
+            TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "graphics_driver/vortek-2.1.tzst", rootDir);
         }
-        else if (graphicsDriver.equals("virgl")) {
-            envVars.put("GALLIUM_DRIVER", "virpipe");
-            envVars.put("VIRGL_NO_READBACK", "true");
-            envVars.put("VIRGL_SERVER_PATH", UnixSocketConfig.VIRGL_SERVER_PATH);
-            envVars.put("MESA_EXTENSION_OVERRIDE", "-GL_EXT_vertex_array_bgra");
-            envVars.put("MESA_GL_VERSION_OVERRIDE", "3.1");
-            envVars.put("vblank_mode", "0");
-            if (changed) TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "graphics_driver/virgl-"+DefaultVersion.VIRGL+".tzst", rootDir);
+        switch (this.graphicsDriver[1]) {
+            case "zink":
+                this.envVars.put("GALLIUM_DRIVER", "zink");
+                this.envVars.put("ZINK_CONTEXT_THREADED", "1");
+                if (this.graphicsDriver[0].equals("vortek")) {
+                    this.envVars.put("MESA_GL_VERSION_OVERRIDE", "3.3");
+                }
+                if (changed) {
+                    TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "graphics_driver/zink-22.2.5.tzst", rootDir);
+                    break;
+                }
+                break;
+            case "virgl":
+                this.envVars.put("GALLIUM_DRIVER", "virpipe");
+                this.envVars.put("VIRGL_NO_READBACK", "true");
+                this.envVars.put("VIRGL_SERVER_PATH", rootDir + "/tmp/.virgl/V0");
+                VirGLConfigDialog.setEnvVars(this.graphicsDriverConfig[1], this.envVars);
+                if (changed) {
+                    TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "graphics_driver/virgl-23.1.9.tzst", rootDir);
+                    break;
+                }
+                break;
+            case "gladio":
+                this.envVars.put("GLADIO_NO_ERROR", "1");
+                if (changed) {
+                    TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "graphics_driver/gladio-1.0.tzst", rootDir);
+                    break;
+                }
+                break;
         }
     }
 
@@ -648,214 +831,179 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
         ContentDialog dialog = new ContentDialog(this, R.layout.touchpad_help_dialog);
         dialog.setTitle(R.string.touchpad_help);
         dialog.setIcon(R.drawable.icon_help);
-        dialog.findViewById(R.id.BTCancel).setVisibility(View.GONE);
+        dialog.findViewById(R.id.BTCancel).setVisibility(8);
         dialog.show();
     }
 
-    @Override
+    @Override // android.app.Activity, android.view.Window.Callback
     public boolean dispatchGenericMotionEvent(MotionEvent event) {
-        return !winHandler.onGenericMotionEvent(event) && !touchpadView.onExternalMouseEvent(event) && super.dispatchGenericMotionEvent(event);
+        return (this.winHandler.onGenericMotionEvent(event) || this.touchpadView.onExternalMouseEvent(event) || !super.dispatchGenericMotionEvent(event)) ? false : true;
     }
 
-    @Override
+    @Override // androidx.appcompat.app.AppCompatActivity, androidx.core.app.ComponentActivity, android.app.Activity, android.view.Window.Callback
     public boolean dispatchKeyEvent(KeyEvent event) {
-        return (!inputControlsView.onKeyEvent(event) && !winHandler.onKeyEvent(event) && xServer.keyboard.onKeyEvent(event)) ||
-               (!ExternalController.isGameController(event.getDevice()) && super.dispatchKeyEvent(event));
+        return !(this.inputControlsView.onKeyEvent(event) || this.winHandler.onKeyEvent(event) || !this.xServer.keyboard.onKeyEvent(event)) || (!ExternalController.isGameController(event.getDevice()) && super.dispatchKeyEvent(event));
     }
 
     public InputControlsView getInputControlsView() {
-        return inputControlsView;
+        return this.inputControlsView;
     }
 
-    private void generateWineprefix() {
-        Intent intent = getIntent();
-
-        final File rootDir = imageFs.getRootDir();
-        final File installedWineDir = imageFs.getInstalledWineDir();
-        wineInfo = intent.getParcelableExtra("wine_info");
-        envVars.put("WINEARCH", wineInfo.isWin64() ? "win64" : "win32");
-        imageFs.setWinePath(wineInfo.path);
-
-        final File containerPatternDir = new File(installedWineDir, "/preinstall/container-pattern");
-        if (containerPatternDir.isDirectory()) FileUtils.delete(containerPatternDir);
-        containerPatternDir.mkdirs();
-
-        File linkFile = new File(rootDir, ImageFs.HOME_PATH);
-        linkFile.delete();
-        FileUtils.symlink(".."+FileUtils.toRelativePath(rootDir.getPath(), containerPatternDir.getPath()), linkFile.getPath());
-
-        GuestProgramLauncherComponent guestProgramLauncherComponent = environment.getComponent(GuestProgramLauncherComponent.class);
-        guestProgramLauncherComponent.setGuestExecutable(wineInfo.getExecutable(this, false)+" explorer /desktop=shell,"+Container.DEFAULT_SCREEN_SIZE+" winecfg");
-
-        final PreloaderDialog preloaderDialog = new PreloaderDialog(this);
-        guestProgramLauncherComponent.setTerminationCallback((status) -> Executors.newSingleThreadExecutor().execute(() -> {
-            if (status > 0) {
-                AppUtils.showToast(this, R.string.unable_to_install_wine);
-                FileUtils.delete(new File(installedWineDir, "/preinstall"));
-                AppUtils.restartApplication(this);
-                return;
-            }
-
-            preloaderDialog.showOnUiThread(R.string.finishing_installation);
-            FileUtils.writeString(new File(rootDir, ImageFs.WINEPREFIX+"/.update-timestamp"), "disable\n");
-
-            File userDir = new File(rootDir, ImageFs.WINEPREFIX+"/drive_c/users/xuser");
-            File[] userFiles = userDir.listFiles();
-            if (userFiles != null) {
-                for (File userFile : userFiles) {
-                    if (FileUtils.isSymlink(userFile)) {
-                        String path = userFile.getPath();
-                        userFile.delete();
-                        (new File(path)).mkdirs();
-                    }
-                }
-            }
-
-            String suffix = wineInfo.fullVersion()+"-"+wineInfo.getArch();
-            File containerPatternFile = new File(installedWineDir, "/preinstall/container-pattern-"+suffix+".tzst");
-            TarCompressorUtils.compress(TarCompressorUtils.Type.ZSTD, new File(rootDir, ImageFs.WINEPREFIX), containerPatternFile, MainActivity.CONTAINER_PATTERN_COMPRESSION_LEVEL);
-
-            if (!containerPatternFile.renameTo(new File(installedWineDir, containerPatternFile.getName())) ||
-                !(new File(wineInfo.path)).renameTo(new File(installedWineDir, wineInfo.identifier()))) {
-                containerPatternFile.delete();
-            }
-
-            FileUtils.delete(new File(installedWineDir, "/preinstall"));
-
-            preloaderDialog.closeOnUiThread();
-            AppUtils.restartApplication(this, R.id.main_menu_settings);
-        }));
-    }
-
-    private void extractDXWrapperFiles(String dxwrapper) {
-        final String[] dlls = {"d3d10.dll", "d3d10_1.dll", "d3d10core.dll", "d3d11.dll", "d3d12.dll", "d3d12core.dll", "d3d8.dll", "d3d9.dll", "dxgi.dll", "ddraw.dll"};
-        if (firstTimeBoot && !dxwrapper.equals("vkd3d")) cloneOriginalDllFiles(dlls);
-        File rootDir = imageFs.getRootDir();
-        File windowsDir = new File(rootDir, ImageFs.WINEPREFIX+"/drive_c/windows");
-
-        switch (dxwrapper) {
-            case "wined3d":
-                restoreOriginalDllFiles(dlls);
-                break;
-            case "cnc-ddraw":
-                restoreOriginalDllFiles(dlls);
-                final String assetDir = "dxwrapper/cnc-ddraw-"+DefaultVersion.CNC_DDRAW;
-                File configFile = new File(rootDir, ImageFs.WINEPREFIX+"/drive_c/ProgramData/cnc-ddraw/ddraw.ini");
-                if (!configFile.isFile()) FileUtils.copy(this, assetDir+"/ddraw.ini", configFile);
-                File shadersDir = new File(rootDir, ImageFs.WINEPREFIX+"/drive_c/ProgramData/cnc-ddraw/Shaders");
-                FileUtils.delete(shadersDir);
-                FileUtils.copy(this, assetDir+"/Shaders", shadersDir);
-                TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, assetDir+"/ddraw.tzst", windowsDir, onExtractFileListener);
-                break;
-            case "vkd3d":
-                String[] dxvkVersions = getResources().getStringArray(R.array.dxvk_version_entries);
-                TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "dxwrapper/dxvk-"+(dxvkVersions[dxvkVersions.length-1])+".tzst", windowsDir, onExtractFileListener);
-                TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "dxwrapper/vkd3d-"+DefaultVersion.VKD3D+".tzst", windowsDir, onExtractFileListener);
-                break;
-            default:
-                restoreOriginalDllFiles("d3d12.dll", "d3d12core.dll", "ddraw.dll");
-                TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "dxwrapper/"+dxwrapper+".tzst", windowsDir, onExtractFileListener);
-                TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "dxwrapper/d8vk-"+DefaultVersion.D8VK+".tzst", windowsDir, onExtractFileListener);
-                break;
+    private boolean extractDXWrapperFiles() {
+        String cacheId = "";
+        if (this.dxwrapper.equals("dxvk")) {
+            DXVKConfigDialog.setEnvVars(this, this.dxwrapperConfig[0], this.envVars);
+            cacheId = "" + this.dxwrapper + "-" + this.dxwrapperConfig[0].get("version", DefaultVersion.DXVK(this.graphicsDriver[0]));
+        } else if (this.dxwrapper.equals("wined3d")) {
+            WineD3DConfigDialog.setEnvVars(this.dxwrapperConfig[0], this.envVars);
+            cacheId = "" + this.dxwrapper + "-" + this.dxwrapperConfig[0].get("version", "10.10");
         }
+        String ddrawWrapper = this.dxwrapperConfig[0].get("ddrawWrapper", "wined3d");
+        String cacheId2 = cacheId + "-vkd3d-" + this.dxwrapperConfig[1].get("version", "2.14.1") + "-" + ddrawWrapper;
+        boolean changed = !cacheId2.equals(this.container.getExtra("dxwrapper"));
+        VKD3DConfigDialog.setEnvVars(this.dxwrapperConfig[1], this.envVars);
+        if (ddrawWrapper.equals("cnc-ddraw")) {
+            this.envVars.put("CNC_DDRAW_CONFIG_FILE", "C:\\ProgramData\\cnc-ddraw\\ddraw.ini");
+        }
+        if (!changed) {
+            return false;
+        }
+        this.container.putExtra("dxwrapper", cacheId2);
+        File rootDir = this.rootFS.getRootDir();
+        File windowsDir = new File(rootDir, "/home/xuser/.wine/drive_c/windows");
+        if (this.dxwrapper.equals("wined3d")) {
+            String version = this.dxwrapperConfig[0].get("version", "10.10");
+            if (!version.equals("10.10")) {
+                GeneralComponents.extractFile(GeneralComponents.Type.WINED3D, this, version, "10.10");
+            } else {
+                String[] dlls = {"d3d8.dll", "d3d9.dll", "d3d10.dll", "d3d10_1.dll", "d3d10core.dll", "d3d11.dll", "d3d12.dll", "d3d12core.dll", "dxgi.dll", "ddraw.dll", "wined3d.dll"};
+                restoreBuiltinDllFiles(dlls);
+            }
+        } else if (this.dxwrapper.equals("dxvk")) {
+            final boolean[] hasD3D8DllFile = {false};
+            final boolean[] hasD3D10DllFile = {false};
+            GeneralComponents.extractFile(GeneralComponents.Type.DXVK, this, this.dxwrapperConfig[0].get("version"), DefaultVersion.DXVK(this.graphicsDriver[0]), new TarCompressorUtils.OnExtractFileListener() { // from class: com.winlator.XServerDisplayActivity$$ExternalSyntheticLambda6
+                @Override // com.winlator.core.TarCompressorUtils.OnExtractFileListener
+                public final File onExtractFile(File file, long j) {
+                    return XServerDisplayActivity.lambda_extractDXWrapperFiles_11(hasD3D10DllFile, hasD3D8DllFile, file, j);
+                }
+            });
+            if (!hasD3D8DllFile[0]) {
+                TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "dxwrapper/d8vk-1.0.tzst", windowsDir);
+            }
+            if (!hasD3D10DllFile[0]) {
+                restoreBuiltinDllFiles("d3d10.dll", "d3d10_1.dll");
+            }
+        }
+        GeneralComponents.extractFile(GeneralComponents.Type.VKD3D, this, this.dxwrapperConfig[1].get("version"), "2.14.1");
+        if (!ddrawWrapper.equals("cnc-ddraw")) {
+            restoreBuiltinDllFiles("ddraw.dll");
+            return true;
+        }
+        File configFile = new File(rootDir, "/home/xuser/.wine/drive_c/ProgramData/cnc-ddraw/ddraw.ini");
+        if (!configFile.isFile()) {
+            FileUtils.copy(this, "dxwrapper/cnc-ddraw-6.6/ddraw.ini", configFile);
+        }
+        File shadersDir = new File(rootDir, "/home/xuser/.wine/drive_c/ProgramData/cnc-ddraw/Shaders");
+        FileUtils.delete(shadersDir);
+        FileUtils.copy(this, "dxwrapper/cnc-ddraw-6.6/Shaders", shadersDir);
+        TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "dxwrapper/cnc-ddraw-6.6/ddraw.tzst", windowsDir);
+        return true;
+    }
+
+    /* JADX INFO: Access modifiers changed from: private */
+    public static /* synthetic */ File lambda_extractDXWrapperFiles_11(boolean[] hasD3D10DllFile, boolean[] hasD3D8DllFile, File destination, long size) {
+        String name = destination.getName();
+        if (name.equals("d3d10.dll")) {
+            hasD3D10DllFile[0] = true;
+        } else if (name.equals("d3d8.dll")) {
+            hasD3D8DllFile[0] = true;
+        }
+        return destination;
     }
 
     private void extractWinComponentFiles() {
-        File rootDir = imageFs.getRootDir();
-        File windowsDir = new File(rootDir, ImageFs.WINEPREFIX+"/drive_c/windows");
-        File systemRegFile = new File(rootDir, ImageFs.WINEPREFIX+"/system.reg");
-
+        JSONObject wincomponentsJSONObject;
+        JSONObject wincomponentsJSONObject2;
+        String string;
+        File rootDir = this.rootFS.getRootDir();
+        File windowsDir = new File(rootDir, "/home/xuser/.wine/drive_c/windows");
+        File systemRegFile = new File(rootDir, "/home/xuser/.wine/system.reg");
         try {
-            JSONObject wincomponentsJSONObject = new JSONObject(FileUtils.readString(this, "wincomponents/wincomponents.json"));
-            ArrayList<String> dlls = new ArrayList<>();
-            String wincomponents = shortcut != null ? shortcut.getExtra("wincomponents", container.getWinComponents()) : container.getWinComponents();
-
-            if (firstTimeBoot) {
-                for (String[] wincomponent : new KeyValueSet(wincomponents)) {
-                    JSONArray dlnames = wincomponentsJSONObject.getJSONArray(wincomponent[0]);
-                    for (int i = 0; i < dlnames.length(); i++) {
-                        String dlname = dlnames.getString(i);
-                        dlls.add(!dlname.endsWith(".exe") ? dlname+".dll" : dlname);
+            JSONObject wincomponentsJSONObject3 = new JSONObject(FileUtils.readString(this, "wincomponents/wincomponents.json"));
+            Iterator<String[]> oldWinComponentsIter = new KeyValueSet(this.container.getExtra("wincomponents", "direct3d=0,directsound=0,directmusic=0,directshow=0,directplay=0,xaudio=0,vcrun2005=0,vcrun2010=0,wmdecoder=0")).iterator();
+            ArrayList<String> builtinDlls = new ArrayList<>();
+            for (String[] wincomponent : new KeyValueSet(this.wincomponents)) {
+                if (!wincomponent[1].equals(oldWinComponentsIter.next()[1])) {
+                    String identifier = wincomponent[0];
+                    boolean useNative = wincomponent[1].equals("1");
+                    if (useNative) {
+                        TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "wincomponents/" + identifier + ".tzst", windowsDir);
+                        wincomponentsJSONObject = wincomponentsJSONObject3;
+                    } else {
+                        JSONObject wincomponentJSONObject = wincomponentsJSONObject3.getJSONObject(identifier);
+                        if (wincomponentJSONObject.getBoolean("restoreBuiltinDlls")) {
+                            JSONArray dlnames = wincomponentJSONObject.getJSONArray("dlnames");
+                            int i = 0;
+                            while (i < dlnames.length()) {
+                                String dlname = dlnames.getString(i);
+                                if (dlname.endsWith(".exe")) {
+                                    wincomponentsJSONObject2 = wincomponentsJSONObject3;
+                                    string = dlname;
+                                } else {
+                                    StringBuilder sb = new StringBuilder();
+                                    sb.append(dlname);
+                                    wincomponentsJSONObject2 = wincomponentsJSONObject3;
+                                    sb.append(".dll");
+                                    string = sb.toString();
+                                }
+                                builtinDlls.add(string);
+                                i++;
+                                wincomponentsJSONObject3 = wincomponentsJSONObject2;
+                            }
+                            wincomponentsJSONObject = wincomponentsJSONObject3;
+                        } else {
+                            wincomponentsJSONObject = wincomponentsJSONObject3;
+                            TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "wincomponents/" + identifier + ".tzst", windowsDir, new TarCompressorUtils.OnExtractFileListener() { // from class: com.winlator.XServerDisplayActivity$$ExternalSyntheticLambda7
+                                @Override // com.winlator.core.TarCompressorUtils.OnExtractFileListener
+                                public final File onExtractFile(File file, long j) {
+                                    return XServerDisplayActivity.lambda_extractWinComponentFiles_12(file, j);
+                                }
+                            });
+                        }
                     }
+                    WineUtils.setWinComponentRegistryKeys(systemRegFile, identifier, useNative);
+                    wincomponentsJSONObject3 = wincomponentsJSONObject;
                 }
-
-                cloneOriginalDllFiles(dlls.toArray(new String[0]));
-                dlls.clear();
             }
-
-            Iterator<String[]> oldWinComponentsIter = new KeyValueSet(container.getExtra("wincomponents", Container.FALLBACK_WINCOMPONENTS)).iterator();
-
-            for (String[] wincomponent : new KeyValueSet(wincomponents)) {
-                if (wincomponent[1].equals(oldWinComponentsIter.next()[1])) continue;
-                String identifier = wincomponent[0];
-                boolean useNative = wincomponent[1].equals("1");
-
-                if (useNative) {
-                    TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "wincomponents/"+identifier+".tzst", windowsDir, onExtractFileListener);
-                }
-                else {
-                    JSONArray dlnames = wincomponentsJSONObject.getJSONArray(identifier);
-                    for (int i = 0; i < dlnames.length(); i++) {
-                        String dlname = dlnames.getString(i);
-                        dlls.add(!dlname.endsWith(".exe") ? dlname+".dll" : dlname);
-                    }
-                }
-
-                WineUtils.setWinComponentRegistryKeys(systemRegFile, identifier, useNative);
+            if (!builtinDlls.isEmpty()) {
+                restoreBuiltinDllFiles((String[]) builtinDlls.toArray(new String[0]));
             }
-
-            if (!dlls.isEmpty()) restoreOriginalDllFiles(dlls.toArray(new String[0]));
-            WineUtils.overrideWinComponentDlls(this, container, wincomponents);
+            WineUtils.overrideWinComponentDlls(this, this.container, this.wincomponents);
+        } catch (JSONException e) {
         }
-        catch (JSONException e) {}
     }
 
-    private void restoreOriginalDllFiles(final String... dlls) {
-        File rootDir = imageFs.getRootDir();
-        File cacheDir = new File(rootDir, ImageFs.CACHE_PATH+"/original_dlls");
-        if (cacheDir.isDirectory()) {
-            File windowsDir = new File(rootDir, ImageFs.WINEPREFIX+"/drive_c/windows");
-            String[] dirnames = cacheDir.list();
-            int filesCopied = 0;
-
-            for (String dll : dlls) {
-                boolean success = false;
-                for (String dirname : dirnames) {
-                    File srcFile = new File(cacheDir, dirname+"/"+dll);
-                    File dstFile = new File(windowsDir, dirname+"/"+dll);
-                    if (FileUtils.copy(srcFile, dstFile)) success = true;
-                }
-                if (success) filesCopied++;
-            }
-
-            if (filesCopied == dlls.length) return;
-        }
-
-        containerManager.extractContainerPatternFile(container.getWineVersion(), container.getRootDir(), (file, size) -> {
-            String path = file.getPath();
-            if (path.contains("system32/") || path.contains("syswow64/")) {
-                for (String dll : dlls) {
-                    if (path.endsWith("system32/"+dll) || path.endsWith("syswow64/"+dll)) return file;
-                }
-            }
+    /* JADX INFO: Access modifiers changed from: private */
+    public static /* synthetic */ File lambda_extractWinComponentFiles_12(File destination, long size) {
+        String name = destination.getName();
+        if (name.endsWith(".dll") || name.endsWith(".manifest") || name.endsWith("_deadbeef")) {
+            FileUtils.delete(destination);
             return null;
-        });
-
-        cloneOriginalDllFiles(dlls);
+        }
+        return null;
     }
 
-    private void cloneOriginalDllFiles(final String... dlls) {
-        File rootDir = imageFs.getRootDir();
-        File cacheDir = new File(rootDir, ImageFs.CACHE_PATH+"/original_dlls");
-        if (!cacheDir.isDirectory()) cacheDir.mkdirs();
-        File windowsDir = new File(rootDir, ImageFs.WINEPREFIX+"/drive_c/windows");
-        String[] dirnames = {"system32", "syswow64"};
-
+    private void restoreBuiltinDllFiles(String... dlls) {
+        File rootDir = this.rootFS.getRootDir();
+        File wineDir = new File(rootDir, this.rootFS.getWinePath());
+        File wineSystem32Dir = new File(wineDir, "/lib/wine/x86_64-windows");
+        File wineSysWoW64Dir = new File(wineDir, "/lib/wine/i386-windows");
+        File containerSystem32Dir = new File(rootDir, "/home/xuser/.wine/drive_c/windows/system32");
+        File containerSysWoW64Dir = new File(rootDir, "/home/xuser/.wine/drive_c/windows/syswow64");
         for (String dll : dlls) {
-            for (String dirname : dirnames) {
-                File dllFile = new File(windowsDir, dirname+"/"+dll);
-                if (dllFile.isFile()) FileUtils.copy(dllFile, new File(cacheDir, dirname+"/"+dll));
-            }
+            FileUtils.copy(new File(wineSysWoW64Dir, dll), new File(containerSysWoW64Dir, dll));
+            FileUtils.copy(new File(wineSystem32Dir, dll), new File(containerSystem32Dir, dll));
         }
     }
 
@@ -864,101 +1012,201 @@ public class XServerDisplayActivity extends AppCompatActivity implements Navigat
     }
 
     private String getWineStartCommand() {
-        File tempDir = new File(container.getRootDir(), ".wine/drive_c/windows/temp");
-        FileUtils.clear(tempDir);
-
-        String args = "";
+        int spaceIndex;
+        String str;
+        String cmdArgs = "";
+        String execPath = null;
+        String execArgs = "";
+        Shortcut shortcut = this.shortcut;
         if (shortcut != null) {
-            String execArgs = shortcut.getExtra("execArgs");
-            execArgs = !execArgs.isEmpty() ? " "+execArgs : "";
-
-            if (shortcut.path.endsWith(".lnk")) {
-                args += "\""+shortcut.path+"\""+execArgs;
+            String execArgs2 = shortcut.getExtra("execArgs");
+            if (execArgs2.isEmpty()) {
+                str = "";
+            } else {
+                str = " " + execArgs2;
             }
-            else {
-                String exeDir = FileUtils.getDirname(shortcut.path);
-                String filename = FileUtils.getName(shortcut.path);
-                int dotIndex, spaceIndex;
-                if ((dotIndex = filename.lastIndexOf(".")) != -1 && (spaceIndex = filename.indexOf(" ", dotIndex)) != -1) {
-                    execArgs = filename.substring(spaceIndex+1)+execArgs;
-                    filename = filename.substring(0, spaceIndex);
+            execArgs = str;
+            if (this.shortcut.path.endsWith(".lnk") || this.shortcut.path.contains("://")) {
+                cmdArgs = "\"" + this.shortcut.path + "\"" + execArgs;
+            } else {
+                execPath = this.shortcut.path;
+            }
+        } else {
+            Intent intent = getIntent();
+            if (intent.hasExtra("exec_path")) {
+                execPath = WineUtils.unixToDOSPath(intent.getStringExtra("exec_path"), this.container);
+                if (execPath.endsWith(".lnk")) {
+                    cmdArgs = "\"" + execPath + "\"";
+                    execPath = null;
                 }
-                args += "/dir "+exeDir.replace(" ", "\\ ")+" \""+filename+"\""+execArgs;
             }
         }
-        else args += "\"wfm.exe\"";
-
-        return "winhandler.exe "+args;
+        if (execPath != null) {
+            String execDir = FileUtils.getDirname(execPath);
+            String filename = FileUtils.getName(execPath);
+            int dotIndex = filename.lastIndexOf(".");
+            if (dotIndex != -1 && (spaceIndex = filename.indexOf(" ", dotIndex)) != -1) {
+                execArgs = filename.substring(spaceIndex + 1) + execArgs;
+                filename = filename.substring(0, spaceIndex);
+            }
+            cmdArgs = "/dir " + StringUtils.escapeDOSPath(execDir) + " \"" + filename + "\"" + execArgs;
+        }
+        if (cmdArgs.isEmpty()) {
+            cmdArgs = "/dir C:\\windows \"wfm.exe\"";
+        }
+        EnvVars envVars = this.overrideEnvVars;
+        if (envVars != null && envVars.has("EXTRA_EXEC_ARGS")) {
+            cmdArgs = cmdArgs + " " + this.overrideEnvVars.get("EXTRA_EXEC_ARGS");
+            this.overrideEnvVars.remove("EXTRA_EXEC_ARGS");
+        }
+        return "C:\\windows\\winhandler.exe " + cmdArgs;
     }
 
     public XServer getXServer() {
-        return xServer;
+        return this.xServer;
     }
 
     public WinHandler getWinHandler() {
-        return winHandler;
+        return this.winHandler;
     }
 
     public XServerView getXServerView() {
-        return xServerView;
+        return this.xServerView;
     }
 
     public Container getContainer() {
-        return container;
+        return this.container;
+    }
+
+    public EnvVars getOverrideEnvVars() {
+        if (this.overrideEnvVars == null) {
+            this.overrideEnvVars = new EnvVars();
+        }
+        return this.overrideEnvVars;
+    }
+
+    public void setDXWrapper(String dxwrapper) {
+        this.dxwrapper = dxwrapper;
+    }
+
+    public ScreenInfo getScreenInfo() {
+        return this.screenInfo;
+    }
+
+    public void setScreenInfo(ScreenInfo screenInfo) {
+        this.screenInfo = screenInfo;
+    }
+
+    public void setWinComponents(String wincomponents) {
+        this.wincomponents = wincomponents;
+    }
+
+    public DebugDialog getDebugDialog() {
+        return this.debugDialog;
+    }
+
+    public String getScreenEffectProfile() {
+        return this.screenEffectProfile;
+    }
+
+    public void setScreenEffectProfile(String screenEffectProfile) {
+        this.screenEffectProfile = screenEffectProfile;
     }
 
     private void changeWineAudioDriver() {
-        if (!audioDriver.equals(container.getExtra("audioDriver"))) {
-            File rootDir = imageFs.getRootDir();
-            File userRegFile = new File(rootDir, ImageFs.WINEPREFIX+"/user.reg");
-            try (WineRegistryEditor registryEditor = new WineRegistryEditor(userRegFile)) {
-                if (audioDriver.equals("alsa")) {
+        if (!this.audioDriver.equals(this.container.getExtra("audioDriver"))) {
+            File rootDir = this.rootFS.getRootDir();
+            File userRegFile = new File(rootDir, "/home/xuser/.wine/user.reg");
+            WineRegistryEditor registryEditor = new WineRegistryEditor(userRegFile);
+            try {
+                if (this.audioDriver.equals("alsa")) {
                     registryEditor.setStringValue("Software\\Wine\\Drivers", "Audio", "alsa");
-                }
-                else if (audioDriver.equals("pulseaudio")) {
+                } else if (this.audioDriver.equals("pulseaudio")) {
                     registryEditor.setStringValue("Software\\Wine\\Drivers", "Audio", "pulse");
                 }
+                registryEditor.close();
+                this.container.putExtra("audioDriver", this.audioDriver);
+                this.container.saveData();
+            } catch (Throwable th) {
+                try {
+                    registryEditor.close();
+                } catch (Throwable th2) {
+                    th.addSuppressed(th2);
+                }
+                throw th;
             }
-            container.putExtra("audioDriver", audioDriver);
-            container.saveData();
         }
     }
 
     private void applyGeneralPatches(Container container) {
-        File rootDir = imageFs.getRootDir();
+        File rootDir = this.rootFS.getRootDir();
         FileUtils.delete(new File(rootDir, "/opt/apps"));
-        TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "imagefs_patches.tzst", rootDir, onExtractFileListener);
-        TarCompressorUtils.extract(TarCompressorUtils.Type.ZSTD, this, "pulseaudio.tzst", new File(getFilesDir(), "pulseaudio"));
-        WineUtils.applySystemTweaks(this, wineInfo);
+        TarCompressorUtils.Type type = TarCompressorUtils.Type.ZSTD;
+        TarCompressorUtils.extract(type, this, "rootfs_patches.tzst", rootDir);
+        TarCompressorUtils.extract(type, this, "pulseaudio.tzst", new File(getFilesDir(), "pulseaudio"));
+        WineUtils.applySystemTweaks(this, this.wineInfo);
         container.putExtra("graphicsDriver", null);
+        container.putExtra("dxwrapper", null);
         container.putExtra("desktopTheme", null);
-        SettingsFragment.resetBox86_64Version(this);
+        SettingsFragment.resetBox64Version(this);
     }
 
-    private void assignTaskAffinity(Window window) {
-        if (taskAffinityMask == 0) return;
-        int processId = window.getProcessId();
-        String className = window.getClassName();
-        int processAffinity = window.isWoW64() ? taskAffinityMaskWoW64 : taskAffinityMask;
-
-        if (processId > 0) {
-            winHandler.setProcessAffinity(processId, processAffinity);
+    /* JADX INFO: Access modifiers changed from: private */
+    public void changeFrameRatingVisibility(Window window, boolean visible) {
+        if (this.frameRating == null) {
+            return;
         }
-        else if (!className.isEmpty()) {
-            winHandler.setProcessAffinity(window.getClassName(), processAffinity);
+        if (visible) {
+            boolean viewable = false;
+            Window child = window.getChildCount() > 0 ? window.getChildren().get(0) : null;
+            if (window.attributes.isMapped() && window.getWidth() >= 320 && window.getHeight() >= 200) {
+                viewable = true;
+            }
+            if (viewable) {
+                if (window.isSurface() || (child != null && child.isSurface())) {
+                    Window frameRatingWindow = window.isSurface() ? window : child;
+                    if (this.frameRating.getMode() == FrameRating.Mode.FULL) {
+                        Property gpuInfo = frameRatingWindow.getProperty(75);
+                        this.frameRating.setGPUInfo(gpuInfo != null ? new String(gpuInfo.data.array()) : "N/A");
+                    }
+                    this.frameRatingWindowId = frameRatingWindow.id;
+                    this.frameRating.reset();
+                    return;
+                }
+                return;
+            }
+            return;
+        }
+        if (window.id == this.frameRatingWindowId) {
+            this.frameRatingWindowId = -1;
+            runOnUiThread(() -> lambda_changeFrameRatingVisibility_13());
         }
     }
 
-    private void changeFrameRatingVisibility(Window window, Property property) {
-        if (frameRating == null) return;
-        if (property != null) {
-            if (frameRatingWindowId == -1 && window.attributes.isMapped() && property.nameAsString().equals("_MESA_DRV")) {
-                frameRatingWindowId = window.id;
+    /* JADX INFO: Access modifiers changed from: private */
+    public /* synthetic */ void lambda_changeFrameRatingVisibility_13() {
+        this.frameRating.setVisibility(8);
+    }
+
+    public boolean verifyUserRegistry() {
+        File userRegFile = new File(this.rootFS.getRootDir(), "/home/xuser/.wine/user.reg");
+        String lastModified = String.valueOf(userRegFile.lastModified());
+        if (!lastModified.equals(this.container.getExtra("userRegLastModified"))) {
+            WineRegistryEditor registryEditor = new WineRegistryEditor(userRegFile);
+            try {
+                registryEditor.removeKey("Software\\Wow6432Node\\Wine", true);
+                registryEditor.close();
+                this.container.putExtra("userRegLastModified", lastModified);
+                return true;
+            } catch (Throwable th) {
+                try {
+                    registryEditor.close();
+                } catch (Throwable th2) {
+                    th.addSuppressed(th2);
+                }
+                throw th;
             }
         }
-        else if (window.id == frameRatingWindowId) {
-            frameRatingWindowId = -1;
-            runOnUiThread(() -> frameRating.setVisibility(View.GONE));
-        }
+        return false;
     }
 }

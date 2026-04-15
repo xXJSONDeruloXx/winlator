@@ -2,32 +2,50 @@ package com.winlator.xserver.events;
 
 import com.winlator.xconnector.XOutputStream;
 import com.winlator.xconnector.XStreamLock;
-
 import java.io.IOException;
 
+/* JADX INFO: loaded from: classes.dex */
 public class MappingNotify extends Event {
-    public enum Request {MODIFIER, KEYBOARD, POINTER}
-    private final Request request;
-    private final byte firstKeycode;
     private final byte count;
+    private final byte firstKeycode;
+    private final Request request;
+
+    public enum Request {
+        MODIFIER,
+        KEYBOARD,
+        POINTER
+    }
 
     public MappingNotify(Request request, byte firstKeycode, int count) {
         super(34);
         this.request = request;
         this.firstKeycode = firstKeycode;
-        this.count = (byte)count;
+        this.count = (byte) count;
     }
 
-    @Override
+    @Override // com.winlator.xserver.events.Event
     public void send(short sequenceNumber, XOutputStream outputStream) throws IOException {
-        try (XStreamLock lock = outputStream.lock()) {
-            outputStream.writeByte(code);
-            outputStream.writeByte((byte)0);
+        XStreamLock lock = outputStream.lock();
+        try {
+            outputStream.writeByte(this.code);
+            outputStream.writeByte((byte) 0);
             outputStream.writeShort(sequenceNumber);
-            outputStream.writeByte((byte)request.ordinal());
-            outputStream.writeByte(firstKeycode);
-            outputStream.writeByte(count);
+            outputStream.writeByte((byte) this.request.ordinal());
+            outputStream.writeByte(this.firstKeycode);
+            outputStream.writeByte(this.count);
             outputStream.writePad(25);
+            if (lock != null) {
+                lock.close();
+            }
+        } catch (Throwable th) {
+            if (lock != null) {
+                try {
+                    lock.close();
+                } catch (Throwable th2) {
+                    th.addSuppressed(th2);
+                }
+            }
+            throw th;
         }
     }
 }

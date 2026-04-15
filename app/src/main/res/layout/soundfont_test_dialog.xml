@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="match_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout android:orientation="vertical" android:layout_width="340.0dp" android:layout_height="wrap_content">
+        <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content">
+            <LinearLayout android:orientation="vertical" android:layout_width="100.0dp" android:layout_height="wrap_content">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/channel" />
+                <Spinner android:entries="@array/midi_channel_entries" android:id="@+id/SChannel" android:layout_width="match_parent" style="@style/ComboBox" />
+            </LinearLayout>
+            <LinearLayout android:orientation="vertical" android:layout_width="0.0dp" android:layout_height="wrap_content" android:layout_weight="1.0">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/instrument" />
+                <Spinner android:id="@+id/SInstrument" android:layout_width="match_parent" style="@style/ComboBox" />
+            </LinearLayout>
+        </LinearLayout>
+        <com.winlator.widget.SimplePianoKeyboard android:id="@+id/SimplePianoKeyboard" android:layout_width="match_parent" android:layout_height="160.0dp" android:layout_marginTop="4.0dp" />
+    </LinearLayout>
+</LinearLayout>

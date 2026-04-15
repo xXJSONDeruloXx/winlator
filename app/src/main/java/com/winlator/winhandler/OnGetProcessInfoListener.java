@@ -1,5 +1,6 @@
 package com.winlator.winhandler;
 
+/* JADX INFO: loaded from: classes.dex */
 public interface OnGetProcessInfoListener {
-    void onGetProcessInfo(int index, int count, ProcessInfo processInfo);
+    void onGetProcessInfo(int i, int i2, ProcessInfo processInfo);
 }

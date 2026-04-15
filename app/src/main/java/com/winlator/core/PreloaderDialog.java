@@ -1,13 +1,12 @@
 package com.winlator.core;
 
+import android.R;
 import android.app.Activity;
 import android.app.Dialog;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.TextView;
 
-import com.winlator.R;
-
+/* JADX INFO: loaded from: classes.dex */
 public class PreloaderDialog {
     private final Activity activity;
     private Dialog dialog;
@@ -17,46 +16,54 @@ public class PreloaderDialog {
     }
 
     private void create() {
-        if (dialog != null) return;
-        dialog = new Dialog(activity, android.R.style.Theme_Translucent_NoTitleBar_Fullscreen);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setCancelable(false);
-        dialog.setCanceledOnTouchOutside(false);
-        dialog.setContentView(R.layout.preloader_dialog);
-
-        Window window = dialog.getWindow();
+        if (this.dialog != null) {
+            return;
+        }
+        Dialog dialog = new Dialog(this.activity, android.R.style.Theme_Translucent_NoTitleBar_Fullscreen);
+        this.dialog = dialog;
+        dialog.requestWindowFeature(1);
+        this.dialog.setCancelable(false);
+        this.dialog.setCanceledOnTouchOutside(false);
+        this.dialog.setContentView(com.winlator.R.layout.preloader_dialog);
+        Window window = this.dialog.getWindow();
         if (window != null) {
-            window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-            window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+            window.clearFlags(16);
+            window.clearFlags(8);
         }
     }
 
     public synchronized void show(int textResId) {
-        if (isShowing()) return;
+        if (isShowing()) {
+            return;
+        }
         close();
-        if (dialog == null) create();
-        ((TextView)dialog.findViewById(R.id.TextView)).setText(textResId);
-        dialog.show();
+        if (this.dialog == null) {
+            create();
+        }
+        ((TextView) this.dialog.findViewById(com.winlator.R.id.TextView)).setText(textResId);
+        this.dialog.show();
     }
 
     public void showOnUiThread(final int textResId) {
-        activity.runOnUiThread(() -> show(textResId));
+        this.activity.runOnUiThread(() -> show(textResId));
     }
 
     public synchronized void close() {
         try {
+            Dialog dialog = this.dialog;
             if (dialog != null) {
                 dialog.dismiss();
             }
+        } catch (Exception e) {
         }
-        catch (Exception e) {}
     }
 
     public void closeOnUiThread() {
-        activity.runOnUiThread(this::close);
+        this.activity.runOnUiThread(() -> close());
     }
 
     public boolean isShowing() {
+        Dialog dialog = this.dialog;
         return dialog != null && dialog.isShowing();
     }
 }

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="match_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout android:orientation="vertical" android:layout_width="300.0dp" android:layout_height="wrap_content">
+        <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+            <LinearLayout style="@style/FieldSet">
+                <RadioGroup android:orientation="vertical" android:id="@+id/RGMode" android:layout_width="wrap_content" android:layout_height="wrap_content">
+                    <RadioButton android:id="@+id/RBExternalController" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/external_controller" />
+                    <RadioButton android:id="@+id/RBControlsProfile" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/controls_profile" />
+                </RadioGroup>
+                <Spinner android:id="@+id/SSource" android:layout_width="match_parent" android:layout_marginTop="8.0dp" style="@style/ComboBox" />
+            </LinearLayout>
+            <TextView android:background="?colorSecondarySurface" android:text="@string/mode" style="@style/FieldSetLabel" />
+        </FrameLayout>
+        <CheckBox android:id="@+id/CBEnableVibration" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8.0dp" android:text="@string/enable_vibration" />
+    </LinearLayout>
+</LinearLayout>

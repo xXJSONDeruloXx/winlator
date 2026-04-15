@@ -1,15 +1,13 @@
 package com.winlator.xserver.extensions;
 
-import static com.winlator.xserver.XClientRequestHandler.RESPONSE_CODE_SUCCESS;
-
 import android.util.SparseArray;
-
+import com.winlator.core.Bitmask;
 import com.winlator.renderer.GPUImage;
 import com.winlator.renderer.Texture;
+import com.winlator.widget.XServerView;
 import com.winlator.xconnector.XInputStream;
 import com.winlator.xconnector.XOutputStream;
 import com.winlator.xconnector.XStreamLock;
-import com.winlator.xserver.Bitmask;
 import com.winlator.xserver.Drawable;
 import com.winlator.xserver.Pixmap;
 import com.winlator.xserver.Window;
@@ -18,94 +16,150 @@ import com.winlator.xserver.XLock;
 import com.winlator.xserver.XServer;
 import com.winlator.xserver.errors.BadImplementation;
 import com.winlator.xserver.errors.BadMatch;
-import com.winlator.xserver.errors.BadPixmap;
 import com.winlator.xserver.errors.BadWindow;
 import com.winlator.xserver.errors.XRequestError;
 import com.winlator.xserver.events.PresentCompleteNotify;
 import com.winlator.xserver.events.PresentIdleNotify;
-
 import java.io.IOException;
+import java.util.Objects;
 
-public class PresentExtension implements Extension {
-    public static final byte MAJOR_OPCODE = -103;
-    private static final int FAKE_INTERVAL = 1000000 / 60;
-    public enum Kind {PIXMAP, MSC_NOTIFY}
-    public enum Mode {COPY, FLIP, SKIP}
-    private final SparseArray<Event> events = new SparseArray<>();
+/* JADX INFO: loaded from: classes.dex */
+public class PresentExtension extends Extension {
+    private final SparseArray<Event> events;
     private SyncExtension syncExtension;
 
-    private static abstract class ClientOpcodes {
-        private static final byte QUERY_VERSION = 0;
-        private static final byte PRESENT_PIXMAP = 1;
-        private static final byte SELECT_INPUT = 3;
+    public enum Kind {
+        PIXMAP,
+        MSC_NOTIFY
+    }
+
+    public enum Mode {
+        COPY,
+        FLIP,
+        SKIP
     }
 
     private static class Event {
-        private Window window;
         private XClient client;
         private int id;
         private Bitmask mask;
+        private Window window;
+
+        private Event() {
+        }
     }
 
-    @Override
+    public PresentExtension(XServer xServer, byte majorOpcode) {
+        super(xServer, majorOpcode);
+        this.events = new SparseArray<>();
+    }
+
+    @Override // com.winlator.xserver.extensions.Extension
     public String getName() {
         return "Present";
     }
 
-    @Override
-    public byte getMajorOpcode() {
-        return MAJOR_OPCODE;
-    }
-
-    @Override
-    public byte getFirstErrorId() {
-        return 0;
-    }
-
-    @Override
-    public byte getFirstEventId() {
-        return 0;
-    }
-
-    private void sendIdleNotify(Window window, Pixmap pixmap, int serial, int idleFence) {
-        if (idleFence != 0) syncExtension.setTriggered(idleFence);
-
-        synchronized (events) {
-            for (int i = 0; i < events.size(); i++) {
-                Event event = events.valueAt(i);
-                if (event.window == window && event.mask.isSet(PresentIdleNotify.getEventMask())) {
-                    event.client.sendEvent(new PresentIdleNotify(event.id, window, pixmap, serial, idleFence));
+    private void sendIdleNotify(Window window, Pixmap pixmap, int serial, int idleFence) throws Throwable {
+        if (idleFence != 0) {
+            this.syncExtension.setTriggered(idleFence);
+        }
+        if (this.events.size() == 0) {
+            return;
+        }
+        synchronized (this.events) {
+            for (int i = 0; i < this.events.size(); i++) {
+                try {
+                    Event event = this.events.valueAt(i);
+                    if (event.window == window) {
+                        try {
+                            if (event.mask.isSet(PresentIdleNotify.getEventMask())) {
+                                event.client.sendEvent(new PresentIdleNotify(this, event.id, window, pixmap, serial, idleFence));
+                            }
+                        } catch (Throwable th) {
+                            th = th;
+                            throw th;
+                        }
+                    }
+                } catch (Throwable th2) {
+                    throw th2;
                 }
             }
         }
     }
 
-    private void sendCompleteNotify(Window window, int serial, Kind kind, Mode mode, long ust, long msc) {
-        synchronized (events) {
-            for (int i = 0; i < events.size(); i++) {
-                Event event = events.valueAt(i);
-                if (event.window == window && event.mask.isSet(PresentCompleteNotify.getEventMask())) {
-                    event.client.sendEvent(new PresentCompleteNotify(event.id, window, serial, kind, mode, ust, msc));
+    private void sendCompleteNotify(Window window, int serial, Kind kind, Mode mode, long ust, long msc) throws Throwable {
+        long ust2;
+        long msc2;
+        SparseArray<Event> sparseArray;
+        int i;
+        PresentExtension presentExtension = this;
+        if (presentExtension.events.size() == 0) {
+            return;
+        }
+        if (ust == 0 && msc == 0) {
+            long ust3 = System.nanoTime() / 1000;
+            ust2 = ust3;
+            msc2 = ust3 / 16666;
+        } else {
+            ust2 = ust;
+            msc2 = msc;
+        }
+        SparseArray<Event> sparseArray2 = presentExtension.events;
+        synchronized (sparseArray2) {
+            int i2 = 0;
+            while (i2 < presentExtension.events.size()) {
+                try {
+                    Event event = presentExtension.events.valueAt(i2);
+                    if (event.window == window && event.mask.isSet(PresentCompleteNotify.getEventMask())) {
+                        i = i2;
+                        sparseArray = sparseArray2;
+                        try {
+                            event.client.sendEvent(new PresentCompleteNotify(this, event.id, window, serial, kind, mode, ust2, msc2));
+                        } catch (Throwable th) {
+                            th = th;
+                            throw th;
+                        }
+                    } else {
+                        i = i2;
+                        sparseArray = sparseArray2;
+                    }
+                    i2 = i + 1;
+                    presentExtension = this;
+                    sparseArray2 = sparseArray;
+                } catch (Throwable th2) {
+                    throw th2;
                 }
             }
         }
     }
 
-    private static void queryVersion(XClient client, XInputStream inputStream, XOutputStream outputStream) throws IOException, XRequestError {
+    private void queryVersion(XClient client, XInputStream inputStream, XOutputStream outputStream) throws XRequestError, IOException {
         inputStream.skip(8);
-
-        try (XStreamLock lock = outputStream.lock()) {
-            outputStream.writeByte(RESPONSE_CODE_SUCCESS);
-            outputStream.writeByte((byte)0);
+        XStreamLock lock = outputStream.lock();
+        try {
+            outputStream.writeByte((byte) 1);
+            outputStream.writeByte((byte) 0);
             outputStream.writeShort(client.getSequenceNumber());
             outputStream.writeInt(0);
             outputStream.writeInt(1);
             outputStream.writeInt(0);
             outputStream.writePad(16);
+            if (lock != null) {
+                lock.close();
+            }
+        } catch (Throwable th) {
+            if (lock != null) {
+                try {
+                    lock.close();
+                } catch (Throwable th2) {
+                    th.addSuppressed(th2);
+                }
+            }
+            throw th;
         }
     }
 
-    private void presentPixmap(XClient client, XInputStream inputStream, XOutputStream outputStream) throws IOException, XRequestError {
+    private void presentPixmap(XClient client, XInputStream inputStream, XOutputStream outputStream) throws XRequestError, IOException {
         int windowId = inputStream.readInt();
         int pixmapId = inputStream.readInt();
         int serial = inputStream.readInt();
@@ -115,83 +169,105 @@ public class PresentExtension implements Extension {
         inputStream.skip(8);
         int idleFence = inputStream.readInt();
         inputStream.skip(client.getRemainingRequestLength());
-
-        final Window window = client.xServer.windowManager.getWindow(windowId);
-        if (window == null) throw new BadWindow(windowId);
-
-        final Pixmap pixmap = client.xServer.pixmapManager.getPixmap(pixmapId);
-        if (pixmap == null) throw new BadPixmap(pixmapId);
-
+        Window window = this.xServer.windowManager.getWindow(windowId);
+        if (window == null) {
+            throw new BadWindow(windowId);
+        }
+        Pixmap pixmap = this.xServer.pixmapManager.getPixmap(pixmapId);
         Drawable content = window.getContent();
-        if (content.visual.depth != pixmap.drawable.visual.depth) throw new BadMatch();
-
-        long ust = System.nanoTime() / 1000;
-        long msc = ust / FAKE_INTERVAL;
-
-        synchronized (content.renderLock) {
-            content.copyArea((short)0, (short)0, xOff, yOff, pixmap.drawable.width, pixmap.drawable.height, pixmap.drawable);
-            sendIdleNotify(window, pixmap, serial, idleFence);
-            sendCompleteNotify(window, serial, Kind.PIXMAP, Mode.COPY, ust, msc);
+        if (pixmap != null && content.visual.depth != pixmap.drawable.visual.depth) {
+            throw new BadMatch();
+        }
+        try {
+            synchronized (content.renderLock) {
+                if (pixmap != null) {
+                    Drawable drawable = pixmap.drawable;
+                    content.copyArea((short) 0, (short) 0, xOff, yOff, drawable.width, drawable.height, drawable);
+                    sendIdleNotify(window, pixmap, serial, idleFence);
+                } else {
+                    content.forceUpdate();
+                }
+                sendCompleteNotify(window, serial, Kind.PIXMAP, Mode.COPY, 0L, 0L);
+            }
+        } catch (XRequestError | IOException e) {
+            throw e;
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
         }
     }
 
-    private void selectInput(XClient client, XInputStream inputStream, XOutputStream outputStream) throws IOException, XRequestError {
+    private void selectInput(XClient client, XInputStream inputStream, XOutputStream outputStream) throws XRequestError, IOException {
         int eventId = inputStream.readInt();
         int windowId = inputStream.readInt();
         Bitmask mask = new Bitmask(inputStream.readInt());
-
-        Window window = client.xServer.windowManager.getWindow(windowId);
-        if (window == null) throw new BadWindow(windowId);
-
-        if (GPUImage.isSupported() && !mask.isEmpty()) {
-            Drawable content = window.getContent();
-            final Texture oldTexture = content.getTexture();
-            client.xServer.getRenderer().xServerView.queueEvent(oldTexture::destroy);
-            content.setTexture(new GPUImage(content.width, content.height));
+        Window window = this.xServer.windowManager.getWindow(windowId);
+        if (window == null) {
+            throw new BadWindow(windowId);
         }
-
-        synchronized (events) {
-            Event event = events.get(eventId);
-            if (event != null) {
-                if (event.window != window || event.client != client) throw new BadMatch();
-
-                if (!mask.isEmpty()) {
-                    event.mask = mask;
+        Drawable content = window.getContent();
+        Texture texture = content.getTexture();
+        if (!(texture instanceof GPUImage)) {
+            XServerView xServerView = this.xServer.getRenderer().xServerView;
+            Objects.requireNonNull(texture);
+            xServerView.queueEvent(() -> texture.destroy());
+            content.setTexture(new GPUImage(content));
+        }
+        if (eventId > 0) {
+            synchronized (this.events) {
+                Event event = this.events.get(eventId);
+                if (event != null) {
+                    if (event.window != window || event.client != client) {
+                        throw new BadMatch();
+                    }
+                    if (!mask.isEmpty()) {
+                        event.mask = mask;
+                    } else {
+                        this.events.remove(eventId);
+                    }
+                } else {
+                    Event event2 = new Event();
+                    event2.id = eventId;
+                    event2.window = window;
+                    event2.client = client;
+                    event2.mask = mask;
+                    this.events.put(eventId, event2);
                 }
-                else events.remove(eventId);
-            }
-            else {
-                event = new Event();
-                event.id = eventId;
-                event.window = window;
-                event.client = client;
-                event.mask = mask;
-                events.put(eventId, event);
             }
         }
     }
 
-    @Override
-    public void handleRequest(XClient client, XInputStream inputStream, XOutputStream outputStream) throws IOException, XRequestError {
+    @Override // com.winlator.xserver.extensions.Extension
+    public void handleRequest(XClient client, XInputStream inputStream, XOutputStream outputStream) throws XRequestError, IOException {
+        XLock lock;
         int opcode = client.getRequestData();
-        if (syncExtension == null) syncExtension = client.xServer.getExtension(SyncExtension.MAJOR_OPCODE);
-
+        if (this.syncExtension == null) {
+            this.syncExtension = (SyncExtension) this.xServer.getExtensionByName("SYNC");
+        }
         switch (opcode) {
-            case ClientOpcodes.QUERY_VERSION :
+            case 0:
                 queryVersion(client, inputStream, outputStream);
-                break;
-            case ClientOpcodes.PRESENT_PIXMAP:
-                try (XLock lock = client.xServer.lock(XServer.Lockable.WINDOW_MANAGER, XServer.Lockable.PIXMAP_MANAGER)) {
+                return;
+            case 1: {
+                lock = this.xServer.lock(XServer.Lockable.WINDOW_MANAGER, XServer.Lockable.PIXMAP_MANAGER);
+                try {
                     presentPixmap(client, inputStream, outputStream);
+                } finally {
+                    if (lock != null) lock.close();
                 }
-                break;
-            case ClientOpcodes.SELECT_INPUT:
-                try (XLock lock = client.xServer.lock(XServer.Lockable.WINDOW_MANAGER)) {
-                    selectInput(client, inputStream, outputStream);
-                }
-                break;
+                return;
+            }
+            case 2:
             default:
                 throw new BadImplementation();
+            case 3: {
+                lock = this.xServer.lock(XServer.Lockable.WINDOW_MANAGER);
+                try {
+                    selectInput(client, inputStream, outputStream);
+                } finally {
+                    if (lock != null) lock.close();
+                }
+                return;
+            }
         }
     }
 }

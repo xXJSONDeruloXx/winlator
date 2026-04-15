@@ -1,9 +1,9 @@
 package com.winlator.xserver;
 
 import android.util.SparseArray;
-
 import java.nio.IntBuffer;
 
+/* JADX INFO: loaded from: classes.dex */
 public class CursorManager extends XResourceManager {
     private final SparseArray<Cursor> cursors = new SparseArray<>();
     private final DrawableManager drawableManager;
@@ -13,40 +13,45 @@ public class CursorManager extends XResourceManager {
     }
 
     public Cursor getCursor(int id) {
-        return cursors.get(id);
+        return this.cursors.get(id);
     }
 
     public Cursor createCursor(int id, short x, short y, Pixmap sourcePixmap, Pixmap maskPixmap) {
-        if (cursors.indexOfKey(id) >= 0) return null;
-        Drawable drawable = drawableManager.createDrawable(0, sourcePixmap.drawable.width, sourcePixmap.drawable.height, sourcePixmap.drawable.visual);
-        Cursor cursor = new Cursor(id, x, y, drawable, sourcePixmap.drawable, maskPixmap != null ? maskPixmap.drawable : null);
-        cursors.put(id, cursor);
+        if (this.cursors.indexOfKey(id) >= 0) {
+            return null;
+        }
+        DrawableManager drawableManager = this.drawableManager;
+        Drawable drawable = sourcePixmap.drawable;
+        Drawable drawable2 = drawableManager.createDrawable(0, drawable.width, drawable.height, drawable.visual);
+        Cursor cursor = new Cursor(id, x, y, drawable2, sourcePixmap.drawable, maskPixmap != null ? maskPixmap.drawable : null);
+        this.cursors.put(id, cursor);
         triggerOnCreateResourceListener(cursor);
         return cursor;
     }
 
     public void freeCursor(int id) {
-        triggerOnFreeResourceListener(cursors.get(id));
-        cursors.remove(id);
+        triggerOnFreeResourceListener(this.cursors.get(id));
+        this.cursors.remove(id);
     }
 
     private static boolean isEmptyMaskImage(Drawable maskImage) {
         IntBuffer maskData = maskImage.getData().asIntBuffer();
-        boolean result = true;
         for (int i = 0; i < maskData.capacity(); i++) {
-            if (maskData.get(i) != 0x000000) {
-                result = false;
-                break;
+            if (maskData.get(i) != 0) {
+                return false;
             }
         }
-        return result;
+        return true;
     }
 
     public void recolorCursor(Cursor cursor, byte foreRed, byte foreGreen, byte foreBlue, byte backRed, byte backGreen, byte backBlue) {
-        if (cursor.maskImage != null) {
-            boolean visible = !isEmptyMaskImage(cursor.maskImage);
+        Drawable drawable = cursor.maskImage;
+        if (drawable != null) {
+            boolean visible = !isEmptyMaskImage(drawable);
             cursor.setVisible(visible);
-            if (visible) cursor.cursorImage.drawAlphaMaskedBitmap(foreRed, foreGreen, foreBlue, backRed, backGreen, backBlue, cursor.sourceImage, cursor.maskImage);
+            if (visible) {
+                cursor.cursorImage.drawAlphaMaskedBitmap(foreRed, foreGreen, foreBlue, backRed, backGreen, backBlue, cursor.sourceImage, cursor.maskImage);
+            }
         }
     }
 }

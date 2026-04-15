@@ -1,68 +1,75 @@
 package com.winlator.xserver;
 
 import android.util.SparseArray;
-
+import com.winlator.core.Bitmask;
 import com.winlator.xconnector.XInputStream;
+import com.winlator.xserver.GraphicsContext;
+import java.util.Iterator;
 
+/* JADX INFO: loaded from: classes.dex */
 public class GraphicsContextManager extends XResourceManager {
     private final SparseArray<GraphicsContext> graphicsContexts = new SparseArray<>();
 
     public GraphicsContext getGraphicsContext(int id) {
-        return graphicsContexts.get(id);
+        return this.graphicsContexts.get(id);
     }
 
     public GraphicsContext createGraphicsContext(int id, Drawable drawable) {
-        if (graphicsContexts.indexOfKey(id) >= 0) return null;
+        if (this.graphicsContexts.indexOfKey(id) >= 0) {
+            return null;
+        }
         GraphicsContext graphicsContext = new GraphicsContext(id, drawable);
-        graphicsContexts.put(id, graphicsContext);
+        this.graphicsContexts.put(id, graphicsContext);
         triggerOnCreateResourceListener(graphicsContext);
         return graphicsContext;
     }
 
     public void freeGraphicsContext(int id) {
-        triggerOnFreeResourceListener(graphicsContexts.get(id));
-        graphicsContexts.remove(id);
+        triggerOnFreeResourceListener(this.graphicsContexts.get(id));
+        this.graphicsContexts.remove(id);
     }
 
     public void updateGraphicsContext(GraphicsContext graphicsContext, Bitmask valueMask, XInputStream inputStream) {
-        for (int index : valueMask) {
+        Iterator<Integer> it = valueMask.iterator();
+        while (it.hasNext()) {
+            int index = it.next().intValue();
             switch (index) {
-                case GraphicsContext.FLAG_FUNCTION:
+                case 1:
                     graphicsContext.setFunction(GraphicsContext.Function.values()[inputStream.readInt()]);
                     break;
-                case GraphicsContext.FLAG_PLANE_MASK:
+                case 2:
                     graphicsContext.setPlaneMask(inputStream.readInt());
                     break;
-                case GraphicsContext.FLAG_FOREGROUND:
+                case 4:
                     graphicsContext.setForeground(inputStream.readInt());
                     break;
-                case GraphicsContext.FLAG_BACKGROUND:
+                case 8:
                     graphicsContext.setBackground(inputStream.readInt());
                     break;
-                case GraphicsContext.FLAG_LINE_WIDTH:
+                case 16:
                     graphicsContext.setLineWidth(inputStream.readInt());
                     break;
-                case GraphicsContext.FLAG_SUBWINDOW_MODE:
-                    graphicsContext.setSubwindowMode(GraphicsContext.SubwindowMode.values()[inputStream.readInt()]);
-                    break;
-                case GraphicsContext.FLAG_LINE_STYLE:
-                case GraphicsContext.FLAG_CAP_STYLE:
-                case GraphicsContext.FLAG_JOIN_STYLE:
-                case GraphicsContext.FLAG_FILL_STYLE:
-                case GraphicsContext.FLAG_FILL_RULE:
-                case GraphicsContext.FLAG_GRAPHICS_EXPOSURES:
-                case GraphicsContext.FLAG_DASHES:
-                case GraphicsContext.FLAG_ARC_MODE:
-                case GraphicsContext.FLAG_TILE:
-                case GraphicsContext.FLAG_STIPPLE:
-                case GraphicsContext.FLAG_FONT:
-                case GraphicsContext.FLAG_CLIP_MASK:
-                case GraphicsContext.FLAG_TILE_STIPPLE_X_ORIGIN:
-                case GraphicsContext.FLAG_TILE_STIPPLE_Y_ORIGIN:
-                case GraphicsContext.FLAG_CLIP_X_ORIGIN:
-                case GraphicsContext.FLAG_CLIP_Y_ORIGIN:
-                case GraphicsContext.FLAG_DASH_OFFSET:
+                case 32:
+                case 64:
+                case 128:
+                case 256:
+                case 512:
+                case 1024:
+                case 2048:
+                case 4096:
+                case 8192:
+                case 16384:
+                case 65536:
+                case 131072:
+                case 262144:
+                case 524288:
+                case 1048576:
+                case 2097152:
+                case 4194304:
                     inputStream.skip(4);
+                    break;
+                case 32768:
+                    graphicsContext.setSubwindowMode(GraphicsContext.SubwindowMode.values()[inputStream.readInt()]);
                     break;
             }
         }

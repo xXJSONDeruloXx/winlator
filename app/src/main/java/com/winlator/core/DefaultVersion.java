@@ -1,13 +1,26 @@
 package com.winlator.core;
 
+/* JADX INFO: loaded from: classes.dex */
 public abstract class DefaultVersion {
-    public static final String BOX86 = "0.3.2";
-    public static final String BOX64 = "0.2.8";
-    public static final String TURNIP = "24.1.0";
-    public static final String ZINK = "22.2.5";
-    public static final String VIRGL = "23.1.9";
-    public static final String DXVK = "1.10.3";
-    public static final String D8VK = "1.0";
-    public static final String VKD3D = "2.12";
-    public static final String CNC_DDRAW = "6.6";
+    public static String DXVK(String vulkanDriver) {
+        int vkApiVersion = 0;
+        if (vulkanDriver != null && vulkanDriver.equals("vortek")) {
+            vkApiVersion = GPUHelper.vkGetApiVersion();
+        }
+        return (vulkanDriver == null || vulkanDriver.equals("turnip") || vkApiVersion >= GPUHelper.vkMakeVersion(1, 3, 0)) ? "2.4.1" : "1.10.3";
+    }
+
+    /* JADX WARN: Can't fix incorrect switch cases order, some code will duplicate */
+    /* JADX WARN: Removed duplicated region for block: B:38:0x0081  */
+    /*
+        Code decompiled incorrectly, please refer to instructions dump.
+        To view partially-correct add '--show-bad-code' argument
+    */
+    public static java.lang.String valueOf(java.lang.String r2) {
+        /*
+            Method dump skipped, instruction units count: 240
+            To view this dump add '--comments-level debug' option
+        */
+        throw new UnsupportedOperationException("Method not decompiled: com.winlator.core.DefaultVersion.valueOf(java.lang.String):java.lang.String");
+    }
 }
