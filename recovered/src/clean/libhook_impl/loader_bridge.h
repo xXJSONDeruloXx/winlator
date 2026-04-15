@@ -13,7 +13,6 @@ bool is_unconditional_branch_insn(uint32_t *insn);
 void *find_loader_entry_via_dlopen_branch_scan(void);
 
 void init_loader_bridge_symbols(void);
-void init_cpu_quirk_flags(void);
 
 uint64_t android_create_namespace(uint64_t name, uint64_t ld_library_path,
                                   uint64_t default_library_path, uint64_t type,
@@ -24,6 +23,8 @@ uint64_t android_create_namespace_escape(uint64_t name, uint64_t ld_library_path
                                          uint64_t default_library_path, uint64_t type,
                                          uint64_t permitted_when_isolated_path,
                                          uint64_t parent_namespace);
+
+uint8_t elf_soname_patch(const char *path, int dest_fd, const char *new_soname);
 
 uint32_t linkernsbypass_link_namespace_to_default_all_libs(uint64_t namespace_handle);
 uint8_t linkernsbypass_load_status(void);

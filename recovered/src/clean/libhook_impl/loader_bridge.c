@@ -4,26 +4,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/mman.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <dlfcn.h>
 #include <fcntl.h>
 #include <stdio.h>
-#if defined(__has_include)
-#  if __has_include(<sys/auxv.h>)
-#    include <sys/auxv.h>
-#  else
-     static inline unsigned long getauxval(unsigned long type) { (void)type; return 0; }
-#    ifndef AT_HWCAP
-#      define AT_HWCAP 16
-#    endif
-#  endif
-#else
-   static inline unsigned long getauxval(unsigned long type) { (void)type; return 0; }
-#  ifndef AT_HWCAP
-#    define AT_HWCAP 16
-#  endif
+#include <pthread.h>
+#if defined(__has_include) && __has_include(<sys/syscall.h>)
+#  include <sys/syscall.h>
 #endif
-
 #if defined(__has_include)
 #  if __has_include(<android/log.h>)
 #    include <android/log.h>
@@ -122,33 +111,6 @@ void init_loader_bridge_symbols(void) {
     }
 }
 
-void init_cpu_quirk_flags(void) {
-    // Heuristic transplant of _INIT_1: check HWCAP-like bits and system property
-    unsigned long hwcap = getauxval(AT_HWCAP);
-    bool enabled = false;
-
-    // original checks (shift/right tests) are approximated here; we follow the
-    // decompiled intent: if a particular hwcap bit is present, consult ro.arch string
-    if (((uint32_t)(hwcap >> 8) & 1u) != 0) {
-        char arch[128] = {0};
-        int rc = __system_property_get("ro.arch", arch);
-        uint32_t candidate = (uint32_t)(hwcap >> 8);
-        if (rc < 1) {
-            enabled = (candidate & 1u) != 0;
-        } else {
-            if (strncmp(arch, "exynos9810", 10) != 0) {
-                enabled = (candidate & 1u) != 0;
-            } else {
-                enabled = false;
-            }
-        }
-    } else {
-        enabled = false;
-    }
-
-    g_cpu_quirk_enabled = enabled;
-}
-
 uint64_t android_create_namespace(uint64_t name, uint64_t ld_library_path,
                                   uint64_t default_library_path, uint64_t type,
                                   uint64_t permitted_when_isolated_path,
@@ -179,8 +141,16 @@ uint64_t android_create_namespace_escape(uint64_t name, uint64_t ld_library_path
                                     parent_namespace);
 }
 
+// One-time creation of the "default_copy" namespace used as the link target.
+// The original binary uses __cxa_guard_acquire/release for this; we use pthread_once.
+static void _create_default_copy_ns(void) {
+    g_default_copy_namespace = android_create_namespace_escape(
+        (uint64_t)"default_copy", 0, 0, 2, 0, 0);
+}
+
 uint32_t linkernsbypass_link_namespace_to_default_all_libs(uint64_t namespace_handle) {
-    // TODO: preserve exact one-time default_copy namespace creation semantics.
+    static pthread_once_t once = PTHREAD_ONCE_INIT;
+    pthread_once(&once, _create_default_copy_ns);
     if (g_android_link_namespaces_all_libs == NULL) {
         return 0;
     }
@@ -199,34 +169,120 @@ uint64_t linkernsbypass_namespace_dlopen(uint64_t path, uint32_t flags, uint64_t
     return (uint64_t)android_dlopen_ext((const char *)path, (int)flags, &extinfo);
 }
 
+uint8_t elf_soname_patch(const char *path, int dest_fd, const char *new_soname) {
+    // Exact transplant of the elf_soname_patch export from the recovered binary.
+    // Copies the ELF file at `path` into the already-opened writable `dest_fd` and
+    // patches the DT_SONAME entry in the .dynamic section to `new_soname` (written
+    // byte-by-byte up to the length of the shorter of the two strings).
+    // Returns 1 on success, 0 on failure.
+    if (!path || !new_soname) return 0;
+
+    struct stat st;
+    memset(&st, 0, sizeof(st));
+    if (stat(path, &st) != 0) return 0;
+
+    if (ftruncate(dest_fd, st.st_size) == -1) return 0;
+
+    void *map = mmap(NULL, (size_t)st.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, dest_fd, 0);
+    if (map == MAP_FAILED) return 0;
+
+    int src_fd = open(path, O_RDONLY);
+    if (src_fd < 0) return 0;
+
+    ssize_t nread = read(src_fd, map, (size_t)st.st_size);
+    close(src_fd);
+    if ((uint64_t)nread != (uint64_t)st.st_size) return 0;
+
+    // Parse ELF64 section headers to find SHT_DYNAMIC and DT_SONAME.
+    uint8_t *elf = (uint8_t *)map;
+    uint64_t sh_off = *(uint64_t *)(elf + 0x28);   // e_shoff
+    uint16_t sh_num = *(uint16_t *)(elf + 0x3c);   // e_shnum
+
+    uint8_t result = 0;
+    for (uint16_t i = 0; i < sh_num; i++) {
+        uint8_t *shdr = elf + sh_off + (uint64_t)i * 0x40;
+        uint32_t sh_type = *(uint32_t *)(shdr + 0x04);
+        if (sh_type != 6) continue; // SHT_DYNAMIC = 6
+
+        uint64_t sh_entsize = *(uint64_t *)(shdr + 0x38);
+        if (sh_entsize == 0) continue;
+        uint64_t sh_size    = *(uint64_t *)(shdr + 0x20);
+        uint64_t sh_offset  = *(uint64_t *)(shdr + 0x18);
+        uint32_t sh_link    = *(uint32_t *)(shdr + 0x28); // index of .dynstr
+        uint64_t num_dyn    = sh_size / sh_entsize;
+
+        for (uint64_t j = 0; j < num_dyn; j++) {
+            int64_t *dyn = (int64_t *)(elf + sh_offset + j * 0x10);
+            if (dyn[0] != 0xe) continue; // DT_SONAME
+
+            // dyn[1] = offset of the SONAME string within .dynstr
+            uint8_t *dynstr_shdr = elf + sh_off + (uint64_t)sh_link * 0x40;
+            uint64_t dynstr_off  = *(uint64_t *)(dynstr_shdr + 0x18);
+            char *soname_ptr     = (char *)(elf + dynstr_off + (uint64_t)dyn[1]);
+
+            // Patch byte-by-byte, up to min(strlen(orig), strlen(new_soname))
+            size_t k = 0;
+            while (soname_ptr[k] != '\0' && new_soname[k] != '\0') {
+                soname_ptr[k] = new_soname[k];
+                k++;
+            }
+            result = 1;
+            goto done;
+        }
+    }
+done:
+    return result;
+}
+
 uint64_t linkernsbypass_namespace_dlopen_unique(uint64_t path, uint64_t soname,
                                                 uint32_t flags, uint64_t namespace_handle) {
-    // Conservative, practical transplant of the original behavior: open the file path,
-    // construct a /proc/self/fd/<fd> path, and call android_dlopen_ext with
-    // ANDROID_DLEXT_USE_NAMESPACE_UNIQUE and library_fd set. This avoids reimplementing
-    // the full SONAME-patching logic while matching the loader's unique-FD load path.
+    // Exact transplant of the original behavior:
+    // 1. Create a writable fd (temp file) to hold a patched copy of the library.
+    // 2. Call elf_soname_patch to copy the source ELF and patch the DT_SONAME entry
+    //    with the requested soname, making the load appear unique to the linker.
+    // 3. Load via /proc/self/fd/<fd> with ANDROID_DLEXT_USE_NAMESPACE | USE_LIBRARY_FD.
     if (path == 0) return 0;
 
-    const char *p = (const char *)path;
-    int fd = open(p, O_RDONLY | O_CLOEXEC);
-    if (fd < 0) {
-        // Could not open the file — fall back to non-unique namespace load
+    const char *p       = (const char *)path;
+    const char *sname   = soname ? (const char *)soname : "";
+
+    // Create a writable fd: prefer an anonymous memfd, fall back to a temp file.
+    int dest_fd = -1;
+#if defined(__NR_memfd_create)
+    dest_fd = (int)syscall(__NR_memfd_create, sname, 0);
+#endif
+    // Temp-file fallback (matches the binary's non-memfd path).
+    char tmppath[128] = {0};
+    if (dest_fd < 0) {
+        snprintf(tmppath, sizeof(tmppath), "/data/local/tmp/hook_%p_patched.so", (void *)path);
+        dest_fd = open(tmppath, O_RDWR | O_CREAT | O_TRUNC, 0600);
+    }
+    if (dest_fd < 0) {
+        // Could not create a writable fd — fall back to non-unique namespace load
         return linkernsbypass_namespace_dlopen(path, flags, namespace_handle);
     }
 
-    char procpath[64];
-    snprintf(procpath, sizeof(procpath), "/proc/self/fd/%d", fd);
+    uint8_t ok = elf_soname_patch(p, dest_fd, sname);
+    if (!ok) {
+        close(dest_fd);
+        if (tmppath[0]) unlink(tmppath);
+        return 0;
+    }
 
+    char procpath[64];
+    snprintf(procpath, sizeof(procpath), "/proc/self/fd/%d", dest_fd);
+
+    // flags = ANDROID_DLEXT_USE_NAMESPACE (0x200) | ANDROID_DLEXT_USE_LIBRARY_FD (0x10)
     android_dlextinfo extinfo;
     memset(&extinfo, 0, sizeof(extinfo));
-    extinfo.flags = ANDROID_DLEXT_USE_NAMESPACE_UNIQUE;
-    extinfo.library_fd = fd;
+    extinfo.flags = ANDROID_DLEXT_USE_NAMESPACE_UNIQUE; // 0x210
+    extinfo.library_fd = dest_fd;
     extinfo.library_fd_offset = 0;
     extinfo.library_namespace = (struct android_namespace_t *)namespace_handle;
 
     uint64_t handle = (uint64_t)android_dlopen_ext(procpath, (int)flags, &extinfo);
 
-    // Close FD after loading attempt — loader is expected to duplicate/consume fd if needed.
-    close(fd);
+    close(dest_fd);
+    if (tmppath[0]) unlink(tmppath);
     return handle;
 }

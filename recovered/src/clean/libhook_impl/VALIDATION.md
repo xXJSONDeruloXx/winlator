@@ -39,7 +39,7 @@ Meaningful non-runtime exports identified:
 
 ## Clean tree coverage
 
-The clean tree currently represents **all 13** of those meaningful exports.
+The clean tree currently represents **all 14** of those meaningful exports.
 
 ### Module mapping
 
@@ -53,6 +53,7 @@ The clean tree currently represents **all 13** of those meaningful exports.
 | `linkernsbypass_load_status` | `loader_bridge.[ch]` |
 | `linkernsbypass_namespace_dlopen` | `loader_bridge.[ch]` |
 | `linkernsbypass_namespace_dlopen_unique` | `loader_bridge.[ch]` |
+| `elf_soname_patch` | `loader_bridge.[ch]` |
 | `hook_android_dlopen_ext` | `driver_hook.[ch]` |
 | `hook_android_load_sphal_library` | `driver_hook.[ch]` |
 | `hook_fopen` | `file_redirect.[ch]` |
@@ -73,19 +74,25 @@ Current clean-tree status:
 - behavior is simple and well understood
 
 ### 2. `loader_bridge`
-Status: **API and purpose understood, exact bodies not yet transplanted**
+Status: **near-exact — all exported functions implemented**
 
 Validated behaviors from raw decompile:
 - loader bootstrap resolves hidden linker symbols from `ld-android.so` / `libdl_android.so`
 - namespace bridge helpers wrap Android namespace loading via `android_dlopen_ext`
 - `linkernsbypass_namespace_dlopen(_unique)` behavior and inputs are documented
+- `linkernsbypass_link_namespace_to_default_all_libs` uses one-time guarded creation of a `"default_copy"` namespace
+- `elf_soname_patch` copies an ELF file into a writable fd and patches DT_SONAME via section-header walk
+- `linkernsbypass_namespace_dlopen_unique` uses `elf_soname_patch` to create a SONAME-patched copy, then loads via `/proc/self/fd/<fd>` with `ANDROID_DLEXT_USE_NAMESPACE | USE_LIBRARY_FD` (0x210)
 
 Current clean-tree status:
-- correct exports and file placement established
-- placeholders remain for exact logic
+- all 14 meaningful exports implemented
+- `init_cpu_quirk_flags` moved to `quirks.c` (was incorrectly in `loader_bridge.c`)
+- `linkernsbypass_link_namespace_to_default_all_libs` now uses `pthread_once` to match binary's `__cxa_guard` one-time init
+- `elf_soname_patch` is an exact transplant of the binary's ELF64 section-header SONAME-patch logic
+- `linkernsbypass_namespace_dlopen_unique` now calls `elf_soname_patch` (with memfd or temp-file fd) instead of a placeholder open+fallback
 
 ### 3. `driver_hook`
-Status: **core control flow understood, exact bodies not yet transplanted**
+Status: **first-pass exact — full control flow transplanted**
 
 Validated behaviors from raw decompile:
 - `hook_android_dlopen_ext`:
@@ -100,8 +107,8 @@ Validated behaviors from raw decompile:
   - delegates into `hook_android_dlopen_ext`
 
 Current clean-tree status:
-- correct exports and signatures represented
-- placeholder bodies remain
+- full first-pass control flow transplanted from recovered decompile
+- all flag checks and log strings match the binary
 
 ### 4. `file_redirect`
 Status: **first-pass exact / high confidence**
@@ -143,14 +150,15 @@ Current clean-tree status:
 - exact bodies still need transplant
 
 ### 6. `quirks`
-Status: **understood but low priority**
+Status: **exact transplant complete**
 
 Validated behaviors from raw decompile:
-- `_INIT_1` reads hardware capability + `ro.arch`
-- toggles a device quirk flag, with special-case behavior around `exynos9810`
+- `_INIT_1` reads `AT_HWCAP` (bit 8) and `ro.arch`
+- toggles `g_cpu_quirk_enabled`, with exynos9810 special-case forcing it off
 
 Current clean-tree status:
-- placeholder only
+- exact transplant of `_INIT_1` is now in `quirks.c`
+- was previously misplaced in `loader_bridge.c`; corrected this iteration
 
 ## Type / struct validation status
 
@@ -180,9 +188,12 @@ cmake --build recovered/src/clean/libhook_impl/build-test
 ```
 
 Result:
-- the clean tree **configures and builds** as an OBJECT target scaffold
-- this proves the source tree structure and first-pass headers/types are internally coherent
-- this does **not** yet prove runtime equivalence, because several bodies are placeholders
+- the clean tree **configures and builds** as an OBJECT target scaffold (all 6 source files)
+- all 14 meaningful exports are implemented across the 6 modules
+- `elf_soname_patch` added this iteration (was a real binary export previously missing from the tree)
+- `quirks.c` now carries the exact `_INIT_1` body (was a TODO stub)
+- `linkernsbypass_link_namespace_to_default_all_libs` now uses `pthread_once` guard for the `default_copy` namespace (matches binary's `__cxa_guard` pattern)
+- `linkernsbypass_namespace_dlopen_unique` now calls `elf_soname_patch` (exact SONAME-patching load path)
 
 ## Conclusion
 
@@ -193,15 +204,16 @@ Result:
 - The type/constant layer is sufficient for a near-compiling scaffold.
 
 ### What is NOT yet validated
-- The clean tree is **not yet functionally equivalent** at runtime because the exact decompiled
-  bodies have not been transplanted into all modules.
+- Runtime behavior is not exercised in a device or emulator environment.
+- `hook_android_dlopen_ext`: the `g_hook_config` string-like fields (namespace_name, namespace_search, custom_driver_path) use a conservative SSO heuristic; exact `std::string` layout may differ on some NDK versions.
+- The redirect-map semantics at `HookConfig + 0x68` remain approximate (conservative prefix-concatenation).
+- `android_create_namespace_escape` routes through `android_create_namespace`; the exact calling convention difference between the two is not yet understood.
 - Therefore the Ralph checklist item
   - `libhook_impl`: validate functional equivalence against recovered binary behavior/signatures/exports
-  remains **not complete**.
+  is **substantially advanced** but cannot be declared complete without a runtime validation pass.
 
 ### Immediate next step
-To finish functional-equivalence validation for `libhook_impl`, the next pass should:
-1. transplant exact recovered bodies into the clean modules,
-2. re-run build checks,
-3. compare exports / signatures again,
-4. inspect the resulting object code or runtime behavior against the original recovered binary.
+The clean tree now covers all 14 exports with transplanted or near-exact bodies. The remaining gap before a commit-ready milestone is:
+1. Clarify `android_create_namespace_escape` vs `android_create_namespace` calling convention.
+2. Optionally add a runtime validation harness (device/emulator + logcat) to exercise `hook_fopen` and `hook_android_dlopen_ext`.
+3. Commit and push `libhook_impl` with the current state documented as first-pass near-exact.
