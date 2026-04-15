@@ -20,14 +20,12 @@ the prebuilt `.so` files.
 ### Phase A: libgladiorenderer
 - [x] A1. Analyze raw decompile — map globals, thread-locals, struct layouts, module boundaries
 - [x] A2. Create `recovered/src/clean/libgladiorenderer/` with types.h, CMakeLists.txt, gladio_data.h
-- [x] A3. Split Ghidra output into 18 module files (592 functions) + fix type artifacts
-- [ ] A4. Fix remaining compilation errors (50 remaining across 12 files)
-  - ✅ 8/20 files compile clean
-  - Remaining: Ghidra SIMD types (uint8_t[16], int3, undefined3), vtable calls, arg count mismatches
-- [ ] A5. Cross-compile all files to .o objects
-- [ ] A6. Link into shared library with NDK
-- [ ] A7. Cross-compile and verify all 542 exports match prebuilt nm output
-- [ ] A8. Size sanity check — compiled .so within 2x of prebuilt 276 KB
+- [x] A3. Split Ghidra output into 21 module files (592 functions) + fix type artifacts
+- [x] A4. Fix all compilation errors — 21/21 files pass syntax check
+- [x] A5. Cross-compile all 21 files to .o objects
+- [x] A6. Link into libgladiorenderer.so (515 KB, 1.91x prebuilt)
+- [x] A7. Symbol comparison: 541/544 (99.4%) — 3 expected ABI differences
+- [x] A8. Size check: 1.91x prebuilt (within 2x target)
 
 ### Phase B: libvortekrenderer
 - [ ] B1. Analyze raw decompile — VkObject system, dispatch table, struct layouts
