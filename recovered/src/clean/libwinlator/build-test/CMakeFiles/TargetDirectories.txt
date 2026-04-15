@@ -1,0 +1,3 @@
+/Users/kurt/Developer/winlator/recovered/src/clean/libwinlator/build-test/CMakeFiles/winlator_clean.dir
+/Users/kurt/Developer/winlator/recovered/src/clean/libwinlator/build-test/CMakeFiles/edit_cache.dir
+/Users/kurt/Developer/winlator/recovered/src/clean/libwinlator/build-test/CMakeFiles/rebuild_cache.dir
