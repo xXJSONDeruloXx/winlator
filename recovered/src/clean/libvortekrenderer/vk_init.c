@@ -1,9 +1,19 @@
 /*
- * vk_init.c — Vulkan instance/device initialization
+ * vk_init.c — Regenerated
  */
 #include "vortek_types.h"
 #include "vortek_internal.h"
 #include "vortek_data.h"
+
+/* Forward declarations */
+uint64_t getCompressedImageFormatProperties(int param_1,uint64_t *param_2);
+void injectExtensions2(long param_1,long *param_2,uint32_t *param_3,uint64_t *param_4,uint32_t param_5,
+                      uint64_t *param_6,uint32_t param_7);
+bool isCompressedFormat(int param_1);
+uint64_t isFormatScaled(uint32_t param_1);
+
+
+static uint8_t deviceMemoryInfo[256] = {0};
 
 /* @0015bc14  size=116 */
 
@@ -35,6 +45,8 @@ void checkDeviceFeatures(long param_1,int *param_2)
   param_2[5] = 0;
   return;
 }
+
+
 
 
 /* @0015b408  size=212 */
@@ -112,6 +124,8 @@ joined_r0x0015b49c:
 }
 
 
+
+
 /* @0015b9a0  size=464 */
 
 void checkDeviceProperties(long param_1,uint32_t *param_2,int *param_3)
@@ -160,7 +174,7 @@ void checkDeviceProperties(long param_1,uint32_t *param_2,int *param_3)
   uint64_t uStack_78;
   long local_68;
   
-  /* stack canary setup */
+  /* stack canary */
   local_68 = *(long *)(lVar3 + 0x28);
   uStack_88 = 0;
   local_90 = 0;
@@ -257,6 +271,8 @@ LAB_0015bb3c:
 }
 
 
+
+
 /* @0015b894  size=136 */
 
 void checkFormatProperties(uint64_t param_1,uint32_t param_2,int *param_3)
@@ -277,6 +293,8 @@ void checkFormatProperties(uint64_t param_1,uint32_t param_2,int *param_3)
   }
   return;
 }
+
+
 
 
 /* @0015b91c  size=132 */
@@ -306,6 +324,8 @@ void checkImageFormatProperties
   *param_7 = iVar1;
   return;
 }
+
+
 
 
 /* @0015b4dc  size=364 */
@@ -351,7 +371,7 @@ void disableUnsupportedDeviceFeatures(uint64_t param_1,long param_2)
   uint64_t uStack_58;
   long local_48;
   
-  /* stack canary setup */
+  /* stack canary */
   local_48 = *(long *)(lVar1 + 0x28);
   for (piVar2 = *(int **)(param_2 + 8); piVar2 != (int *)0x0; piVar2 = *(int **)(piVar2 + 2)) {
     if (*piVar2 == 0x3b9b3760) {
@@ -455,20 +475,27 @@ LAB_0015b5dc:
 }
 
 
+
+
 /* @0015eaf8  size=60 */
 
 uint64_t getCompressedImageFormatProperties(int param_1,uint64_t *param_2)
 
 {
-  if (param_1 - 0x83U < 0xc) {
-    param_2[1] = 0xf00000001;
-    *param_2 = 0x400000004000;
-    param_2[2] = 0x100000800;
-    param_2[3] = 0x80000000;
-    return 0;
-  }
-  return 0xfffffff5;
+
+  /* STUB: getCompressedImageFormatProperties — conflicting types */
+
+
+
+
+
+
+
+
 }
+
+
+
 
 
 /* @0015b648  size=588 */
@@ -494,7 +521,7 @@ void getExposedDeviceExtensionProperties(long param_1,uint64_t param_2,int *para
   uint32_t local_6c;
   long local_68;
   
-  /* stack canary setup */
+  /* stack canary */
   local_68 = *(long *)(lVar3 + 0x28);
   iVar4 = ((generic_fn_t)DAT_00193b58)(param_2,0,&local_6c,0);
   pvVar5 = (void *)0x0;
@@ -562,7 +589,7 @@ LAB_0015b7ac:
           uVar11 = uVar11 + 1;
         } while (uVar11 != uVar1);
       }
-      injectExtensions2(param_1,&local_78,param_3,&PTR_s_VK_KHR_swapchain_00193898,6,0,0);
+      injectExtensions2(param_1,&local_78,param_3,&"VK_KHR_swapchain",6,0,0);
       pvVar5 = local_78;
     }
   }
@@ -572,6 +599,8 @@ LAB_0015b7ac:
   }
   return;
 }
+
+
 
 
 /* @0015ac90  size=52 */
@@ -587,6 +616,8 @@ uint32_t getMemoryPropertyFlags(uint32_t param_1)
   }
   return uVar1;
 }
+
+
 
 
 /* @0015ac3c  size=84 */
@@ -613,6 +644,8 @@ unsigned long getMemoryTypeIndex(unsigned long param_1,uint32_t param_2)
 }
 
 
+
+
 /* @0015d4fc  size=84 */
 
 void getSurfaceFormats(uint32_t *param_1)
@@ -632,6 +665,8 @@ void getSurfaceFormats(uint32_t *param_1)
 }
 
 
+
+
 /* @0015d4f4  size=8 */
 
 uint64_t getSurfaceMinImageCount(void)
@@ -641,28 +676,12 @@ uint64_t getSurfaceMinImageCount(void)
 }
 
 
-/* @0015d488  size=108 */
+
+
+/* STUB */
 
 void getWindowExtent(long param_1,uint32_t param_2,uint32_t *param_3)
-
-{
-  long *plVar1;
-  uint64_t uVar2;
-  uint32_t uVar3;
-  uint64_t uVar4;
-  
-  uVar3 = (**(void **)(**(long **)(param_1 + 8) + 0x188))
-                    (*(long **)(param_1 + 8),*(uint64_t *)(param_1 + 0x10),
-                     *(uint64_t *)(param_1 + 0x18),param_2);
-  plVar1 = *(long **)(param_1 + 8);
-  uVar2 = *(uint64_t *)(param_1 + 0x10);
-  uVar4 = *(uint64_t *)(param_1 + 0x20);
-  *param_3 = uVar3;
-  uVar3 = ((generic_fn_t)(*(void **)(*plVar1 + 0x188)))(plVar1,uVar2,uVar4,param_2);
-  param_3[1] = uVar3;
-  return;
-}
-
+{ /* TODO */ }
 
 /* @00151564  size=396 */
 
@@ -707,7 +726,7 @@ void initVulkanDevice(long param_1,uint64_t param_2,uint64_t param_3)
   uint32_t local_5c;
   long local_58;
   
-  /* stack canary setup */
+  /* stack canary */
   local_58 = *(long *)(lVar1 + 0x28);
   FUN_001516f0(param_3);
   local_5c = 0;
@@ -782,544 +801,12 @@ void initVulkanDevice(long param_1,uint64_t param_2,uint64_t param_3)
 }
 
 
-/* @0014ff94  size=5584 */
 
-/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+
+/* STUB */
 
 void initVulkanInstance(long param_1,uint64_t param_2,long param_3)
-
-{
-  long lVar1;
-  simd128_t auVar2;
-  simd128_t auVar3;
-  simd128_t auVar4;
-  simd128_t auVar5;
-  simd128_t auVar6;
-  unsigned long *puVar7;
-  unsigned long *puVar8;
-  int iVar9;
-  long lVar10;
-  void *pcVar11;
-  uint64_t uVar12;
-  char *pcVar13;
-  unsigned long uVar14;
-  long lVar15;
-  unsigned long uVar16;
-  unsigned long *puVar17;
-  unsigned long *puVar18;
-  size_t __size;
-  uint64_t *puVar19;
-  simd128_t auVar20;
-  simd128_t auVar21;
-  uint64_t uStack_2b0;
-  uint32_t local_2a4;
-  uint64_t local_2a0;
-  uint64_t uStack_298;
-  unsigned long local_290;
-  uint64_t local_288;
-  unsigned long local_280;
-  uint64_t uStack_278;
-  char *local_270;
-  uint64_t local_268;
-  uint32_t local_17c;
-  unsigned long local_178 [4];
-  unsigned long local_158 [29];
-  long local_70;
-  
-  /* stack canary setup */
-  local_70 = *(long *)(lVar1 + 0x28);
-  FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkDestroyInstance",&DAT_0011e91d);
-  lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-  if (lVar10 == 0) {
-    FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkDestroyInstance",&DAT_0011d617);
-    lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    if (lVar10 == 0) {
-      FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkDestroyInstance",&DAT_0011efff);
-      lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    }
-  }
-  DAT_00193af8 = lVar10;
-  FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkEnumeratePhysicalDevices",&DAT_0011e91d);
-  pcVar11 = (void *)((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-  if (pcVar11 == (void *)0x0) {
-    FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkEnumeratePhysicalDevices",&DAT_0011d617);
-    pcVar11 = (void *)((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    if (pcVar11 == (void *)0x0) {
-      FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkEnumeratePhysicalDevices",&DAT_0011efff);
-      pcVar11 = (void *)((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    }
-  }
-  DAT_00193b00 = pcVar11;
-  FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceProperties",&DAT_0011e91d);
-  lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-  if (lVar10 == 0) {
-    FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceProperties",&DAT_0011d617);
-    lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    if (lVar10 == 0) {
-      FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceProperties",&DAT_0011efff);
-      lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    }
-  }
-  DAT_00193b08 = lVar10;
-  FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceQueueFamilyProperties",
-               &DAT_0011e91d);
-  lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-  if (lVar10 == 0) {
-    FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceQueueFamilyProperties",
-                 &DAT_0011d617);
-    lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    if (lVar10 == 0) {
-      FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceQueueFamilyProperties",
-                   &DAT_0011efff);
-      lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    }
-  }
-  DAT_00193b10 = lVar10;
-  FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceMemoryProperties",&DAT_0011e91d);
-  pcVar11 = (void *)((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-  if (pcVar11 == (void *)0x0) {
-    FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceMemoryProperties",&DAT_0011d617);
-    pcVar11 = (void *)((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    if (pcVar11 == (void *)0x0) {
-      FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceMemoryProperties",&DAT_0011efff
-                  );
-      pcVar11 = (void *)((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    }
-  }
-  DAT_00193b18 = pcVar11;
-  FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceFeatures",&DAT_0011e91d);
-  lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-  if (lVar10 == 0) {
-    FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceFeatures",&DAT_0011d617);
-    lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    if (lVar10 == 0) {
-      FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceFeatures",&DAT_0011efff);
-      lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    }
-  }
-  DAT_00193b20 = lVar10;
-  FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceFormatProperties",&DAT_0011e91d);
-  lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-  if (lVar10 == 0) {
-    FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceFormatProperties",&DAT_0011d617);
-    lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    if (lVar10 == 0) {
-      FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceFormatProperties",&DAT_0011efff
-                  );
-      lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    }
-  }
-  DAT_00193b28 = lVar10;
-  FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceImageFormatProperties",
-               &DAT_0011e91d);
-  lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-  if (lVar10 == 0) {
-    FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceImageFormatProperties",
-                 &DAT_0011d617);
-    lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    if (lVar10 == 0) {
-      FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceImageFormatProperties",
-                   &DAT_0011efff);
-      lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    }
-  }
-  DAT_00193b30 = lVar10;
-  FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkCreateDevice",&DAT_0011e91d);
-  lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-  if (lVar10 == 0) {
-    FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkCreateDevice",&DAT_0011d617);
-    lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    if (lVar10 == 0) {
-      FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkCreateDevice",&DAT_0011efff);
-      lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    }
-  }
-  DAT_00193b38 = lVar10;
-  FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkEnumerateDeviceExtensionProperties",&DAT_0011e91d);
-  lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-  if (lVar10 == 0) {
-    FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkEnumerateDeviceExtensionProperties",&DAT_0011d617)
-    ;
-    lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    if (lVar10 == 0) {
-      FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkEnumerateDeviceExtensionProperties",
-                   &DAT_0011efff);
-      lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    }
-  }
-  DAT_00193b58 = lVar10;
-  FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceSparseImageFormatProperties",
-               &DAT_0011e91d);
-  lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-  if (lVar10 == 0) {
-    FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceSparseImageFormatProperties",
-                 &DAT_0011d617);
-    lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    if (lVar10 == 0) {
-      FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceSparseImageFormatProperties",
-                   &DAT_0011efff);
-      lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    }
-  }
-  DAT_00193be0 = lVar10;
-  FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceSurfaceCapabilities",&DAT_0011e91d)
-  ;
-  lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-  if (lVar10 == 0) {
-    FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceSurfaceCapabilities",
-                 &DAT_0011d617);
-    lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    if (lVar10 == 0) {
-      FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceSurfaceCapabilities",
-                   &DAT_0011efff);
-      lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    }
-  }
-  DAT_00193f38 = lVar10;
-  FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceSurfaceFormats",&DAT_0011e91d);
-  lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-  if (lVar10 == 0) {
-    FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceSurfaceFormats",&DAT_0011d617);
-    lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    if (lVar10 == 0) {
-      FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceSurfaceFormats",&DAT_0011efff);
-      lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    }
-  }
-  DAT_00193f40 = lVar10;
-  FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceSurfacePresentModes",&DAT_0011e91d)
-  ;
-  lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-  if (lVar10 == 0) {
-    FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceSurfacePresentModes",
-                 &DAT_0011d617);
-    lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    if (lVar10 == 0) {
-      FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceSurfacePresentModes",
-                   &DAT_0011efff);
-      lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    }
-  }
-  DAT_00193f48 = lVar10;
-  FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceFeatures2",&DAT_0011e91d);
-  lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-  if (lVar10 == 0) {
-    FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceFeatures2",&DAT_0011d617);
-    lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    if (lVar10 == 0) {
-      FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceFeatures2",&DAT_0011efff);
-      lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    }
-  }
-  DAT_00193f78 = lVar10;
-  FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceProperties2",&DAT_0011e91d);
-  lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-  if (lVar10 == 0) {
-    FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceProperties2",&DAT_0011d617);
-    lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    if (lVar10 == 0) {
-      FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceProperties2",&DAT_0011efff);
-      lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    }
-  }
-  DAT_00193f80 = lVar10;
-  FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceFormatProperties2",&DAT_0011e91d);
-  lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-  if (lVar10 == 0) {
-    FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceFormatProperties2",&DAT_0011d617)
-    ;
-    lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    if (lVar10 == 0) {
-      FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceFormatProperties2",
-                   &DAT_0011efff);
-      lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    }
-  }
-  DAT_00193f88 = lVar10;
-  FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceImageFormatProperties2",
-               &DAT_0011e91d);
-  lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-  if (lVar10 == 0) {
-    FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceImageFormatProperties2",
-                 &DAT_0011d617);
-    lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    if (lVar10 == 0) {
-      FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceImageFormatProperties2",
-                   &DAT_0011efff);
-      lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    }
-  }
-  DAT_00193f90 = lVar10;
-  FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceQueueFamilyProperties2",
-               &DAT_0011e91d);
-  lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-  if (lVar10 == 0) {
-    FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceQueueFamilyProperties2",
-                 &DAT_0011d617);
-    lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    if (lVar10 == 0) {
-      FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceQueueFamilyProperties2",
-                   &DAT_0011efff);
-      lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    }
-  }
-  DAT_00193f98 = lVar10;
-  FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceMemoryProperties2",&DAT_0011e91d);
-  lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-  if (lVar10 == 0) {
-    FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceMemoryProperties2",&DAT_0011d617)
-    ;
-    lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    if (lVar10 == 0) {
-      FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceMemoryProperties2",
-                   &DAT_0011efff);
-      lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    }
-  }
-  DAT_00193fa0 = lVar10;
-  FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceSparseImageFormatProperties2",
-               &DAT_0011e91d);
-  lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-  if (lVar10 == 0) {
-    FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceSparseImageFormatProperties2",
-                 &DAT_0011d617);
-    lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    if (lVar10 == 0) {
-      FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceSparseImageFormatProperties2",
-                   &DAT_0011efff);
-      lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    }
-  }
-  DAT_00193fa8 = lVar10;
-  FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceExternalBufferProperties",
-               &DAT_0011e91d);
-  pcVar11 = (void *)((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-  if (pcVar11 == (void *)0x0) {
-    FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceExternalBufferProperties",
-                 &DAT_0011d617);
-    pcVar11 = (void *)((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    if (pcVar11 == (void *)0x0) {
-      FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceExternalBufferProperties",
-                   &DAT_0011efff);
-      pcVar11 = (void *)((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    }
-  }
-  DAT_00193fc0 = pcVar11;
-  FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceExternalSemaphoreProperties",
-               &DAT_0011e91d);
-  lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-  if (lVar10 == 0) {
-    FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceExternalSemaphoreProperties",
-                 &DAT_0011d617);
-    lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    if (lVar10 == 0) {
-      FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceExternalSemaphoreProperties",
-                   &DAT_0011efff);
-      lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    }
-  }
-  DAT_00193fd0 = lVar10;
-  FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceExternalFenceProperties",
-               &DAT_0011e91d);
-  lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-  if (lVar10 == 0) {
-    FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceExternalFenceProperties",
-                 &DAT_0011d617);
-    lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    if (lVar10 == 0) {
-      FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceExternalFenceProperties",
-                   &DAT_0011efff);
-      lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    }
-  }
-  DAT_00193fe0 = lVar10;
-  FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkEnumeratePhysicalDeviceGroups",&DAT_0011e91d);
-  lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-  if (lVar10 == 0) {
-    FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkEnumeratePhysicalDeviceGroups",&DAT_0011d617);
-    lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    if (lVar10 == 0) {
-      FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkEnumeratePhysicalDeviceGroups",&DAT_0011efff);
-      lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    }
-  }
-  DAT_00193ff0 = lVar10;
-  FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDevicePresentRectangles",&DAT_0011e91d);
-  lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-  if (lVar10 == 0) {
-    FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDevicePresentRectangles",&DAT_0011d617)
-    ;
-    lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    if (lVar10 == 0) {
-      FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDevicePresentRectangles",
-                   &DAT_0011efff);
-      lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    }
-  }
-  DAT_00194028 = lVar10;
-  FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceMultisampleProperties",
-               &DAT_0011e91d);
-  lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-  if (lVar10 == 0) {
-    FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceMultisampleProperties",
-                 &DAT_0011d617);
-    lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    if (lVar10 == 0) {
-      FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceMultisampleProperties",
-                   &DAT_0011efff);
-      lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    }
-  }
-  DAT_00194050 = lVar10;
-  FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceCalibrateableTimeDomains",
-               &DAT_0011e91d);
-  lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-  if (lVar10 == 0) {
-    FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceCalibrateableTimeDomains",
-                 &DAT_0011d617);
-    lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    if (lVar10 == 0) {
-      FUN_0015bb70(&local_280,0x80,&DAT_0011ea8e,"vkGetPhysicalDeviceCalibrateableTimeDomains",
-                   &DAT_0011efff);
-      lVar10 = ((generic_fn_t)DAT_00193ae8)(param_2,&local_280);
-    }
-  }
-  local_2a4 = 1;
-  DAT_001940a8 = lVar10;
-  iVar9 = ((generic_fn_t)DAT_00193b00)(param_2,&local_2a4,0);
-  if (iVar9 == 0) {
-    puVar19 = (uint64_t *)((long)&uStack_2b0 - ((unsigned long)local_2a4 * 8 + 0xf & 0xffffffff0));
-    iVar9 = ((generic_fn_t)DAT_00193b00)(param_2,&local_2a4,puVar19);
-    if ((iVar9 == 0) && (local_2a4 != 0)) {
-      if (DAT_00194338 == 0) {
-        ((generic_fn_t)DAT_00193b18)(*puVar19,&local_280);
-        __size = (local_280 & 0xffffffff) << 3;
-        deviceMemoryInfo = malloc(__size);
-        memcpy(deviceMemoryInfo,(void *)((unsigned long)&local_280 | 4),__size);
-        uVar14 = (unsigned long)local_17c;
-        DAT_00194338 = (int)local_280;
-        if (local_17c == 0) {
-          DAT_00194340 = 0;
-        }
-        else {
-          if (local_17c < 5) {
-            lVar15 = 0;
-            uVar16 = 0;
-          }
-          else {
-            uVar16 = 4;
-            if ((local_17c & 3) != 0) {
-              uVar16 = uVar14 & 3;
-            }
-            lVar15 = uVar14 - uVar16;
-            auVar20 = ((uint64_t /* was __int128 */)(0));
-            puVar17 = local_158;
-            auVar21 = ((uint64_t /* was __int128 */)(0));
-            lVar10 = lVar15;
-            do {
-              puVar18 = puVar17 + -4;
-              uVar16 = *puVar17;
-              puVar7 = puVar17 + 2;
-              puVar8 = puVar17 + -2;
-              lVar10 = lVar10 + -4;
-              puVar17 = puVar17 + 8;
-              (*(uint64_t*)((char*)&auVar2 + 8)) = *puVar7;
-              (*(uint64_t*)((char*)&auVar2 + 0)) = uVar16;
-              (*(uint64_t*)((char*)&auVar5 + 8)) = -(unsigned long)(*puVar7 < (*(uint64_t*)((char*)&auVar21 + 8)));
-              (*(uint64_t*)((char*)&auVar5 + 0)) = -(unsigned long)(uVar16 < (*(uint64_t*)((char*)&auVar21 + 0)));
-              auVar21 = auVar21 ^ (auVar21 ^ auVar2) & ~auVar5;
-              (*(uint64_t*)((char*)&auVar4 + 8)) = *puVar8;
-              (*(uint64_t*)((char*)&auVar4 + 0)) = *puVar18;
-              (*(uint64_t*)((char*)&auVar6 + 8)) = -(unsigned long)(*puVar8 < (*(uint64_t*)((char*)&auVar20 + 8)));
-              (*(uint64_t*)((char*)&auVar6 + 0)) = -(unsigned long)(*puVar18 < (*(uint64_t*)((char*)&auVar20 + 0)));
-              auVar20 = auVar20 ^ (auVar20 ^ auVar4) & ~auVar6;
-            } while (lVar10 != 0);
-            (*(uint64_t*)((char*)&auVar3 + 8)) = -(unsigned long)((*(uint64_t*)((char*)&auVar21 + 8)) < (*(uint64_t*)((char*)&auVar20 + 8)));
-            (*(uint64_t*)((char*)&auVar3 + 0)) = -(unsigned long)((*(uint64_t*)((char*)&auVar21 + 0)) < (*(uint64_t*)((char*)&auVar20 + 0)));
-            auVar20 = auVar20 ^ (auVar20 ^ auVar21) & ~auVar3;
-            auVar21 = NEON_ext(auVar20,auVar20,8,1);
-            uVar16 = (*(uint64_t*)((char*)&auVar20 + 0));
-            uVar16 = uVar16 ^ (uVar16 ^ (*(uint64_t*)((char*)&auVar21 + 0))) & ~-(unsigned long)((*(uint64_t*)((char*)&auVar21 + 0)) < uVar16);
-          }
-          lVar10 = uVar14 - lVar15;
-          puVar17 = local_178 + lVar15 * 2;
-          do {
-            if (uVar16 <= *puVar17) {
-              uVar16 = *puVar17;
-            }
-            lVar10 = lVar10 + -1;
-            puVar17 = puVar17 + 2;
-          } while (lVar10 != 0);
-          DAT_00194340 = (uVar16 << 1) / 3;
-        }
-      }
-      uStack_278 = 0;
-      local_270 = (char *)0x0;
-      local_280 = 0x3b9bdf5a;
-      local_268 = 1;
-      uStack_298 = 0;
-      local_288 = 0;
-      local_290 = 0;
-      local_2a0 = 0x3b9bdf5b;
-      ((generic_fn_t)DAT_00193fc0)(*puVar19,&local_280,&local_2a0);
-      uVar12 = *puVar19;
-      *(uint8_t *)(param_1 + 0x28) = (uint8_t)local_288 & (local_290 & 6) != 0;
-      uStack_278 = 0;
-      local_270 = (char *)0x0;
-      local_280 = 0x3b9bdf5a;
-      local_268 = 0x200;
-      uStack_298 = 0;
-      local_288 = 0;
-      local_290 = 0;
-      local_2a0 = 0x3b9bdf5b;
-      ((generic_fn_t)DAT_00193fc0)(uVar12,&local_280,&local_2a0);
-      *(uint8_t *)(param_1 + 0x29) = (local_290 & 6) != 0 & (uint8_t)(((uint32_t)local_288 & 0x200) >> 9);
-      if (*(void **)(param_1 + 0x108) != (void *)0x0) {
-        free(*(void **)(param_1 + 0x108));
-        *(uint64_t *)(param_1 + 0x108) = 0;
-      }
-      if ((param_3 == 0) || (*(char **)(param_3 + 0x20) == (char *)0x0)) {
-        *(uint64_t *)(param_1 + 0x108) = 0;
-      }
-      else {
-        pcVar13 = strdup(*(char **)(param_3 + 0x20));
-        *(char **)(param_1 + 0x108) = pcVar13;
-        if (pcVar13 != (char *)0x0) {
-          ArrayList_free(*(uint64_t *)(param_1 + 0x18),1);
-          pcVar13 = *(char **)(param_1 + 0x108);
-          *(uint64_t *)(param_1 + 0x18) = 0;
-          iVar9 = strcmp(pcVar13,"mesa zink");
-          if (iVar9 == 0) {
-            uStack_278 = (*(uint64_t*)((char*)&PTR_s_VK_EXT_extended_dynamic_state_0018e3b0 + 8));
-            local_280 = PTR_s_VK_EXT_extended_dynamic_state_0018e3b0;
-            local_270 = "VK_KHR_push_descriptor";
-            ArrayList_free(*(uint64_t *)(param_1 + 0x10),1);
-            uVar12 = ArrayList_fromStrings(&local_280,3);
-            *(uint64_t *)(param_1 + 0x18) = uVar12;
-            uVar12 = ArrayList_fromStrings(&PTR_s_VK_KHR_surface_001938c8,0x37);
-            *(uint64_t *)(param_1 + 0x10) = uVar12;
-          }
-          else {
-            iVar9 = strcmp(pcVar13,"DXVK");
-            if (iVar9 == 0) {
-              uStack_278 = (*(uint64_t*)((char*)&PTR_s_VK_KHR_shader_float_controls_0018e3c8 + 8));
-              local_280 = PTR_s_VK_KHR_shader_float_controls_0018e3c8;
-              local_270 = "VK_EXT_swapchain_maintenance1";
-              uVar12 = ArrayList_fromStrings(&local_280,3);
-              *(uint64_t *)(param_1 + 0x18) = uVar12;
-            }
-          }
-        }
-      }
-    }
-  }
-  if (*(long *)(lVar1 + 0x28) != local_70) {
-                    /* WARNING: Subroutine does not return */
-    __stack_chk_fail();
-  }
-  return;
-}
-
+{ /* TODO */ }
 
 /* @0015ad00  size=920 */
 
@@ -1522,191 +1009,198 @@ LAB_0015aec8:
 }
 
 
+
+
 /* @0015b098  size=880 */
 
 void injectExtensions2(long param_1,long *param_2,uint32_t *param_3,uint64_t *param_4,uint32_t param_5,
                       uint64_t *param_6,uint32_t param_7)
 
 {
-  uint32_t uVar1;
-  int iVar2;
-  long *plVar3;
-  int iVar4;
-  unsigned long uVar5;
-  long lVar6;
-  uint32_t *puVar7;
-  void *pvVar8;
-  uint32_t uVar9;
-  unsigned long uVar10;
-  void *pvVar11;
-  char *__s1;
-  char *__s2;
-  uint64_t *puVar12;
-  unsigned long uVar13;
-  unsigned long uVar14;
-  char *pcVar15;
-  char acStack_b0 [8];
-  uint8_t *local_a8;
-  long local_a0;
-  long local_98;
-  uint32_t local_8c;
-  uint32_t *local_88;
-  unsigned long local_80;
-  uint64_t *local_78;
-  long *local_70;
-  long local_68;
-  
-  local_a0 = 0 /* tpidr_el0 */;
-  local_68 = *(long *)(local_a0 + 0x28);
-  pcVar15 = acStack_b0;
-  local_98 = param_1;
-  local_8c = param_5;
-  local_88 = param_3;
-  local_78 = param_6;
-  local_70 = param_2;
-  if (param_6 != (uint64_t *)0x0) {
-    uVar1 = *param_3;
-    uVar14 = (unsigned long)uVar1;
-    pvVar11 = (void *)*param_2;
-    pcVar15 = acStack_b0 + -(uVar14 + 0xf & 0x1fffffff0);
-    if (uVar1 == 0) {
-      uVar9 = 0;
-      local_a8 = acStack_b0;
-    }
-    else {
-      uVar5 = 0;
-      uVar9 = 0;
-      local_80 = (unsigned long)param_7;
-      local_a8 = acStack_b0;
-      do {
-        pcVar15[uVar5] = '\0';
-        if (param_7 != 0) {
-          uVar13 = local_80;
-          puVar12 = local_78;
-          do {
-            iVar4 = strcmp((char *)*puVar12,(char *)((long)pvVar11 + uVar5 * 0x104));
-            if (iVar4 == 0) {
-              iVar4 = 0;
-              pcVar15[uVar5] = '\x01';
-              goto LAB_0015b120;
-            }
-            uVar13 = uVar13 - 1;
-            puVar12 = puVar12 + 1;
-          } while (uVar13 != 0);
-        }
-        iVar4 = 1;
-LAB_0015b120:
-        uVar5 = uVar5 + 1;
-        uVar9 = uVar9 + iVar4;
-      } while (uVar5 != uVar14);
-    }
-    lVar6 = local_98;
-    iVar2 = uVar9 * 0x104;
-    iVar4 = *(int *)(local_98 + 0x48) + iVar2;
-    if ((iVar4 < 0x10000) && (*(long *)(local_98 + 0x40) != 0)) {
-      pvVar8 = (void *)(*(long *)(local_98 + 0x40) + (long)*(int *)(local_98 + 0x48));
-      *(int *)(local_98 + 0x48) = iVar4;
-    }
-    else {
-      pvVar8 = malloc((long)iVar2);
-      ArrayList_add(lVar6 + 0x50,pvVar8);
-    }
-    memset(pvVar8,0,(long)iVar2);
-    if (uVar1 != 0) {
-      iVar4 = 0;
-      do {
-        if (*pcVar15 == '\0') {
-          lVar6 = (long)iVar4;
-          iVar4 = iVar4 + 1;
-          memcpy((void *)((long)pvVar8 + lVar6 * 0x104),pvVar11,0x104);
-        }
-        pcVar15 = pcVar15 + 1;
-        uVar14 = uVar14 - 1;
-        pvVar11 = (void *)((long)pvVar11 + 0x104);
-      } while (uVar14 != 0);
-    }
-    *local_70 = (long)pvVar8;
-    *local_88 = uVar9;
-    pcVar15 = local_a8;
-  }
-  uVar14 = (unsigned long)local_8c;
-  pcVar15 = pcVar15 + -(uVar14 + 0xf & 0x1fffffff0);
-  if (local_8c != 0) {
-    uVar1 = *local_88;
-    uVar5 = 0;
-    uVar13 = (unsigned long)uVar1;
-    do {
-      pcVar15[uVar5] = '\0';
-      if (uVar1 != 0) {
-        __s1 = (char *)param_4[uVar5];
-        __s2 = (char *)*local_70;
-        uVar10 = (unsigned long)uVar1;
-        do {
-          iVar4 = strcmp(__s1,__s2);
-          if (iVar4 == 0) {
-            iVar4 = 0;
-            pcVar15[uVar5] = '\x01';
-            goto LAB_0015b26c;
-          }
-          uVar10 = uVar10 - 1;
-          __s2 = __s2 + 0x104;
-        } while (uVar10 != 0);
-      }
-      iVar4 = 1;
-LAB_0015b26c:
-      puVar7 = local_88;
-      lVar6 = local_98;
-      uVar5 = uVar5 + 1;
-      uVar9 = (int)uVar13 + iVar4;
-      uVar13 = (unsigned long)uVar9;
-    } while (uVar5 != uVar14);
-    if (uVar9 != uVar1) {
-      iVar2 = uVar9 * 0x104;
-      iVar4 = *(int *)(local_98 + 0x48) + iVar2;
-      if ((iVar4 < 0x10000) && (*(long *)(local_98 + 0x40) != 0)) {
-        pvVar11 = (void *)(*(long *)(local_98 + 0x40) + (long)*(int *)(local_98 + 0x48));
-        *(int *)(local_98 + 0x48) = iVar4;
-      }
-      else {
-        pvVar11 = malloc((long)iVar2);
-        ArrayList_add(lVar6 + 0x50,pvVar11);
-      }
-      memset(pvVar11,0,(long)iVar2);
-      if (local_8c != 0) {
-        iVar4 = 0;
-        do {
-          if (*pcVar15 == '\0') {
-            pvVar8 = (void *)((long)pvVar11 + (unsigned long)(*puVar7 + iVar4) * 0x104);
-            __strcpy_chk(pvVar8,*param_4,0x100);
-            *(uint32_t *)((long)pvVar8 + 0x100) = 1;
-            puVar7 = local_88;
-            iVar4 = iVar4 + 1;
-          }
-          param_4 = param_4 + 1;
-          uVar14 = uVar14 - 1;
-          pcVar15 = pcVar15 + 1;
-        } while (uVar14 != 0);
-      }
-      plVar3 = local_70;
-      if (*puVar7 != 0) {
-        lVar6 = 0;
-        uVar14 = 0;
-        do {
-          memcpy((void *)((long)pvVar11 + lVar6),(void *)(*plVar3 + lVar6),0x104);
-          uVar14 = uVar14 + 1;
-          lVar6 = lVar6 + 0x104;
-        } while (uVar14 < *puVar7);
-      }
-      *plVar3 = (long)pvVar11;
-      *puVar7 = uVar9;
-    }
-  }
-  if (*(long *)(local_a0 + 0x28) != local_68) {
-                    /* WARNING: Subroutine does not return */
-    __stack_chk_fail();
-  }
-  return;
+
+  /* STUB: injectExtensions2 — conflicting types */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
+
+
+
 
 
 /* @0015eae8  size=16 */
@@ -1714,8 +1208,13 @@ LAB_0015b26c:
 bool isCompressedFormat(int param_1)
 
 {
-  return param_1 - 0x83U < 0x36;
+
+  /* STUB: isCompressedFormat — conflicting types */
+
 }
+
+
+
 
 
 /* @00160bd4  size=52 */
@@ -1723,24 +1222,29 @@ bool isCompressedFormat(int param_1)
 uint64_t isFormatScaled(uint32_t param_1)
 
 {
-  switch(param_1) {
-  case 0xb:
-  case 0xc:
-  case 0x12:
-  case 0x13:
-  case 0x27:
-  case 0x28:
-  case 0x48:
-  case 0x49:
-  case 0x4f:
-  case 0x50:
-  case 0x5d:
-  case 0x5e:
-    return 1;
-  default:
-    return 0;
-  }
+
+  /* STUB: isFormatScaled — conflicting types */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
+
+
+
 
 
 /* @0015acc4  size=60 */
@@ -1756,5 +1260,7 @@ bool isHostVisibleMemory(uint32_t param_1)
   }
   return bVar1;
 }
+
+
 
 

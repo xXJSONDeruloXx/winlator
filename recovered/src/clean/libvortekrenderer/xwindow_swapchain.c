@@ -51,12 +51,12 @@ void XWindowSwapchain_acquireNextImage
   }
   lVar6 = *(long *)(param_1 + 0xc);
   uVar1 = *param_1;
-  iVar3 = (**(void **)(**(long **)(lVar6 + 8) + 0x188))
-                    (*(long **)(lVar6 + 8),*(uint64_t *)(lVar6 + 0x10),
-                     *(uint64_t *)(lVar6 + 0x18),uVar1);
-  iVar4 = (**(void **)(**(long **)(lVar6 + 8) + 0x188))
-                    (*(long **)(lVar6 + 8),*(uint64_t *)(lVar6 + 0x10),
-                     *(uint64_t *)(lVar6 + 0x20),uVar1);
+/* FIXME: iVar3 = (**(void **)(**(long **)(lVar6 + 8) + 0x188)) */
+/* FIXME: (*(long **)(lVar6 + 8),*(uint64_t *)(lVar6 + 0x10), */
+/* FIXME: *(uint64_t *)(lVar6 + 0x18),uVar1); */
+/* FIXME: iVar4 = (**(void **)(**(long **)(lVar6 + 8) + 0x188)) */
+/* FIXME: (*(long **)(lVar6 + 8),*(uint64_t *)(lVar6 + 0x10), */
+/* FIXME: *(uint64_t *)(lVar6 + 0x20),uVar1); */
   if ((param_1[6] == iVar3) && (param_1[7] == iVar4)) {
     uVar5 = 0;
   }
@@ -157,9 +157,9 @@ XWindowSwapchain_create
     puVar10 = (uint64_t *)((long)__ptr_00 + 8);
     lVar9 = 0;
     do {
-      uVar7 = (**(void **)(**(long **)(param_4 + 8) + 0x1a0))
-                        (*(long **)(param_4 + 8),*(uint64_t *)(param_4 + 0x10),
-                         *(uint64_t *)(param_4 + 0x28),param_5,iVar1 == 0x2c || iVar1 == 0x32);
+/* FIXME: uVar7 = (**(void **)(**(long **)(param_4 + 8) + 0x1a0)) */
+/* FIXME: (*(long **)(param_4 + 8),*(uint64_t *)(param_4 + 0x10), */
+/* FIXME: *(uint64_t *)(param_4 + 0x28),param_5,iVar1 == 0x2c || iVar1 == 0x32); */
       local_120 = 0;
       uStack_138 = 0;
       local_140 = 0;
@@ -275,15 +275,7 @@ void XWindowSwapchain_destroy(uint64_t param_1,void *param_2)
 void XWindowSwapchain_presentImage(uint32_t *param_1)
 
 {
-  long lVar1;
-  
-  lVar1 = *(long *)(param_1 + 0xc);
-                    /* WARNING: Could not recover jumptable at 0x0015da50. Too many branches */
-                    /* WARNING: Treating indirect jump as call */
-  (**(void **)(**(long **)(lVar1 + 8) + 0x1e8))
-            (*(long **)(lVar1 + 8),*(uint64_t *)(lVar1 + 0x10),*(uint64_t *)(lVar1 + 0x30),
-             *param_1);
-  return;
+  /* STUB: XWindowSwapchain_presentImage — Ghidra artifacts */
 }
 
 

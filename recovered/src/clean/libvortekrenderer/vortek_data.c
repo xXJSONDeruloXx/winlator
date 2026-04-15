@@ -360,3 +360,5 @@ uint64_t DAT_001956a0 = 0;
 uint8_t vulkanWrapper[0x820] = {0};
 
 uint64_t vkNullObject = 0;
+
+void *PTR_LOOP_0018e340 = 0;

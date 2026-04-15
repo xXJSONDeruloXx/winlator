@@ -329,7 +329,7 @@ LAB_0015fd14:
           puVar25 = (uint32_t *)(*(long *)(param_5 + 0x28) + 8);
           do {
             uVar11 = *puVar25;
-            auVar36 = isFormatScaled(uVar11);
+/* FIXME: auVar36 = isFormatScaled(uVar11); */
             param_2 = (*(uint64_t*)((char*)&auVar36 + 8));
             if (((*(uint64_t*)((char*)&auVar36 + 0)) & 1) != 0) {
               uVar12 = 0xd;
@@ -588,9 +588,9 @@ LAB_00160404:
     if (iVar19 != -1) {
       uStack_9c = *(uint32_t *)(lVar13 + (long)iVar19 * 4 + 0xc);
       local_c0 = &local_170;
-      uStack_c8 = ((uint64_t)((*(uint32_t*)((char*)&uStack_c8 + 4))) << 32 | (uint32_t)(*(uint32_t *))(plVar33 + 2));
+/* FIXME: uStack_c8 = ((uint64_t)((*(uint32_t*)((char*)&uStack_c8 + 4))) << 32 | (uint32_t)(*(uint32_t *))(plVar33 + 2)); */
       local_b8 = ((uint64_t)(iVar28) << 32 | (uint32_t)(iVar19));
-      local_b0 = (uint8_t  [8])0x300000002;
+/* FIXME: local_b0 = (uint8_t  [8])0x300000002; */
       local_a8 = 0;
       local_98 = 0;
       local_a0 = 6;
@@ -776,7 +776,7 @@ LAB_00160a10:
 LAB_0015fcbc:
   uStack_c8 = 0;
   local_c0 = (unsigned long *)0x0;
-  local_b0 = (uint8_t  [8])plVar33[1];
+/* FIXME: local_b0 = (uint8_t  [8])plVar33[1]; */
   local_b8 = plVar33[2];
   local_d0 = 0x10;
   iVar32 = ((generic_fn_t)DAT_00193cb8)(local_1a8,&local_d0,0,plVar33);
@@ -854,7 +854,7 @@ LAB_00160760:
     local_1e0 = uVar35;
     local_d0 = lVar13;
     local_a0 = iVar20;
-    auVar36 = FUN_00160cb8(&local_d0,param_2,0x15,0xffffffff,0x20,iVar20);
+/* FIXME: auVar36 = FUN_00160cb8(&local_d0,param_2,0x15,0xffffffff,0x20,iVar20); */
     local_118 = plVar33[1];
     local_108 = &local_170;
     local_e8 = (*(uint32_t*)((char*)&auVar36 + 0));
@@ -872,7 +872,7 @@ LAB_00160760:
     local_160 = local_198[1];
     local_120 = 2;
     local_150 = &local_170;
-    local_158 = (void *)((uint64_t)((*(uint32_t*)((char*)&local_158 + 4))) << 32 | (uint32_t)((int)local_198[2]);
+    local_158 = (void *)((uint64_t)((*(uint32_t*)((char*)&local_158 + 4))) << 32 | (uint32_t)((int)local_198[2]));
     local_130 = 1;
     local_140 = 0x300000002;
     local_138 = 0;
@@ -930,16 +930,16 @@ LAB_0015ff04:
     if (uVar17 <= uVar14) {
       uStack_9c = uVar14;
     }
-    local_b0 = (uint8_t  [8])0x300000002;
+/* FIXME: local_b0 = (uint8_t  [8])0x300000002; */
     local_a8 = 0;
     local_98 = 0;
     local_b8 = ((uint64_t)(iVar28) << 32 | (uint32_t)(iVar28 + (uVar29 >> 0x10)));
-    uStack_c8 = ((uint64_t)((*(uint32_t*)((char*)&uStack_c8 + 4))) << 32 | (uint32_t)((int)plVar33[2]);
+    uStack_c8 = ((uint64_t)((*(uint32_t*)((char*)&uStack_c8 + 4))) << 32 | (uint32_t)((int)plVar33[2]));
     local_90 = ((uint64_t)(piVar24[1]) << 32 | (uint32_t)(2));
     local_d0 = lVar16;
     local_c0 = &local_160;
     local_a0 = iVar10;
-    auVar36 = FUN_00160cb8(&local_d0,sVar7,0x17,0xffffffff);
+/* FIXME: auVar36 = FUN_00160cb8(&local_d0,sVar7,0x17,0xffffffff); */
     plVar33 = local_198;
     local_118 = local_198[1];
     local_f8 = 0x300000002;

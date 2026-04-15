@@ -28,20 +28,13 @@ the prebuilt `.so` files.
 - [x] A8. Size check: 1.91x prebuilt (within 2x target)
 
 ### Phase B: libvortekrenderer
-- [ ] B1. Analyze raw decompile — VkObject system, dispatch table, struct layouts
-- [ ] B2. Create `recovered/src/clean/libvortekrenderer/` with types.h, CMakeLists.txt
-- [ ] B3. Implement VkObject handle tracking layer
-- [ ] B4. Implement JNI entry points + initVulkanWrapper (dlopen/dlsym dispatch)
-- [ ] B5. Implement Vulkan dispatch table skeleton (254 vt_handle_vk* stubs)
-- [ ] B6. Implement instance/device lifecycle handlers
-- [ ] B7. Implement command buffer handlers
-- [ ] B8. Implement descriptor set / pipeline handlers
-- [ ] B9. Implement memory / buffer / image handlers
-- [ ] B10. Implement render pass / framebuffer handlers
-- [ ] B11. Implement remaining VK handlers (sync, query, swapchain, etc.)
-- [ ] B12. Implement AsyncPipelineCreator, ImageCache, helper functions
-- [ ] B13. Cross-compile and verify all 562 exports match prebuilt nm output
-- [ ] B14. Size sanity check — compiled .so within 2x of prebuilt 598 KB
+- [x] B1. Analyze raw decompile — 793 functions, C++ decompiled to C, 254 VK handlers, 423 FUN_
+- [x] B2. Create source tree: 16 files, types.h, CMakeLists.txt, vortek_data.h (353 DAT_)
+- [ ] B3. Fix remaining compilation errors (42 errors across 12 files, 4/16 compile)
+- [ ] B4. Compile all to .o objects
+- [ ] B5. Link into libvortekrenderer.so
+- [ ] B6. Cross-compile and verify exports match prebuilt nm output
+- [ ] B7. Size sanity check — compiled .so within 2x of prebuilt 598 KB
 
 ### Final Integration
 - [ ] C1. Add both libs to recovered/src/clean/CMakeLists.txt

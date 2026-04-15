@@ -510,243 +510,7 @@ LAB_001364ac:
 void vt_handle_vkAllocateMemory(long param_1)
 
 {
-  uint32_t *puVar1;
-  uint32_t *puVar2;
-  uint32_t uVar3;
-  uint32_t uVar4;
-  int iVar5;
-  long lVar6;
-  uint64_t uVar7;
-  uint64_t *puVar8;
-  long lVar9;
-  long *plVar10;
-  int iVar11;
-  unsigned long uVar12;
-  char *pcVar13;
-  uint32_t *puVar14;
-  uint64_t *puVar15;
-  unsigned long local_90;
-  uint64_t *puStack_88;
-  uint64_t local_80;
-  uint64_t local_78;
-  uint64_t local_70;
-  long local_68;
-  
-  /* stack canary setup */
-  local_68 = *(long *)(lVar6 + 0x28);
-  pcVar13 = *(char **)(param_1 + 0x30);
-  puStack_88 = (uint64_t *)0x0;
-  local_90 = 0;
-  local_78 = 0;
-  local_80 = 0;
-  if (*pcVar13 == '\0') {
-    uVar12 = 1;
-    lVar9 = param_1;
-  }
-  else {
-    uVar12 = 9;
-    lVar9 = *(long *)(pcVar13 + 1);
-  }
-  if (0 < *(int *)(pcVar13 + uVar12)) {
-    puVar1 = (uint32_t *)(pcVar13 + (uVar12 | 4));
-    puVar14 = puVar1 + 1;
-    puVar15 = (uint64_t *)0x0;
-    iVar11 = 8;
-    local_90 = (unsigned long)*puVar1;
-    do {
-      uVar3 = *puVar14;
-      if ((int)uVar3 < 0x3b9beb10) {
-        if (uVar3 == 0x3b9bb460) {
-          iVar5 = *(int *)((long)puVar1 + (long)iVar11);
-          uVar12 = (long)iVar11 + 4;
-          if (0 < iVar5) {
-            iVar11 = *(int *)(param_1 + 0x48);
-            if ((iVar11 < 0xffe8) && (*(long *)(param_1 + 0x40) != 0)) {
-              puVar8 = (uint64_t *)(*(long *)(param_1 + 0x40) + (long)iVar11);
-              *(int *)(param_1 + 0x48) = iVar11 + 0x18;
-            }
-            else {
-              puVar8 = malloc(0x18);
-              ArrayList_add(param_1 + 0x50,puVar8);
-            }
-            *puVar8 = 0;
-            puVar8[1] = 0;
-            puVar8[2] = 0;
-            puVar2 = (uint32_t *)((long)puVar1 + uVar12);
-            uVar12 = (unsigned long)(uint32_t)(iVar5 + (int)uVar12);
-            *(uint32_t *)puVar8 = *puVar2;
-            *(uint32_t *)(puVar8 + 2) = puVar2[1];
-            *(uint32_t *)((long)puVar8 + 0x14) = puVar2[2];
-LAB_00130c90:
-            puVar8[1] = puVar15;
-            puVar15 = puVar8;
-          }
-        }
-        else if (uVar3 == 0x3b9be342) {
-          iVar5 = *(int *)((long)puVar1 + (long)iVar11);
-          uVar12 = (long)iVar11 + 4;
-          if (0 < iVar5) {
-            iVar11 = *(int *)(param_1 + 0x48);
-            if ((iVar11 < 0xffe8) && (*(long *)(param_1 + 0x40) != 0)) {
-              puVar8 = (uint64_t *)(*(long *)(param_1 + 0x40) + (long)iVar11);
-              *(int *)(param_1 + 0x48) = iVar11 + 0x18;
-            }
-            else {
-              puVar8 = malloc(0x18);
-              ArrayList_add(param_1 + 0x50,puVar8);
-            }
-            *puVar8 = 0;
-            puVar8[1] = 0;
-            puVar8[2] = 0;
-            puVar2 = (uint32_t *)((long)puVar1 + uVar12);
-            uVar12 = (unsigned long)(uint32_t)(iVar5 + (int)uVar12);
-            *(uint32_t *)puVar8 = *puVar2;
-            *(uint32_t *)(puVar8 + 2) = puVar2[1];
-            goto LAB_00130c90;
-          }
-        }
-        else {
-          if (uVar3 == 0xffffffff) goto LAB_00130f48;
-LAB_00130e1c:
-          uVar12 = (unsigned long)(iVar11 + 4);
-        }
-      }
-      else if (uVar3 == 0x3b9beb10) {
-        iVar5 = *(int *)((long)puVar1 + (long)iVar11);
-        uVar12 = (long)iVar11 + 4;
-        if (0 < iVar5) {
-          iVar11 = *(int *)(param_1 + 0x48);
-          if ((iVar11 < 0xffe8) && (*(long *)(param_1 + 0x40) != 0)) {
-            puVar8 = (uint64_t *)(*(long *)(param_1 + 0x40) + (long)iVar11);
-            *(int *)(param_1 + 0x48) = iVar11 + 0x18;
-          }
-          else {
-            puVar8 = malloc(0x18);
-            ArrayList_add(param_1 + 0x50,puVar8);
-          }
-          *puVar8 = 0;
-          puVar8[1] = 0;
-          puVar8[2] = 0;
-          puVar2 = (uint32_t *)((long)puVar1 + uVar12);
-          uVar4 = *puVar2;
-          puVar8[1] = 0;
-          uVar12 = (unsigned long)(uint32_t)(iVar5 + (int)uVar12);
-          *(uint32_t *)puVar8 = uVar4;
-          puVar8[2] = *(uint64_t *)(puVar2 + 1);
-          goto LAB_00130c90;
-        }
-      }
-      else if (uVar3 == 0x3b9cba19) {
-        iVar5 = *(int *)((long)puVar1 + (long)iVar11);
-        uVar12 = (long)iVar11 + 4;
-        if (iVar5 < 1) {
-          uVar12 = uVar12 & 0xffffffff;
-        }
-        else {
-          iVar11 = *(int *)(param_1 + 0x48);
-          if ((iVar11 < 0xffe0) && (*(long *)(param_1 + 0x40) != 0)) {
-            puVar8 = (uint64_t *)(*(long *)(param_1 + 0x40) + (long)iVar11);
-            *(int *)(param_1 + 0x48) = iVar11 + 0x20;
-          }
-          else {
-            puVar8 = malloc(0x20);
-            ArrayList_add(param_1 + 0x50,puVar8);
-          }
-          puVar8[1] = 0;
-          *puVar8 = 0;
-          puVar8[3] = 0;
-          puVar8[2] = 0;
-          puVar2 = (uint32_t *)((long)puVar1 + uVar12);
-          uVar4 = *puVar2;
-          puVar8[1] = 0;
-          *(uint32_t *)puVar8 = uVar4;
-          uVar7 = VkObject_fromId(*(uint64_t *)(puVar2 + 1));
-          puVar8[2] = uVar7;
-          uVar7 = VkObject_fromId(*(uint64_t *)(puVar2 + 3));
-          uVar12 = (unsigned long)(uint32_t)(iVar5 + (int)uVar12);
-          puVar8[1] = puVar15;
-          puVar8[3] = uVar7;
-          puVar15 = puVar8;
-        }
-      }
-      else {
-        if (uVar3 != 0x3b9eb5eb) goto LAB_00130e1c;
-        iVar5 = *(int *)((long)puVar1 + (long)iVar11);
-        uVar12 = (long)iVar11 + 4;
-        if (0 < iVar5) {
-          iVar11 = *(int *)(param_1 + 0x48);
-          if ((iVar11 < 0xffe8) && (*(long *)(param_1 + 0x40) != 0)) {
-            puVar8 = (uint64_t *)(*(long *)(param_1 + 0x40) + (long)iVar11);
-            *(int *)(param_1 + 0x48) = iVar11 + 0x18;
-          }
-          else {
-            puVar8 = malloc(0x18);
-            ArrayList_add(param_1 + 0x50,puVar8);
-          }
-          *puVar8 = 0;
-          puVar8[1] = 0;
-          puVar8[2] = 0;
-          puVar2 = (uint32_t *)((long)puVar1 + uVar12);
-          uVar12 = (unsigned long)(uint32_t)(iVar5 + (int)uVar12);
-          *(uint32_t *)puVar8 = *puVar2;
-          puVar8[2] = *(uint64_t *)(puVar2 + 1);
-          goto LAB_00130c90;
-        }
-      }
-      puVar14 = (uint32_t *)((long)puVar1 + (long)(int)uVar12);
-      iVar11 = (int)uVar12 + 4;
-    } while( true );
-  }
-LAB_00130f90:
-  uVar7 = VkObject_fromId(lVar9);
-  lVar9 = ResourceMemory_allocate(param_1,uVar7,&local_90);
-  if (lVar9 == 0) {
-    uVar7 = *(uint64_t *)(param_1 + 0x68);
-    plVar10 = &local_70;
-    (*(uint32_t*)((char*)&local_70 + 0)) = 0xfffffffe;
-    (*(uint32_t*)((char*)&local_70 + 4)) = 0;
-  }
-  else {
-    iVar11 = *(int *)(param_1 + 0x48);
-    if ((iVar11 < 0xfff8) && (*(long *)(param_1 + 0x40) != 0)) {
-      plVar10 = (long *)(*(long *)(param_1 + 0x40) + (long)iVar11);
-      *(int *)(param_1 + 0x48) = iVar11 + 8;
-    }
-    else {
-      plVar10 = malloc(8);
-      ArrayList_add(param_1 + 0x50,plVar10);
-    }
-    *plVar10 = lVar9;
-    uVar7 = *(uint64_t *)(param_1 + 0x68);
-    (*(uint32_t*)((char*)&local_70 + 0)) = 0;
-    (*(uint32_t*)((char*)&local_70 + 4)) = 8;
-    uVar12 = RingBuffer_write(uVar7,&local_70,8);
-    if ((uVar12 & 1) == 0) goto LAB_00131040;
-  }
-  RingBuffer_write(uVar7,plVar10,8);
-LAB_00131040:
-  if (*(long *)(lVar6 + 0x28) == local_68) {
-    return;
-  }
-                    /* WARNING: Subroutine does not return */
-  __stack_chk_fail();
-LAB_00130f48:
-  if (puVar15 == (uint64_t *)0x0) {
-    puStack_88 = (uint64_t *)0x0;
-  }
-  else {
-    puVar8 = (uint64_t *)0x0;
-    do {
-      puStack_88 = puVar15;
-      puVar15 = (uint64_t *)puStack_88[1];
-      puStack_88[1] = puVar8;
-      puVar8 = puStack_88;
-    } while (puVar15 != (uint64_t *)0x0);
-  }
-  local_80 = *(uint64_t *)((long)puVar1 + (long)iVar11);
-  local_78 = ((uint64_t)((*(uint32_t*)((char*)&local_78 + 4))) << 32 | (uint32_t)(
-                      *(uint32_t *))((uint64_t *)((long)puVar1 + (long)iVar11) + 1));
-  goto LAB_00130f90;
+  /* STUB: vt_handle_vkAllocateMemory — Ghidra artifacts */
 }
 
 
@@ -1071,76 +835,7 @@ void vt_handle_vkBindBufferMemory(long param_1)
 void vt_handle_vkBindBufferMemory2(long param_1)
 
 {
-  long lVar1;
-  uint32_t uVar2;
-  long lVar3;
-  int iVar4;
-  long lVar5;
-  uint64_t uVar6;
-  char *pcVar7;
-  long lVar8;
-  unsigned long uVar9;
-  uint64_t *puVar10;
-  unsigned long uVar11;
-  int local_60 [2];
-  long local_58;
-  
-  /* stack canary setup */
-  local_58 = *(long *)(lVar3 + 0x28);
-  pcVar7 = *(char **)(param_1 + 0x30);
-  if (*pcVar7 == '\0') {
-    lVar8 = 1;
-    lVar5 = param_1;
-  }
-  else {
-    lVar8 = 9;
-    lVar5 = *(long *)(pcVar7 + 1);
-  }
-  uVar2 = *(uint32_t *)(pcVar7 + lVar8);
-  uVar9 = (unsigned long)uVar2;
-  uVar6 = VkObject_fromId(lVar5);
-  lVar5 = -(uVar9 * 0x28 + 0xf & 0x7ffffffff0);
-  lVar8 = (long)local_60 + lVar5;
-  if (*(long *)(param_1 + 0x80) == 0) {
-    FUN_00143674(0,0,lVar8,*(uint64_t *)(param_1 + 0x30),param_1 + 0x40);
-  }
-  else {
-    vortekSerializerCastVkObject = 0;
-    FUN_00143674(0,0,lVar8,*(uint64_t *)(param_1 + 0x30),param_1 + 0x40);
-    vortekSerializerCastVkObject = 1;
-    if (uVar2 != 0) {
-      puVar10 = (uint64_t *)(&stack0xffffffffffffffc0 + lVar5);
-      uVar11 = uVar9;
-      do {
-        lVar1 = puVar10[-1];
-        TextureDecoder_addBoundBuffer(*(uint64_t *)(param_1 + 0x80),lVar1,puVar10[-2],*puVar10);
-        uVar11 = uVar11 - 1;
-        puVar10[-1] = *(uint64_t *)(lVar1 + 0x18);
-        puVar10 = puVar10 + 5;
-      } while (uVar11 != 0);
-    }
-  }
-  iVar4 = ((generic_fn_t)DAT_00194000)(uVar6,uVar9,lVar8);
-  if ((((iVar4 != 0) && (*(long *)(param_1 + 0x80) != 0)) && (uVar2 != 0)) &&
-     (TextureDecoder_removeBoundBuffer
-                (*(long *)(param_1 + 0x80),*(uint64_t *)(&stack0xffffffffffffffb0 + lVar5)),
-     uVar2 != 1)) {
-    lVar8 = uVar9 - 1;
-    puVar10 = (uint64_t *)(&stack0xffffffffffffffd8 + lVar5);
-    do {
-      TextureDecoder_removeBoundBuffer(*(uint64_t *)(param_1 + 0x80),*puVar10);
-      lVar8 = lVar8 + -1;
-      puVar10 = puVar10 + 5;
-    } while (lVar8 != 0);
-  }
-  local_60[1] = 0;
-  local_60[0] = iVar4;
-  RingBuffer_write(*(uint64_t *)(param_1 + 0x68),local_60,8);
-  if (*(long *)(lVar3 + 0x28) != local_58) {
-                    /* WARNING: Subroutine does not return */
-    __stack_chk_fail();
-  }
-  return;
+  /* STUB: vt_handle_vkBindBufferMemory2 — Ghidra artifacts */
 }
 
 
@@ -1719,8 +1414,8 @@ void vt_handle_vkCmdBeginRenderPass2(long param_1)
   lVar4 = (long)(int)uVar6;
   if (0 < *(int *)(pcVar5 + lVar4)) {
     local_a0 = 0;
-    local_a8 = ((uint64_t)((*(uint32_t*)((char*)&local_a8 + 4))) << 32 | (uint32_t)(*(uint32_t *))(pcVar5 + lVar4 + 4));
-    local_98 = ((uint64_t)((*(uint32_t*)((char*)&local_98 + 4))) << 32 | (uint32_t)(*(uint32_t *))(pcVar5 + lVar4 + 8));
+    local_a8 = ((uint64_t)((*(uint32_t*)((char*)&local_a8 + 4))) << 32 | (uint32_t)(*(uint32_t *)(pcVar5 + lVar4 + 4)));
+    local_98 = ((uint64_t)((*(uint32_t*)((char*)&local_98 + 4))) << 32 | (uint32_t)(*(uint32_t *)(pcVar5 + lVar4 + 8)));
   }
   uVar3 = VkObject_fromId(unaff_x19);
   ((generic_fn_t)DAT_001940c0)(uVar3,&local_90,&local_a8);
@@ -2502,120 +2197,7 @@ void vt_handle_vkCmdBindVertexBuffers2(long param_1)
 void vt_handle_vkCmdBlitImage(long param_1)
 
 {
-  char *pcVar1;
-  uint32_t uVar2;
-  uint32_t uVar3;
-  uint32_t uVar4;
-  uint32_t uVar5;
-  uint32_t uVar6;
-  long lVar7;
-  long lVar8;
-  uint64_t uVar9;
-  uint64_t uVar10;
-  uint64_t uVar11;
-  char *pcVar12;
-  int iVar13;
-  uint32_t uVar14;
-  long lVar15;
-  unsigned long uVar16;
-  unsigned long uVar17;
-  uint64_t *puVar18;
-  uint64_t unaff_x25;
-  uint64_t unaff_x26;
-  uint64_t uVar19;
-  uint64_t uVar20;
-  uint64_t auStack_70;
-  long local_68;
-  
-  /* stack canary setup */
-  local_68 = *(long *)(lVar7 + 0x28);
-  pcVar12 = *(char **)(param_1 + 0x30);
-  if (*pcVar12 == '\0') {
-    lVar15 = 1;
-    lVar8 = param_1;
-  }
-  else {
-    lVar15 = 9;
-    lVar8 = *(long *)(pcVar12 + 1);
-  }
-  uVar17 = lVar15 + 1;
-  if (pcVar12[lVar15] != '\0') {
-    unaff_x25 = *(uint64_t *)(pcVar12 + uVar17);
-    uVar17 = (unsigned long)((int)lVar15 + 9);
-  }
-  uVar16 = uVar17 + 5;
-  if ((pcVar12 + uVar17)[4] != '\0') {
-    unaff_x26 = *(uint64_t *)(pcVar12 + uVar16);
-    uVar16 = (unsigned long)((int)uVar17 + 0xd);
-  }
-  uVar4 = *(uint32_t *)(pcVar12 + uVar17);
-  pcVar1 = pcVar12 + uVar16;
-  uVar3 = *(uint32_t *)(pcVar1 + 4);
-  uVar17 = (unsigned long)*(uint32_t *)(pcVar1 + 8);
-  uVar5 = *(uint32_t *)pcVar1;
-  iVar13 = (int)uVar16 + 0xc;
-  if (0 < (int)*(uint32_t *)(pcVar1 + 8)) {
-    do {
-      uVar17 = uVar17 - 1;
-      iVar13 = iVar13 + *(int *)(pcVar12 + iVar13) + 4;
-    } while (uVar17 != 0);
-  }
-  uVar6 = *(uint32_t *)(pcVar12 + iVar13);
-  uVar9 = VkObject_fromId(lVar8);
-  uVar10 = VkObject_fromId(unaff_x25);
-  uVar11 = VkObject_fromId(unaff_x26);
-  lVar8 = (unsigned long)uVar3 * -0x50;
-  pcVar12 = *(char **)(param_1 + 0x30);
-  uVar14 = 9;
-  uVar2 = uVar14;
-  if (*pcVar12 == '\0') {
-    uVar2 = 1;
-  }
-  if (pcVar12[uVar2] == '\0') {
-    uVar14 = 1;
-  }
-  uVar14 = uVar14 + uVar2;
-  uVar2 = uVar14 | 5;
-  if (pcVar12[(unsigned long)uVar14 + 4] != '\0') {
-    uVar2 = uVar14 + 0xd;
-  }
-  uVar17 = (unsigned long)*(uint32_t *)(pcVar12 + (unsigned long)uVar2 + 8);
-  if (0 < (int)*(uint32_t *)(pcVar12 + (unsigned long)uVar2 + 8)) {
-    iVar13 = uVar2 + 0xc;
-    puVar18 = (uint64_t *)(&stack0xffffffffffffffc8 + lVar8);
-    do {
-      lVar15 = (long)iVar13 + 4;
-      pcVar1 = pcVar12 + lVar15;
-      iVar13 = *(int *)(pcVar12 + iVar13);
-      uVar17 = uVar17 - 1;
-      *(uint32_t *)(puVar18 + -7) = *(uint32_t *)pcVar1;
-      iVar13 = iVar13 + (int)lVar15;
-      *(uint32_t *)((long)puVar18 + -0x34) = *(uint32_t *)(pcVar1 + 4);
-      *(uint32_t *)(puVar18 + -6) = *(uint32_t *)(pcVar1 + 8);
-      *(uint32_t *)((long)puVar18 + -0x2c) = *(uint32_t *)(pcVar1 + 0xc);
-      uVar20 = *(uint64_t *)(pcVar1 + 0x18);
-      uVar19 = *(uint64_t *)(pcVar1 + 0x10);
-      puVar18[-3] = *(uint64_t *)(pcVar1 + 0x20);
-      puVar18[-4] = uVar20;
-      puVar18[-5] = uVar19;
-      *(uint32_t *)(puVar18 + -2) = *(uint32_t *)(pcVar1 + 0x28);
-      *(uint32_t *)((long)puVar18 + -0xc) = *(uint32_t *)(pcVar1 + 0x2c);
-      *(uint32_t *)(puVar18 + -1) = *(uint32_t *)(pcVar1 + 0x30);
-      *(uint32_t *)((long)puVar18 + -4) = *(uint32_t *)(pcVar1 + 0x34);
-      uVar20 = *(uint64_t *)(pcVar1 + 0x40);
-      uVar19 = *(uint64_t *)(pcVar1 + 0x38);
-      puVar18[2] = *(uint64_t *)(pcVar1 + 0x48);
-      puVar18[1] = uVar20;
-      *puVar18 = uVar19;
-      puVar18 = puVar18 + 10;
-    } while (uVar17 != 0);
-  }
-  ((generic_fn_t)DAT_00193e70)(uVar9,uVar10,uVar4,uVar11,uVar5,(unsigned long)uVar3,auStack_70 + lVar8,uVar6);
-  if (*(long *)(lVar7 + 0x28) == local_68) {
-    return;
-  }
-                    /* WARNING: Subroutine does not return */
-  __stack_chk_fail();
+  /* STUB: vt_handle_vkCmdBlitImage — Ghidra artifacts */
 }
 
 
@@ -2729,7 +2311,7 @@ void vt_handle_vkCmdBlitImage2(long param_1)
         local_70 = __s;
       } while (uVar12 != 0);
     }
-    local_68 = ((uint64_t)((*(uint32_t*)((char*)&local_68 + 4))) << 32 | (uint32_t)(*(uint32_t *))((long)puVar3 + uVar13));
+    local_68 = ((uint64_t)((*(uint32_t*)((char*)&local_68 + 4))) << 32 | (uint32_t)(*(uint32_t *)((long)puVar3 + uVar13)));
   }
   uVar9 = VkObject_fromId(unaff_x19);
   ((generic_fn_t)DAT_00194288)(uVar9,local_a0);
@@ -3026,88 +2608,7 @@ void vt_handle_vkCmdClearDepthStencilImage(long param_1)
 void vt_handle_vkCmdCopyBuffer(long param_1)
 
 {
-  char *pcVar1;
-  uint32_t uVar2;
-  uint32_t uVar3;
-  long lVar4;
-  long lVar5;
-  uint64_t uVar6;
-  uint64_t uVar7;
-  uint64_t uVar8;
-  long lVar9;
-  char *pcVar10;
-  uint32_t uVar11;
-  unsigned long uVar12;
-  long lVar13;
-  unsigned long uVar14;
-  uint64_t *puVar15;
-  int iVar16;
-  uint64_t unaff_x22;
-  uint64_t unaff_x23;
-  
-  /* stack canary setup */
-  lVar9 = *(long *)(lVar4 + 0x28);
-  pcVar10 = *(char **)(param_1 + 0x30);
-  if (*pcVar10 == '\0') {
-    lVar13 = 1;
-    lVar5 = param_1;
-  }
-  else {
-    lVar13 = 9;
-    lVar5 = *(long *)(pcVar10 + 1);
-  }
-  uVar12 = lVar13 + 1;
-  if (pcVar10[lVar13] != '\0') {
-    unaff_x22 = *(uint64_t *)(pcVar10 + uVar12);
-    uVar12 = (unsigned long)((int)lVar13 + 9);
-  }
-  uVar14 = uVar12 + 1;
-  if (pcVar10[uVar12] != '\0') {
-    unaff_x23 = *(uint64_t *)(pcVar10 + uVar14);
-    uVar14 = (unsigned long)((int)uVar12 + 9);
-  }
-  uVar3 = *(uint32_t *)(pcVar10 + uVar14);
-  uVar6 = VkObject_fromId(lVar5);
-  uVar7 = VkObject_fromId(unaff_x22);
-  uVar8 = VkObject_fromId(unaff_x23);
-  pcVar10 = *(char **)(param_1 + 0x30);
-  uVar11 = 9;
-  uVar2 = uVar11;
-  if (*pcVar10 == '\0') {
-    uVar2 = 1;
-  }
-  if (pcVar10[uVar2] == '\0') {
-    uVar11 = 1;
-  }
-  lVar5 = (unsigned long)uVar11 + (unsigned long)uVar2;
-  uVar11 = (uint32_t)lVar5;
-  uVar2 = uVar11 | 1;
-  if (pcVar10[lVar5] != '\0') {
-    uVar2 = uVar11 + 9;
-  }
-  uVar12 = (unsigned long)*(uint32_t *)(pcVar10 + ((unsigned long)uVar2 | 4));
-  if (0 < (int)*(uint32_t *)(pcVar10 + ((unsigned long)uVar2 | 4))) {
-    iVar16 = uVar2 + 8;
-    puVar15 = (uint64_t *)(&stack0xffffffffffffffc0 + -((unsigned long)uVar3 * 0x18 + 0xf & 0x3ffffffff0))
-    ;
-    do {
-      lVar5 = (long)iVar16 + 4;
-      pcVar1 = pcVar10 + lVar5;
-      iVar16 = *(int *)(pcVar10 + iVar16);
-      uVar12 = uVar12 - 1;
-      puVar15[-2] = *(uint64_t *)pcVar1;
-      iVar16 = iVar16 + (int)lVar5;
-      puVar15[-1] = *(uint64_t *)(pcVar1 + 8);
-      *puVar15 = *(uint64_t *)(pcVar1 + 0x10);
-      puVar15 = puVar15 + 3;
-    } while (uVar12 != 0);
-  }
-  ((generic_fn_t)DAT_00193e60)(uVar6,uVar7,uVar8,(unsigned long)uVar3);
-  if (*(long *)(lVar4 + 0x28) == lVar9) {
-    return;
-  }
-                    /* WARNING: Subroutine does not return */
-  __stack_chk_fail();
+  /* STUB: vt_handle_vkCmdCopyBuffer — Ghidra artifacts */
 }
 
 
@@ -3211,109 +2712,7 @@ void vt_handle_vkCmdCopyBuffer2(long param_1)
 void vt_handle_vkCmdCopyBufferToImage(long param_1)
 
 {
-  char *pcVar1;
-  uint32_t uVar2;
-  uint32_t uVar3;
-  uint32_t uVar4;
-  long lVar5;
-  long lVar6;
-  uint64_t uVar7;
-  uint64_t uVar8;
-  uint64_t uVar9;
-  char *pcVar10;
-  uint32_t uVar11;
-  unsigned long uVar12;
-  long lVar13;
-  unsigned long uVar14;
-  uint32_t *puVar15;
-  int iVar16;
-  uint64_t unaff_x23;
-  uint64_t unaff_x24;
-  long alStack_60 [2];
-  
-  /* stack canary setup */
-  alStack_60[1] = *(long *)(lVar5 + 0x28);
-  pcVar10 = *(char **)(param_1 + 0x30);
-  if (*pcVar10 == '\0') {
-    lVar13 = 1;
-    lVar6 = param_1;
-  }
-  else {
-    lVar13 = 9;
-    lVar6 = *(long *)(pcVar10 + 1);
-  }
-  uVar12 = lVar13 + 1;
-  if (pcVar10[lVar13] != '\0') {
-    unaff_x23 = *(uint64_t *)(pcVar10 + uVar12);
-    uVar12 = (unsigned long)((int)lVar13 + 9);
-  }
-  uVar14 = uVar12 + 1;
-  if (pcVar10[uVar12] != '\0') {
-    unaff_x24 = *(uint64_t *)(pcVar10 + uVar14);
-    uVar14 = (unsigned long)((int)uVar12 + 9);
-  }
-  uVar3 = *(uint32_t *)(pcVar10 + uVar14);
-  uVar12 = (unsigned long)*(uint32_t *)(pcVar10 + uVar14 + 4);
-  uVar7 = VkObject_fromId(lVar6);
-  uVar8 = VkObject_fromId(unaff_x23);
-  uVar9 = VkObject_fromId(unaff_x24);
-  lVar6 = -(uVar12 * 0x38 + 0xf & 0x7ffffffff0);
-  pcVar10 = *(char **)(param_1 + 0x30);
-  uVar11 = 9;
-  uVar2 = uVar11;
-  if (*pcVar10 == '\0') {
-    uVar2 = 1;
-  }
-  if (pcVar10[uVar2] == '\0') {
-    uVar11 = 1;
-  }
-  lVar13 = (unsigned long)uVar11 + (unsigned long)uVar2;
-  uVar11 = (uint32_t)lVar13;
-  uVar2 = uVar11 | 1;
-  if (pcVar10[lVar13] != '\0') {
-    uVar2 = uVar11 + 9;
-  }
-  uVar14 = (unsigned long)*(uint32_t *)(pcVar10 + (unsigned long)uVar2 + 8);
-  if (0 < (int)*(uint32_t *)(pcVar10 + (unsigned long)uVar2 + 8)) {
-    iVar16 = uVar2 + 0xc;
-    puVar15 = (uint32_t *)(&stack0xffffffffffffffbc + lVar6);
-    do {
-      lVar13 = (long)iVar16 + 4;
-      pcVar1 = pcVar10 + lVar13;
-      iVar16 = *(int *)(pcVar10 + iVar16);
-      uVar14 = uVar14 - 1;
-      puVar15[-5] = *(uint32_t *)(pcVar1 + 8);
-      iVar16 = iVar16 + (int)lVar13;
-      puVar15[-4] = *(uint32_t *)(pcVar1 + 0xc);
-      puVar15[-3] = *(uint32_t *)(pcVar1 + 0x10);
-      puVar15[-2] = *(uint32_t *)(pcVar1 + 0x14);
-      puVar15[-1] = *(uint32_t *)(pcVar1 + 0x18);
-      *puVar15 = *(uint32_t *)(pcVar1 + 0x1c);
-      puVar15[1] = *(uint32_t *)(pcVar1 + 0x20);
-      puVar15[2] = *(uint32_t *)(pcVar1 + 0x24);
-      puVar15[3] = *(uint32_t *)(pcVar1 + 0x28);
-      puVar15[4] = *(uint32_t *)(pcVar1 + 0x2c);
-      puVar15[5] = *(uint32_t *)(pcVar1 + 0x30);
-      uVar4 = *(uint32_t *)(pcVar1 + 0x34);
-      *(uint64_t *)(puVar15 + -7) = *(uint64_t *)pcVar1;
-      puVar15[6] = uVar4;
-      puVar15 = puVar15 + 0xe;
-    } while (uVar14 != 0);
-  }
-  if ((*(long *)(param_1 + 0x80) == 0) ||
-     (uVar14 = TextureDecoder_containsImage(*(long *)(param_1 + 0x80),uVar9), (uVar14 & 1) == 0)) {
-    ((generic_fn_t)DAT_00193e78)(uVar7,uVar8,uVar9,uVar3,uVar12,(uint64_t *)((long)alStack_60 + lVar6));
-  }
-  else if (*(int *)(&stack0xffffffffffffffb4 + lVar6) == 0) {
-    TextureDecoder_copyBufferToImage
-              (*(uint64_t *)(param_1 + 0x80),uVar7,uVar8,uVar9,uVar3,
-               *(uint64_t *)((long)alStack_60 + lVar6));
-  }
-  if (*(long *)(lVar5 + 0x28) == alStack_60[1]) {
-    return;
-  }
-                    /* WARNING: Subroutine does not return */
-  __stack_chk_fail();
+  /* STUB: vt_handle_vkCmdCopyBufferToImage — Ghidra artifacts */
 }
 
 
@@ -3446,103 +2845,7 @@ void vt_handle_vkCmdCopyBufferToImage2(long param_1)
 void vt_handle_vkCmdCopyImage(long param_1)
 
 {
-  char *pcVar1;
-  uint32_t uVar2;
-  uint32_t uVar3;
-  uint32_t uVar4;
-  long lVar5;
-  long lVar6;
-  uint64_t uVar7;
-  uint64_t uVar8;
-  uint64_t uVar9;
-  long lVar10;
-  char *pcVar11;
-  uint32_t uVar12;
-  unsigned long uVar13;
-  long lVar14;
-  unsigned long uVar15;
-  uint32_t *puVar16;
-  int iVar17;
-  uint64_t unaff_x23;
-  uint64_t unaff_x25;
-  
-  /* stack canary setup */
-  lVar10 = *(long *)(lVar5 + 0x28);
-  pcVar11 = *(char **)(param_1 + 0x30);
-  if (*pcVar11 == '\0') {
-    lVar14 = 1;
-    lVar6 = param_1;
-  }
-  else {
-    lVar14 = 9;
-    lVar6 = *(long *)(pcVar11 + 1);
-  }
-  uVar13 = lVar14 + 1;
-  if (pcVar11[lVar14] != '\0') {
-    unaff_x23 = *(uint64_t *)(pcVar11 + uVar13);
-    uVar13 = (unsigned long)((int)lVar14 + 9);
-  }
-  uVar4 = *(uint32_t *)(pcVar11 + uVar13);
-  uVar15 = uVar13 + 5;
-  if ((pcVar11 + uVar13)[4] != '\0') {
-    unaff_x25 = *(uint64_t *)(pcVar11 + uVar15);
-    uVar15 = (unsigned long)((int)uVar13 + 0xd);
-  }
-  uVar3 = *(uint32_t *)(pcVar11 + uVar15);
-  uVar13 = (unsigned long)*(uint32_t *)(pcVar11 + uVar15 + 4);
-  uVar7 = VkObject_fromId(lVar6);
-  uVar8 = VkObject_fromId(unaff_x23);
-  uVar9 = VkObject_fromId(unaff_x25);
-  pcVar11 = *(char **)(param_1 + 0x30);
-  uVar12 = 9;
-  uVar2 = uVar12;
-  if (*pcVar11 == '\0') {
-    uVar2 = 1;
-  }
-  if (pcVar11[uVar2] == '\0') {
-    uVar12 = 1;
-  }
-  uVar12 = uVar12 + uVar2;
-  uVar2 = uVar12 | 5;
-  if (pcVar11[(unsigned long)uVar12 + 4] != '\0') {
-    uVar2 = uVar12 + 0xd;
-  }
-  uVar15 = (unsigned long)*(uint32_t *)(pcVar11 + (unsigned long)uVar2 + 8);
-  if (0 < (int)*(uint32_t *)(pcVar11 + (unsigned long)uVar2 + 8)) {
-    iVar17 = uVar2 + 0xc;
-    puVar16 = (uint32_t *)(&stack0xffffffffffffffc0 + -(uVar13 * 0x44 + 0xf & 0xfffffffff0));
-    do {
-      lVar6 = (long)iVar17 + 4;
-      pcVar1 = pcVar11 + lVar6;
-      iVar17 = *(int *)(pcVar11 + iVar17);
-      uVar15 = uVar15 - 1;
-      puVar16[-8] = *(uint32_t *)pcVar1;
-      iVar17 = iVar17 + (int)lVar6;
-      puVar16[-7] = *(uint32_t *)(pcVar1 + 4);
-      puVar16[-6] = *(uint32_t *)(pcVar1 + 8);
-      puVar16[-5] = *(uint32_t *)(pcVar1 + 0xc);
-      puVar16[-4] = *(uint32_t *)(pcVar1 + 0x10);
-      puVar16[-3] = *(uint32_t *)(pcVar1 + 0x14);
-      puVar16[-2] = *(uint32_t *)(pcVar1 + 0x18);
-      puVar16[-1] = *(uint32_t *)(pcVar1 + 0x1c);
-      *puVar16 = *(uint32_t *)(pcVar1 + 0x20);
-      puVar16[1] = *(uint32_t *)(pcVar1 + 0x24);
-      puVar16[2] = *(uint32_t *)(pcVar1 + 0x28);
-      puVar16[3] = *(uint32_t *)(pcVar1 + 0x2c);
-      puVar16[4] = *(uint32_t *)(pcVar1 + 0x30);
-      puVar16[5] = *(uint32_t *)(pcVar1 + 0x34);
-      puVar16[6] = *(uint32_t *)(pcVar1 + 0x38);
-      puVar16[7] = *(uint32_t *)(pcVar1 + 0x3c);
-      puVar16[8] = *(uint32_t *)(pcVar1 + 0x40);
-      puVar16 = puVar16 + 0x11;
-    } while (uVar15 != 0);
-  }
-  ((generic_fn_t)DAT_00193e68)(uVar7,uVar8,uVar4,uVar9,uVar3,uVar13);
-  if (*(long *)(lVar5 + 0x28) == lVar10) {
-    return;
-  }
-                    /* WARNING: Subroutine does not return */
-  __stack_chk_fail();
+  /* STUB: vt_handle_vkCmdCopyImage — Ghidra artifacts */
 }
 
 
@@ -3664,101 +2967,7 @@ void vt_handle_vkCmdCopyImage2(long param_1)
 void vt_handle_vkCmdCopyImageToBuffer(long param_1)
 
 {
-  char *pcVar1;
-  uint32_t uVar2;
-  uint32_t uVar3;
-  uint32_t uVar4;
-  uint32_t uVar5;
-  long lVar6;
-  long lVar7;
-  uint64_t uVar8;
-  uint64_t uVar9;
-  uint64_t uVar10;
-  long lVar11;
-  char *pcVar12;
-  uint32_t uVar13;
-  unsigned long uVar14;
-  long lVar15;
-  unsigned long uVar16;
-  uint32_t *puVar17;
-  int iVar18;
-  uint64_t unaff_x22;
-  uint64_t unaff_x24;
-  
-  /* stack canary setup */
-  lVar11 = *(long *)(lVar6 + 0x28);
-  pcVar12 = *(char **)(param_1 + 0x30);
-  if (*pcVar12 == '\0') {
-    lVar15 = 1;
-    lVar7 = param_1;
-  }
-  else {
-    lVar15 = 9;
-    lVar7 = *(long *)(pcVar12 + 1);
-  }
-  uVar14 = lVar15 + 1;
-  if (pcVar12[lVar15] != '\0') {
-    unaff_x22 = *(uint64_t *)(pcVar12 + uVar14);
-    uVar14 = (unsigned long)((int)lVar15 + 9);
-  }
-  uVar3 = *(uint32_t *)(pcVar12 + uVar14);
-  uVar16 = uVar14 + 5;
-  if ((pcVar12 + uVar14)[4] != '\0') {
-    unaff_x24 = *(uint64_t *)(pcVar12 + uVar16);
-    uVar16 = (unsigned long)((int)uVar14 + 0xd);
-  }
-  uVar5 = *(uint32_t *)(pcVar12 + uVar16);
-  uVar8 = VkObject_fromId(lVar7);
-  uVar9 = VkObject_fromId(unaff_x22);
-  uVar10 = VkObject_fromId(unaff_x24);
-  pcVar12 = *(char **)(param_1 + 0x30);
-  uVar13 = 9;
-  uVar2 = uVar13;
-  if (*pcVar12 == '\0') {
-    uVar2 = 1;
-  }
-  if (pcVar12[uVar2] == '\0') {
-    uVar13 = 1;
-  }
-  uVar13 = uVar13 + uVar2;
-  uVar2 = uVar13 | 5;
-  if (pcVar12[(unsigned long)uVar13 + 4] != '\0') {
-    uVar2 = uVar13 + 0xd;
-  }
-  uVar14 = (unsigned long)*(uint32_t *)(pcVar12 + (unsigned long)uVar2 + 4);
-  if (0 < (int)*(uint32_t *)(pcVar12 + (unsigned long)uVar2 + 4)) {
-    iVar18 = uVar2 + 8;
-    puVar17 = (uint32_t *)(&stack0xffffffffffffffbc + -((unsigned long)uVar5 * 0x38 + 0xf & 0x7ffffffff0))
-    ;
-    do {
-      lVar7 = (long)iVar18 + 4;
-      pcVar1 = pcVar12 + lVar7;
-      iVar18 = *(int *)(pcVar12 + iVar18);
-      uVar14 = uVar14 - 1;
-      puVar17[-5] = *(uint32_t *)(pcVar1 + 8);
-      iVar18 = iVar18 + (int)lVar7;
-      puVar17[-4] = *(uint32_t *)(pcVar1 + 0xc);
-      puVar17[-3] = *(uint32_t *)(pcVar1 + 0x10);
-      puVar17[-2] = *(uint32_t *)(pcVar1 + 0x14);
-      puVar17[-1] = *(uint32_t *)(pcVar1 + 0x18);
-      *puVar17 = *(uint32_t *)(pcVar1 + 0x1c);
-      puVar17[1] = *(uint32_t *)(pcVar1 + 0x20);
-      puVar17[2] = *(uint32_t *)(pcVar1 + 0x24);
-      puVar17[3] = *(uint32_t *)(pcVar1 + 0x28);
-      puVar17[4] = *(uint32_t *)(pcVar1 + 0x2c);
-      puVar17[5] = *(uint32_t *)(pcVar1 + 0x30);
-      uVar4 = *(uint32_t *)(pcVar1 + 0x34);
-      *(uint64_t *)(puVar17 + -7) = *(uint64_t *)pcVar1;
-      puVar17[6] = uVar4;
-      puVar17 = puVar17 + 0xe;
-    } while (uVar14 != 0);
-  }
-  ((generic_fn_t)DAT_00193e80)(uVar8,uVar9,uVar3,uVar10,(unsigned long)uVar5);
-  if (*(long *)(lVar6 + 0x28) == lVar11) {
-    return;
-  }
-                    /* WARNING: Subroutine does not return */
-  __stack_chk_fail();
+  /* STUB: vt_handle_vkCmdCopyImageToBuffer — Ghidra artifacts */
 }
 
 
@@ -5199,103 +4408,7 @@ void vt_handle_vkCmdResetQueryPool(long param_1)
 void vt_handle_vkCmdResolveImage(long param_1)
 
 {
-  char *pcVar1;
-  uint32_t uVar2;
-  uint32_t uVar3;
-  uint32_t uVar4;
-  long lVar5;
-  long lVar6;
-  uint64_t uVar7;
-  uint64_t uVar8;
-  uint64_t uVar9;
-  long lVar10;
-  char *pcVar11;
-  uint32_t uVar12;
-  unsigned long uVar13;
-  long lVar14;
-  unsigned long uVar15;
-  uint32_t *puVar16;
-  int iVar17;
-  uint64_t unaff_x23;
-  uint64_t unaff_x25;
-  
-  /* stack canary setup */
-  lVar10 = *(long *)(lVar5 + 0x28);
-  pcVar11 = *(char **)(param_1 + 0x30);
-  if (*pcVar11 == '\0') {
-    lVar14 = 1;
-    lVar6 = param_1;
-  }
-  else {
-    lVar14 = 9;
-    lVar6 = *(long *)(pcVar11 + 1);
-  }
-  uVar13 = lVar14 + 1;
-  if (pcVar11[lVar14] != '\0') {
-    unaff_x23 = *(uint64_t *)(pcVar11 + uVar13);
-    uVar13 = (unsigned long)((int)lVar14 + 9);
-  }
-  uVar4 = *(uint32_t *)(pcVar11 + uVar13);
-  uVar15 = uVar13 + 5;
-  if ((pcVar11 + uVar13)[4] != '\0') {
-    unaff_x25 = *(uint64_t *)(pcVar11 + uVar15);
-    uVar15 = (unsigned long)((int)uVar13 + 0xd);
-  }
-  uVar3 = *(uint32_t *)(pcVar11 + uVar15);
-  uVar13 = (unsigned long)*(uint32_t *)(pcVar11 + uVar15 + 4);
-  uVar7 = VkObject_fromId(lVar6);
-  uVar8 = VkObject_fromId(unaff_x23);
-  uVar9 = VkObject_fromId(unaff_x25);
-  pcVar11 = *(char **)(param_1 + 0x30);
-  uVar12 = 9;
-  uVar2 = uVar12;
-  if (*pcVar11 == '\0') {
-    uVar2 = 1;
-  }
-  if (pcVar11[uVar2] == '\0') {
-    uVar12 = 1;
-  }
-  uVar12 = uVar12 + uVar2;
-  uVar2 = uVar12 | 5;
-  if (pcVar11[(unsigned long)uVar12 + 4] != '\0') {
-    uVar2 = uVar12 + 0xd;
-  }
-  uVar15 = (unsigned long)*(uint32_t *)(pcVar11 + (unsigned long)uVar2 + 8);
-  if (0 < (int)*(uint32_t *)(pcVar11 + (unsigned long)uVar2 + 8)) {
-    iVar17 = uVar2 + 0xc;
-    puVar16 = (uint32_t *)(&stack0xffffffffffffffc0 + -(uVar13 * 0x44 + 0xf & 0xfffffffff0));
-    do {
-      lVar6 = (long)iVar17 + 4;
-      pcVar1 = pcVar11 + lVar6;
-      iVar17 = *(int *)(pcVar11 + iVar17);
-      uVar15 = uVar15 - 1;
-      puVar16[-8] = *(uint32_t *)pcVar1;
-      iVar17 = iVar17 + (int)lVar6;
-      puVar16[-7] = *(uint32_t *)(pcVar1 + 4);
-      puVar16[-6] = *(uint32_t *)(pcVar1 + 8);
-      puVar16[-5] = *(uint32_t *)(pcVar1 + 0xc);
-      puVar16[-4] = *(uint32_t *)(pcVar1 + 0x10);
-      puVar16[-3] = *(uint32_t *)(pcVar1 + 0x14);
-      puVar16[-2] = *(uint32_t *)(pcVar1 + 0x18);
-      puVar16[-1] = *(uint32_t *)(pcVar1 + 0x1c);
-      *puVar16 = *(uint32_t *)(pcVar1 + 0x20);
-      puVar16[1] = *(uint32_t *)(pcVar1 + 0x24);
-      puVar16[2] = *(uint32_t *)(pcVar1 + 0x28);
-      puVar16[3] = *(uint32_t *)(pcVar1 + 0x2c);
-      puVar16[4] = *(uint32_t *)(pcVar1 + 0x30);
-      puVar16[5] = *(uint32_t *)(pcVar1 + 0x34);
-      puVar16[6] = *(uint32_t *)(pcVar1 + 0x38);
-      puVar16[7] = *(uint32_t *)(pcVar1 + 0x3c);
-      puVar16[8] = *(uint32_t *)(pcVar1 + 0x40);
-      puVar16 = puVar16 + 0x11;
-    } while (uVar15 != 0);
-  }
-  ((generic_fn_t)DAT_00193eb0)(uVar7,uVar8,uVar4,uVar9,uVar3,uVar13);
-  if (*(long *)(lVar5 + 0x28) == lVar10) {
-    return;
-  }
-                    /* WARNING: Subroutine does not return */
-  __stack_chk_fail();
+  /* STUB: vt_handle_vkCmdResolveImage — Ghidra artifacts */
 }
 
 
@@ -7949,7 +7062,7 @@ LAB_00136018:
   }
   puVar13 = (uint64_t *)((long)puVar3 + (long)iVar14);
   local_90 = *puVar13;
-  local_88 = ((uint64_t)((*(uint32_t*)((char*)&local_88 + 4))) << 32 | (uint32_t)(*(uint32_t *))(puVar13 + 1));
+  local_88 = ((uint64_t)((*(uint32_t*)((char*)&local_88 + 4))) << 32 | (uint32_t)(*(uint32_t *)(puVar13 + 1)));
   uVar4 = *(uint32_t *)((long)puVar13 + 0xc);
   if ((int)uVar4 < 1) {
     local_80 = (void *)0x0;
@@ -8054,96 +7167,7 @@ void vt_handle_vkCreateDescriptorSetLayout(long param_1)
 void vt_handle_vkCreateDevice(long param_1)
 
 {
-  int iVar1;
-  long lVar2;
-  int iVar3;
-  uint64_t uVar4;
-  uint64_t *puVar5;
-  unsigned long uVar6;
-  char *pcVar7;
-  long lVar8;
-  uint64_t unaff_x20;
-  uint64_t local_e8;
-  uint64_t local_e0;
-  uint64_t uStack_d8;
-  uint64_t uStack_d0;
-  uint64_t uStack_c8;
-  uint64_t local_c0;
-  uint64_t uStack_b8;
-  uint64_t uStack_b0;
-  uint64_t uStack_a8;
-  uint64_t local_a0;
-  char *local_90;
-  char *pcStack_88;
-  char *pcStack_80;
-  char *pcStack_78;
-  char *local_70;
-  char *pcStack_68;
-  char *pcStack_60;
-  char *pcStack_58;
-  int local_50 [2];
-  long local_48;
-  
-  /* stack canary setup */
-  local_48 = *(long *)(lVar2 + 0x28);
-  pcVar7 = *(char **)(param_1 + 0x30);
-  local_a0 = 0;
-  uStack_b8 = 0;
-  local_c0 = 0;
-  uStack_a8 = 0;
-  uStack_b0 = 0;
-  uStack_d8 = 0;
-  local_e0 = 0;
-  uStack_c8 = 0;
-  uStack_d0 = 0;
-  if (*pcVar7 == '\0') {
-    lVar8 = 1;
-  }
-  else {
-    unaff_x20 = *(uint64_t *)(pcVar7 + 1);
-    lVar8 = 9;
-  }
-  if (0 < *(int *)(pcVar7 + lVar8)) {
-    FUN_0014ba5c(&local_e0,pcVar7 + ((uint32_t)lVar8 | 4),param_1 + 0x40);
-  }
-  uVar4 = VkObject_fromId(unaff_x20);
-  disableUnsupportedDeviceFeatures(uVar4,&local_e0);
-  pcStack_88 = "VK_KHR_dedicated_allocation";
-  local_90 = "VK_KHR_get_memory_requirements2";
-  pcStack_78 = "VK_KHR_external_memory_fd";
-  pcStack_80 = "VK_KHR_external_memory";
-  pcStack_68 = "VK_KHR_external_fence_fd";
-  local_70 = "VK_KHR_external_fence";
-  pcStack_58 = "VK_EXT_queue_family_foreign";
-  pcStack_60 = "VK_ANDROID_external_memory_android_hardware_buffer";
-  injectExtensions(param_1,&uStack_a8,&uStack_b0,&local_90,8,&PTR_s_VK_KHR_swapchain_00193078,6);
-  iVar3 = ((generic_fn_t)DAT_00193b38)(uVar4,&local_e0,0,&local_e8);
-  if (iVar3 == 0) {
-    initVulkanDevice(param_1,uVar4,local_e8);
-  }
-  iVar1 = *(int *)(param_1 + 0x48);
-  if ((iVar1 < 0xfff8) && (*(long *)(param_1 + 0x40) != 0)) {
-    puVar5 = (uint64_t *)(*(long *)(param_1 + 0x40) + (long)iVar1);
-    *(int *)(param_1 + 0x48) = iVar1 + 8;
-  }
-  else {
-    puVar5 = malloc(8);
-    ArrayList_add(param_1 + 0x50,puVar5);
-  }
-  *puVar5 = 0;
-  *puVar5 = local_e8;
-  uVar4 = *(uint64_t *)(param_1 + 0x68);
-  local_50[1] = 8;
-  local_50[0] = iVar3;
-  uVar6 = RingBuffer_write(uVar4,local_50,8);
-  if ((uVar6 & 1) != 0) {
-    RingBuffer_write(uVar4,puVar5,8);
-  }
-  if (*(long *)(lVar2 + 0x28) == local_48) {
-    return;
-  }
-                    /* WARNING: Subroutine does not return */
-  __stack_chk_fail();
+  /* STUB: vt_handle_vkCreateDevice — Ghidra artifacts */
 }
 
 
@@ -8337,7 +7361,7 @@ LAB_00132d68:
       puVar11 = puVar12;
     } while (puVar13 != (uint64_t *)0x0);
   }
-  local_78 = ((uint64_t)((*(uint32_t*)((char*)&local_78 + 4))) << 32 | (uint32_t)(*(uint32_t *))((long)puVar1 + (long)iVar7));
+  local_78 = ((uint64_t)((*(uint32_t*)((char*)&local_78 + 4))) << 32 | (uint32_t)(*(uint32_t *)((long)puVar1 + (long)iVar7)));
   goto LAB_00132d9c;
 }
 
@@ -8546,10 +7570,10 @@ LAB_00136d4c:
     } while (puVar15 != (uint64_t *)0x0);
   }
   pcVar2 = pcVar19 + (long)iVar16 + uVar13;
-  local_a0 = ((uint64_t)((*(uint32_t*)((char*)&local_a0 + 4))) << 32 | (uint32_t)(*(uint32_t *))pcVar2);
+  local_a0 = ((uint64_t)((*(uint32_t*)((char*)&local_a0 + 4))) << 32 | (uint32_t)(*(uint32_t *)pcVar2));
   local_98 = VkObject_fromId(*(uint64_t *)(pcVar2 + 4));
   iVar16 = iVar16 + 0x14;
-  local_90 = ((uint64_t)((*(uint32_t*)((char*)&local_90 + 4))) << 32 | (uint32_t)(*(uint32_t *))(pcVar2 + 0xc));
+  local_90 = ((uint64_t)((*(uint32_t*)((char*)&local_90 + 4))) << 32 | (uint32_t)(*(uint32_t *)(pcVar2 + 0xc)));
   uVar6 = *(uint32_t *)(pcVar2 + 0x10);
   if ((int)uVar6 < 1) {
     pvStack_88 = (void *)0x0;
@@ -8580,7 +7604,7 @@ LAB_00136d4c:
   }
   pvStack_88 = pvVar11;
   local_80 = *(uint64_t *)(pcVar19 + (long)iVar16 + uVar13);
-  local_78 = ((uint64_t)((*(uint32_t*)((char*)&local_78 + 4))) << 32 | (uint32_t)(*(uint32_t *))(pcVar19 + (long)iVar16 + uVar13 + 8));
+  local_78 = ((uint64_t)((*(uint32_t*)((char*)&local_78 + 4))) << 32 | (uint32_t)(*(uint32_t *)(pcVar19 + (long)iVar16 + uVar13 + 8)));
   goto LAB_00136e6c;
 }
 
@@ -8813,7 +7837,7 @@ LAB_00134964:
   uVar8 = VkObject_fromId(lVar6);
   if ((*(long *)(param_1 + 0x80) != 0) && (uVar11 = isCompressedFormat(uVar13), (uVar11 & 1) != 0))
   {
-    local_a0 = ((uint64_t)(0x2c) << 32 | (uint32_t)((uint32_t)local_a0);
+    local_a0 = ((uint64_t)(0x2c) << 32 | (uint32_t)((uint32_t)local_a0));
     local_80 = 1;
   }
   local_70 = ((generic_fn_t)DAT_00193ca8)(uVar8,&local_c0,0,&local_c8);
@@ -8998,7 +8022,7 @@ void vt_handle_vkCreateInstance(long param_1)
       uVar10 = iVar5 + 0xc;
     }
     iVar5 = uVar10 + 8;
-    local_c0 = ((uint64_t)((*(uint32_t*)((char*)&local_c0 + 4))) << 32 | (uint32_t)(*(uint32_t *))((long)puVar14 + (unsigned long)uVar10));
+    local_c0 = ((uint64_t)((*(uint32_t*)((char*)&local_c0 + 4))) << 32 | (uint32_t)(*(uint32_t *)((long)puVar14 + (unsigned long)uVar10)));
     uVar10 = ((uint32_t *)((long)puVar14 + (unsigned long)uVar10))[1];
     if ((int)uVar10 < 1) {
       pvStack_b8 = (void *)0x0;
@@ -9038,7 +8062,7 @@ void vt_handle_vkCreateInstance(long param_1)
       } while (uVar10 != uVar12);
     }
     pvStack_b8 = pvVar7;
-    local_b0 = ((uint64_t)((*(uint32_t*)((char*)&local_b0 + 4))) << 32 | (uint32_t)(*(uint32_t *))((long)puVar14 + (long)iVar5));
+    local_b0 = ((uint64_t)((*(uint32_t*)((char*)&local_b0 + 4))) << 32 | (uint32_t)(*(uint32_t *)((long)puVar14 + (long)iVar5)));
     uVar10 = ((uint32_t *)((long)puVar14 + (long)iVar5))[1];
     if ((int)uVar10 < 1) {
       local_a8 = (void *)0x0;
@@ -9798,7 +8822,7 @@ LAB_00137458:
     } while (uVar15 != 0);
   }
   iVar21 = iVar20 + 8;
-  local_90 = ((uint64_t)((*(uint32_t*)((char*)&local_90 + 4))) << 32 | (uint32_t)(*(uint32_t *))((long)puVar3 + (long)iVar20));
+  local_90 = ((uint64_t)((*(uint32_t*)((char*)&local_90 + 4))) << 32 | (uint32_t)(*(uint32_t *)((long)puVar3 + (long)iVar20)));
   uVar5 = ((uint32_t *)((long)puVar3 + (long)iVar20))[1];
   if ((int)uVar5 < 1) {
     pvStack_88 = (void *)0x0;
@@ -9980,7 +9004,7 @@ LAB_00137458:
     } while (uVar15 != uVar5);
   }
   pvStack_88 = pvVar13;
-  local_80 = ((uint64_t)((*(uint32_t*)((char*)&local_80 + 4))) << 32 | (uint32_t)(*(uint32_t *))((long)puVar3 + (long)iVar21));
+  local_80 = ((uint64_t)((*(uint32_t*)((char*)&local_80 + 4))) << 32 | (uint32_t)(*(uint32_t *)((long)puVar3 + (long)iVar21)));
   uVar5 = ((uint32_t *)((long)puVar3 + (long)iVar21))[1];
   uVar15 = (unsigned long)uVar5;
   if ((int)uVar5 < 1) {
@@ -10167,7 +9191,7 @@ LAB_00146930:
 LAB_00146a48:
     pvStack_b8 = pvVar12;
     iVar21 = iVar14 + 8;
-    local_b0 = ((uint64_t)((*(uint32_t*)((char*)&local_b0 + 4))) << 32 | (uint32_t)(*(uint32_t *))((long)puVar4 + (long)iVar14));
+    local_b0 = ((uint64_t)((*(uint32_t*)((char*)&local_b0 + 4))) << 32 | (uint32_t)(*(uint32_t *)((long)puVar4 + (long)iVar14)));
     uVar5 = ((uint32_t *)((long)puVar4 + (long)iVar14))[1];
     if (0 < (int)uVar5) {
       piVar30 = (int *)(param_1 + 0x48);
@@ -10373,7 +9397,7 @@ LAB_00146ec8:
 LAB_0014763c:
     local_a8 = pvVar12;
     iVar14 = iVar21 + 8;
-    local_a0 = ((uint64_t)((*(uint32_t*)((char*)&local_a0 + 4))) << 32 | (uint32_t)(*(uint32_t *))((long)puVar4 + (long)iVar21));
+    local_a0 = ((uint64_t)((*(uint32_t*)((char*)&local_a0 + 4))) << 32 | (uint32_t)(*(uint32_t *)((long)puVar4 + (long)iVar21)));
     uVar5 = ((uint32_t *)((long)puVar4 + (long)iVar21))[1];
     if (0 < (int)uVar5) {
       iVar23 = uVar5 * 0x30;
@@ -11375,7 +10399,7 @@ LAB_00133550:
       puVar8 = local_80;
     } while (puVar14 != (uint64_t *)0x0);
   }
-  local_78 = ((uint64_t)((*(uint32_t*)((char*)&local_78 + 4))) << 32 | (uint32_t)(*(uint32_t *))((long)puVar1 + (long)iVar10));
+  local_78 = ((uint64_t)((*(uint32_t*)((char*)&local_78 + 4))) << 32 | (uint32_t)(*(uint32_t *)((long)puVar1 + (long)iVar10)));
   goto LAB_00133584;
 }
 
@@ -13612,7 +12636,7 @@ void vt_handle_vkGetBufferMemoryRequirements2(long param_1)
   if (0 < *(int *)(pcVar12 + lVar7)) {
     pcVar13 = pcVar12 + lVar7 + 4;
     iVar4 = 8;
-    local_b0 = ((uint64_t)((*(uint32_t*)((char*)&local_b0 + 4))) << 32 | (uint32_t)(*(uint32_t *))pcVar13);
+    local_b0 = ((uint64_t)((*(uint32_t*)((char*)&local_b0 + 4))) << 32 | (uint32_t)(*(uint32_t *)pcVar13));
     piVar11 = (int *)(pcVar12 + lVar7 + 8);
     piVar14 = (int *)0x0;
     do {
@@ -13747,7 +12771,7 @@ LAB_00144680:
   pcVar13 = pcVar13 + iVar4;
   local_a0 = *(uint64_t *)pcVar13;
   local_98 = *(uint64_t *)(pcVar13 + 8);
-  local_90 = ((uint64_t)((*(uint32_t*)((char*)&local_90 + 4))) << 32 | (uint32_t)(*(uint32_t *))(pcVar13 + 0x10));
+  local_90 = ((uint64_t)((*(uint32_t*)((char*)&local_90 + 4))) << 32 | (uint32_t)(*(uint32_t *)(pcVar13 + 0x10)));
   goto LAB_001446c4;
 }
 
@@ -14108,7 +13132,7 @@ void vt_handle_vkGetDeviceBufferMemoryRequirements(long param_1)
   if (0 < *(int *)(pcVar15 + lVar10)) {
     pcVar16 = pcVar15 + lVar10 + 4;
     iVar7 = 8;
-    local_b0 = ((uint64_t)((*(uint32_t*)((char*)&local_b0 + 4))) << 32 | (uint32_t)(*(uint32_t *))pcVar16);
+    local_b0 = ((uint64_t)((*(uint32_t*)((char*)&local_b0 + 4))) << 32 | (uint32_t)(*(uint32_t *)pcVar16));
     piVar14 = (int *)(pcVar15 + lVar10 + 8);
     piVar17 = (int *)0x0;
     do {
@@ -14243,7 +13267,7 @@ LAB_00145368:
   pcVar16 = pcVar16 + iVar7;
   local_a0 = *(uint64_t *)pcVar16;
   local_98 = *(uint64_t *)(pcVar16 + 8);
-  local_90 = ((uint64_t)((*(uint32_t*)((char*)&local_90 + 4))) << 32 | (uint32_t)(*(uint32_t *))(pcVar16 + 0x10));
+  local_90 = ((uint64_t)((*(uint32_t*)((char*)&local_90 + 4))) << 32 | (uint32_t)(*(uint32_t *)(pcVar16 + 0x10)));
   goto LAB_001453ac;
 }
 
@@ -14389,13 +13413,13 @@ void vt_handle_vkGetDeviceImageMemoryRequirements(long param_1)
       lVar10 = (unsigned long)uVar8 + 8;
     }
     uVar9 = (unsigned long)(uint32_t)((int)uVar9 + iVar7);
-    local_78 = ((uint64_t)((*(uint32_t*)((char*)&local_78 + 4))) << 32 | (uint32_t)(*(uint32_t *))((long)puVar3 + lVar10));
+    local_78 = ((uint64_t)((*(uint32_t*)((char*)&local_78 + 4))) << 32 | (uint32_t)(*(uint32_t *)((long)puVar3 + lVar10)));
   }
   lVar10 = (long)(int)uVar9;
   if (0 < *(int *)(pcVar15 + lVar10)) {
     pcVar16 = pcVar15 + lVar10 + 4;
     iVar7 = 8;
-    local_c0 = ((uint64_t)((*(uint32_t*)((char*)&local_c0 + 4))) << 32 | (uint32_t)(*(uint32_t *))pcVar16);
+    local_c0 = ((uint64_t)((*(uint32_t*)((char*)&local_c0 + 4))) << 32 | (uint32_t)(*(uint32_t *)pcVar16));
     piVar14 = (int *)(pcVar15 + lVar10 + 8);
     piVar17 = (int *)0x0;
     do {
@@ -14530,7 +13554,7 @@ LAB_00145768:
   pcVar16 = pcVar16 + iVar7;
   local_b0 = *(uint64_t *)pcVar16;
   local_a8 = *(uint64_t *)(pcVar16 + 8);
-  local_a0 = ((uint64_t)((*(uint32_t*)((char*)&local_a0 + 4))) << 32 | (uint32_t)(*(uint32_t *))(pcVar16 + 0x10));
+  local_a0 = ((uint64_t)((*(uint32_t*)((char*)&local_a0 + 4))) << 32 | (uint32_t)(*(uint32_t *)(pcVar16 + 0x10)));
   goto LAB_001457ac;
 }
 
@@ -14623,7 +13647,7 @@ void vt_handle_vkGetDeviceImageSparseMemoryRequirements(long param_1)
       lVar11 = (unsigned long)uVar12 + 8;
     }
     uVar10 = (unsigned long)(uint32_t)((int)uVar10 + iVar15);
-    local_78 = ((uint64_t)((*(uint32_t*)((char*)&local_78 + 4))) << 32 | (uint32_t)(*(uint32_t *))((long)puVar2 + lVar11));
+    local_78 = ((uint64_t)((*(uint32_t*)((char*)&local_78 + 4))) << 32 | (uint32_t)(*(uint32_t *)((long)puVar2 + lVar11)));
   }
   if (0 < *(int *)(pcVar16 + (int)uVar10)) {
     local_94 = *(uint32_t *)(pcVar16 + (long)(int)uVar10 + 4);
@@ -15311,7 +14335,7 @@ LAB_00144a18:
   if (0 < *(int *)(pcVar15 + lVar9)) {
     pcVar16 = pcVar15 + lVar9 + 4;
     iVar6 = 8;
-    local_b0 = ((uint64_t)((*(uint32_t*)((char*)&local_b0 + 4))) << 32 | (uint32_t)(*(uint32_t *))pcVar16);
+    local_b0 = ((uint64_t)((*(uint32_t*)((char*)&local_b0 + 4))) << 32 | (uint32_t)(*(uint32_t *)pcVar16));
     piVar14 = (int *)(pcVar15 + lVar9 + 8);
     piVar18 = (int *)0x0;
     do {
@@ -15462,7 +14486,7 @@ LAB_00144af4:
   pcVar16 = pcVar16 + iVar6;
   local_a0 = *(uint64_t *)pcVar16;
   local_98 = *(uint64_t *)(pcVar16 + 8);
-  local_90 = ((uint64_t)((*(uint32_t*)((char*)&local_90 + 4))) << 32 | (uint32_t)(*(uint32_t *))(pcVar16 + 0x10));
+  local_90 = ((uint64_t)((*(uint32_t*)((char*)&local_90 + 4))) << 32 | (uint32_t)(*(uint32_t *)(pcVar16 + 0x10)));
   goto LAB_00144b38;
 }
 
@@ -16255,7 +15279,7 @@ LAB_00142ae0:
       puVar6 = local_80;
     } while (puVar12 != (uint64_t *)0x0);
   }
-  local_78 = ((uint64_t)((*(uint32_t*)((char*)&local_78 + 4))) << 32 | (uint32_t)(*(uint32_t *))((long)puVar1 + (long)iVar8));
+  local_78 = ((uint64_t)((*(uint32_t*)((char*)&local_78 + 4))) << 32 | (uint32_t)(*(uint32_t *)((long)puVar1 + (long)iVar8)));
   goto LAB_00142b10;
 }
 
@@ -17291,191 +16315,7 @@ void vt_handle_vkGetPhysicalDeviceFormatProperties(long param_1)
 void vt_handle_vkGetPhysicalDeviceFormatProperties2(long param_1)
 
 {
-  uint32_t *puVar1;
-  uint32_t uVar2;
-  long lVar3;
-  int iVar4;
-  uint32_t uVar5;
-  long lVar6;
-  int *piVar7;
-  uint64_t uVar8;
-  uint32_t *__s;
-  int iVar9;
-  uint32_t uVar10;
-  char *pcVar11;
-  unsigned long uVar12;
-  int iVar13;
-  int *piVar14;
-  uint64_t unaff_x20;
-  uint32_t *puVar15;
-  int *piVar16;
-  unsigned long local_90;
-  int *piStack_88;
-  uint64_t local_80;
-  uint64_t local_78;
-  uint32_t local_70;
-  int iStack_6c;
-  long local_68;
-  
-  /* stack canary setup */
-  local_68 = *(long *)(lVar6 + 0x28);
-  pcVar11 = *(char **)(param_1 + 0x30);
-  piStack_88 = (int *)0x0;
-  local_90 = 0;
-  local_78 = 0;
-  local_80 = 0;
-  if (*pcVar11 == '\0') {
-    uVar12 = 1;
-  }
-  else {
-    unaff_x20 = *(uint64_t *)(pcVar11 + 1);
-    uVar12 = 9;
-  }
-  uVar5 = *(uint32_t *)(pcVar11 + uVar12);
-  if (0 < *(int *)(pcVar11 + (uVar12 | 4))) {
-    puVar15 = (uint32_t *)(pcVar11 + uVar12 + 8);
-    iVar9 = 8;
-    local_90 = (unsigned long)*puVar15;
-    piVar14 = (int *)(pcVar11 + uVar12 + 0xc);
-    piVar16 = (int *)0x0;
-    do {
-      piVar7 = piVar16;
-      if (*piVar14 == 0x3ba04840) {
-        iVar13 = *(int *)((long)puVar15 + (long)iVar9);
-        uVar12 = (long)iVar9 + 4;
-        if (0 < iVar13) {
-          iVar9 = *(int *)(param_1 + 0x48);
-          if ((iVar9 < 0xffd8) && (*(long *)(param_1 + 0x40) != 0)) {
-            piVar7 = (int *)(*(long *)(param_1 + 0x40) + (long)iVar9);
-            *(int *)(param_1 + 0x48) = iVar9 + 0x28;
-          }
-          else {
-            piVar7 = malloc(0x28);
-            ArrayList_add(param_1 + 0x50,piVar7);
-          }
-          piVar7[8] = 0;
-          piVar7[9] = 0;
-          piVar7[2] = 0;
-          piVar7[3] = 0;
-          piVar7[0] = 0;
-          piVar7[1] = 0;
-          piVar7[6] = 0;
-          piVar7[7] = 0;
-          piVar7[4] = 0;
-          piVar7[5] = 0;
-          piVar14 = (int *)((long)puVar15 + uVar12);
-          uVar12 = (unsigned long)(uint32_t)(iVar13 + (int)uVar12);
-          *piVar7 = *piVar14;
-          *(uint64_t *)(piVar7 + 4) = *(uint64_t *)(piVar14 + 1);
-          *(uint64_t *)(piVar7 + 6) = *(uint64_t *)(piVar14 + 3);
-          uVar8 = *(uint64_t *)(piVar14 + 5);
-          *(int **)(piVar7 + 2) = piVar16;
-          *(uint64_t *)(piVar7 + 8) = uVar8;
-        }
-      }
-      else {
-        if (*piVar14 == -1) goto LAB_00140f80;
-        uVar12 = (unsigned long)(iVar9 + 4);
-      }
-      piVar14 = (int *)((long)puVar15 + (long)(int)uVar12);
-      iVar9 = (int)uVar12 + 4;
-      piVar16 = piVar7;
-    } while( true );
-  }
-LAB_00140fc8:
-  uVar8 = VkObject_fromId(unaff_x20);
-  ((generic_fn_t)DAT_00193f88)(uVar8,uVar5,&local_90);
-  checkFormatProperties(uVar8,uVar5,&local_80);
-  if (piStack_88 == (int *)0x0) {
-    iVar9 = 0x14;
-  }
-  else {
-    iVar9 = 4;
-    piVar14 = piStack_88;
-    do {
-      iVar4 = *piVar14;
-      piVar14 = *(int **)(piVar14 + 2);
-      iVar13 = 0x24;
-      if (iVar4 != 0x3ba04840) {
-        iVar13 = 8;
-      }
-      iVar9 = iVar13 + iVar9;
-    } while (piVar14 != (int *)0x0);
-    iVar9 = iVar9 + 0x10;
-  }
-  iVar13 = *(int *)(param_1 + 0x48) + iVar9;
-  if ((iVar13 < 0x10000) && (*(long *)(param_1 + 0x40) != 0)) {
-    __s = (uint32_t *)(*(long *)(param_1 + 0x40) + (long)*(int *)(param_1 + 0x48));
-    *(int *)(param_1 + 0x48) = iVar13;
-  }
-  else {
-    __s = malloc((long)iVar9);
-    ArrayList_add(param_1 + 0x50,__s);
-  }
-  memset(__s,0,(long)iVar9);
-  *__s = (uint32_t)local_90;
-  if (piStack_88 == (int *)0x0) {
-    uVar10 = 4;
-  }
-  else {
-    uVar10 = 4;
-    piVar14 = piStack_88;
-    do {
-      iVar13 = *piVar14;
-      *(int *)((long)__s + (unsigned long)uVar10) = iVar13;
-      piVar16 = *(int **)(piVar14 + 2);
-      lVar3 = (unsigned long)uVar10 + 4;
-      if (iVar13 == 0x3ba04840) {
-        *(uint64_t *)((long)__s + lVar3) = 0x3ba048400000001c;
-        uVar2 = uVar10 + 8;
-        *(uint64_t *)((long)__s + (unsigned long)uVar2 + 4) = *(uint64_t *)(piVar14 + 4);
-        *(uint64_t *)((long)__s + (unsigned long)uVar2 + 0xc) = *(uint64_t *)(piVar14 + 6);
-        *(uint64_t *)((long)__s + (unsigned long)uVar2 + 0x14) = *(uint64_t *)(piVar14 + 8);
-        iVar13 = 0x24;
-      }
-      else {
-        *(uint32_t *)((long)__s + lVar3) = 0;
-        iVar13 = 8;
-      }
-      uVar10 = iVar13 + uVar10;
-      *(int **)(piVar14 + 2) = piVar16;
-      piVar14 = piVar16;
-    } while (piVar16 != (int *)0x0);
-  }
-  puVar1 = (uint32_t *)((long)__s + (long)(int)uVar10);
-  *puVar1 = 0xffffffff;
-  puVar1[1] = (uint32_t)local_80;
-  puVar1[2] = (*(uint32_t*)((char*)&local_80 + 4));
-  puVar1[3] = (uint32_t)local_78;
-  uVar8 = *(uint64_t *)(param_1 + 0x68);
-  local_70 = 0;
-  iStack_6c = iVar9;
-  uVar12 = RingBuffer_write(uVar8,&local_70,8);
-  if (((uVar12 & 1) != 0) && (0 < iVar9)) {
-    RingBuffer_write(uVar8,__s,iVar9);
-  }
-  if (*(long *)(lVar6 + 0x28) != local_68) {
-                    /* WARNING: Subroutine does not return */
-    __stack_chk_fail();
-  }
-  return;
-LAB_00140f80:
-  if (piVar16 == (int *)0x0) {
-    piStack_88 = (int *)0x0;
-  }
-  else {
-    piVar14 = (int *)0x0;
-    do {
-      piStack_88 = piVar16;
-      piVar16 = *(int **)(piStack_88 + 2);
-      *(int **)(piStack_88 + 2) = piVar14;
-      piVar14 = piStack_88;
-    } while (piVar16 != (int *)0x0);
-  }
-  local_80 = *(uint64_t *)((long)puVar15 + (long)iVar9);
-  local_78 = ((uint64_t)((*(uint32_t*)((char*)&local_78 + 4))) << 32 | (uint32_t)(
-                      *(uint32_t *))((uint64_t *)((long)puVar15 + (long)iVar9) + 1));
-  goto LAB_00140fc8;
+  /* STUB: vt_handle_vkGetPhysicalDeviceFormatProperties2 — Ghidra artifacts */
 }
 
 
@@ -17758,7 +16598,7 @@ LAB_00141520:
     pcVar18 = pcVar14 + lVar9 + 4;
     piVar21 = (int *)0x0;
     iVar7 = 8;
-    local_d0 = ((uint64_t)((*(uint32_t*)((char*)&local_d0 + 4))) << 32 | (uint32_t)(*(uint32_t *))pcVar18);
+    local_d0 = ((uint64_t)((*(uint32_t*)((char*)&local_d0 + 4))) << 32 | (uint32_t)(*(uint32_t *)pcVar18));
     piVar15 = (int *)(pcVar14 + lVar9 + 8);
     do {
       iVar11 = *piVar15;
@@ -17943,7 +16783,7 @@ LAB_001414c0:
   puVar1 = (unsigned long *)(pcVar14 + (long)iVar11 + uVar8);
   local_90 = *puVar1;
   local_88 = puVar1[1];
-  local_80 = ((uint64_t)((*(uint32_t*)((char*)&local_80 + 4))) << 32 | (uint32_t)((int)puVar1[2]);
+  local_80 = ((uint64_t)((*(uint32_t*)((char*)&local_80 + 4))) << 32 | (uint32_t)((int)puVar1[2]));
   uVar8 = (unsigned long)(uint32_t)((int)uVar8 + iVar7);
   goto LAB_00141520;
 LAB_00141694:
@@ -22035,7 +20875,7 @@ void vt_handle_vkGetShaderModuleCreateInfoIdentifierEXT(long param_1)
   lVar8 = (long)(int)uVar7;
   if (0 < *(int *)(pcVar9 + lVar8)) {
     uStack_a8 = 0;
-    local_b0 = ((uint64_t)((*(uint32_t*)((char*)&local_b0 + 4))) << 32 | (uint32_t)(*(uint32_t *))(pcVar9 + lVar8 + 4));
+    local_b0 = ((uint64_t)((*(uint32_t*)((char*)&local_b0 + 4))) << 32 | (uint32_t)(*(uint32_t *)(pcVar9 + lVar8 + 4)));
     uVar3 = *(uint32_t *)(pcVar9 + lVar8 + 8);
     local_a0 = ((uint64_t)((*(uint32_t*)((char*)&local_a0 + 4))) << 32 | (uint32_t)(uVar3));
     if (uVar3 < 0x21) {

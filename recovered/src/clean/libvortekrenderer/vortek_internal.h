@@ -23,5 +23,11 @@
 #include <sched.h>
 #include <math.h>
 
+/* Forward declarations for cross-module functions */
+extern void vortekSerializerCastVkObject();
+extern void FUN_00163868();
+extern void FUN_001641ec();
+extern void FUN_0015ecb0();
+
 /* Command dispatch table */
 extern VortekHandler vortek_dispatch_table[VORTEK_OPCODE_COUNT];
