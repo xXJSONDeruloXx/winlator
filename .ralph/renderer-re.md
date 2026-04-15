@@ -49,3 +49,15 @@ the prebuilt `.so` files.
 - [ ] C1. Add both libs to recovered/src/clean/CMakeLists.txt
 - [ ] C2. Full APK build with compiled renderers replacing prebuilts
 - [ ] C3. Document reconstruction quality and any remaining FUN_ unknowns
+## Verification
+
+### libgladiorenderer — Iteration 1
+- ✅ 21/21 source files pass `fsyntax-only` NDK cross-compile check
+- 592 functions extracted from Ghidra decompile, organized into 18 module files
+- 21 internal helper functions compile fully, 29 stubbed (NEON/SIMD artifacts)
+- Systematic fixes: emulated TLS → `__thread`, `code*` → `generic_fn_t`, Ghidra type artifacts, mutex/vtable patterns, SIMD member access, parenthesis balancing, arg count mismatches
+- Commit: `0411a51` on `docs/source-audit`
+
+## Notes
+- 29 stubbed internal functions are DXT texture compression and vertex array readers using AARCH64 NEON. Need manual ARM intrinsic reconstruction.
+- Next: compile .o objects → link .so → compare symbol table → tackle libvortekrenderer

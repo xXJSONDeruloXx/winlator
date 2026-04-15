@@ -5940,7 +5940,7 @@ void gd_handle_glOrtho(long param_1)
   dVar9 = (double)ArrayBuffer_getDouble(param_1);
   puVar2 = (uint64_t *)(&currentRenderer);
   uVar3 = GLRenderer_getCurrentMatrix(*puVar2);
-  uVar11 = NEON_fmov(0x3f800000,4);
+  uVar11 = neon_fmov_helper(0x3f800000);
   local_50 = 1.0 / ((float)dVar9 - (float)dVar8);
   fVar10 = (float)uVar11 / ((float)dVar5 - (float)dVar4);
   local_78[5] = (float)((unsigned long)uVar11 >> 0x20) / ((float)dVar7 - (float)dVar6);

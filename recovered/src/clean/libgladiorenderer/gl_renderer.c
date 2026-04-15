@@ -1761,7 +1761,7 @@ void GLRenderer_initOnEGLContext(long param_1)
   *(uint64_t *)(param_1 + 0x714) = 0x3e4ccccd3e4ccccd;
   *(uint64_t *)(param_1 + 0x76c) = 0x3e4ccccd3e4ccccd;
   *(uint64_t *)(param_1 + 0x7c4) = 0x3e4ccccd3e4ccccd;
-  uVar3 = NEON_fmov(0x3f800000,4);
+  uVar3 = neon_fmov_helper(0x3f800000);
   *(uint64_t *)(param_1 + 0x81c) = 0x3e4ccccd3e4ccccd;
   *(uint64_t *)(param_1 + 0x110) = 0x3f80000000000000;
   *(uint64_t *)(param_1 + 0x108) = 0;

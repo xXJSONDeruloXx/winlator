@@ -371,7 +371,7 @@ void FUN_001215fc(long param_1)
   
   if (*(long *)(param_1 + 0x8d8) == 0) {
     puVar1 = calloc(1,0x50);
-    uVar4 = NEON_fmov(0x3f800000,4);
+    uVar4 = neon_fmov_helper(0x3f800000);
     puVar1[2] = uVar4;
     puVar1[1] = 0x3f80000000000000;
     *puVar1 = 0;

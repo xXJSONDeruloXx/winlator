@@ -21,6 +21,11 @@ typedef union {
     double    doubles[2];
 } simd128_t;
 
+/* NEON_fmov: reinterpret int bits as float */
+static inline float neon_fmov_helper(uint32_t bits) {
+    union { uint32_t i; float f; } u; u.i = bits; return u.f;
+}
+
 /* Generic function pointer for vtable calls */
 typedef long (*generic_fn_t)();
 
