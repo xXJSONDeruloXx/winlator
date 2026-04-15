@@ -16,8 +16,16 @@ set_target_properties(hook_impl PROPERTIES
 
 target_link_libraries(main_hook
     hook_impl
-    log
+    android
     dl
+    log
+    m
+    c
+)
+
+target_link_options(main_hook PRIVATE
+    -Wl,-z,now
+    -Wl,-z,global
 )
 
 target_compile_options(main_hook PRIVATE

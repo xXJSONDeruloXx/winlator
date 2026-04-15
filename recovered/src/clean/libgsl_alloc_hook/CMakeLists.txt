@@ -16,7 +16,16 @@ set_target_properties(hook_impl PROPERTIES
 
 target_link_libraries(gsl_alloc_hook
     hook_impl
+    android
+    dl
     log
+    m
+    c
+)
+
+target_link_options(gsl_alloc_hook PRIVATE
+    -Wl,-z,now
+    -Wl,-z,global
 )
 
 target_compile_options(gsl_alloc_hook PRIVATE

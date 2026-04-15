@@ -18,7 +18,16 @@ set_target_properties(hook_impl PROPERTIES
 
 target_link_libraries(file_redirect_hook
     hook_impl
+    android
+    dl
     log
+    m
+    c
+)
+
+target_link_options(file_redirect_hook PRIVATE
+    -Wl,-z,now
+    -Wl,-z,global
 )
 
 # Match original build flags
@@ -26,6 +35,8 @@ target_compile_options(file_redirect_hook PRIVATE
     -fvisibility=default
     -fPIC
     -O2
+    -fno-optimize-sibling-calls
+    -fno-omit-frame-pointer
 )
 
 set_target_properties(file_redirect_hook PROPERTIES
