@@ -1,0 +1,51 @@
+# Reverse-Engineer libgladiorenderer & libvortekrenderer from Ghidra Decompilation
+
+Reconstruct clean, compilable, functionally-equivalent C source for the two remaining
+closed-source native renderers in Winlator v11, progressively testing each module against
+the prebuilt `.so` files.
+
+## Source Material
+- **Raw Ghidra decompile**: `recovered/src/libgladiorenderer/libgladiorenderer.{c,h}` (27K lines)
+- **Raw Ghidra decompile**: `recovered/src/libvortekrenderer/libvortekrenderer.{c,h}` (76K lines)
+- **Symbol metadata**: `re/ghidra/exports/lib{gladio,vortek}renderer.json`
+- **nm symbols**: `re/symbols/lib{gladio,vortek}renderer.nm.txt`
+- **Strings**: `re/strings/lib{gladio,vortek}renderer.strings.txt`
+- **Prebuilt .so**: `recovered/lib/arm64-v8a/lib{gladio,vortek}renderer.so`
+- **Java callers**: `recovered/java/.../GLXExtension.java`, `VortekRendererComponent.java`
+- **Shared deps (already compiled)**: `recovered/src/clean/libwinlator/` (collections, types)
+- **NDK**: `/Users/dhimebauch/Library/Android/sdk/ndk/27.2.12479018`
+
+## Checklist
+
+### Phase A: libgladiorenderer
+- [x] A1. Analyze raw decompile — map globals, thread-locals, struct layouts, module boundaries
+- [x] A2. Create `recovered/src/clean/libgladiorenderer/` with types.h, CMakeLists.txt, gladio_data.h
+- [x] A3. Split Ghidra output into 18 module files (592 functions) + fix type artifacts
+- [ ] A4. Fix remaining compilation errors (50 remaining across 12 files)
+  - ✅ 8/20 files compile clean
+  - Remaining: Ghidra SIMD types (uint8_t[16], int3, undefined3), vtable calls, arg count mismatches
+- [ ] A5. Cross-compile all files to .o objects
+- [ ] A6. Link into shared library with NDK
+- [ ] A7. Cross-compile and verify all 542 exports match prebuilt nm output
+- [ ] A8. Size sanity check — compiled .so within 2x of prebuilt 276 KB
+
+### Phase B: libvortekrenderer
+- [ ] B1. Analyze raw decompile — VkObject system, dispatch table, struct layouts
+- [ ] B2. Create `recovered/src/clean/libvortekrenderer/` with types.h, CMakeLists.txt
+- [ ] B3. Implement VkObject handle tracking layer
+- [ ] B4. Implement JNI entry points + initVulkanWrapper (dlopen/dlsym dispatch)
+- [ ] B5. Implement Vulkan dispatch table skeleton (254 vt_handle_vk* stubs)
+- [ ] B6. Implement instance/device lifecycle handlers
+- [ ] B7. Implement command buffer handlers
+- [ ] B8. Implement descriptor set / pipeline handlers
+- [ ] B9. Implement memory / buffer / image handlers
+- [ ] B10. Implement render pass / framebuffer handlers
+- [ ] B11. Implement remaining VK handlers (sync, query, swapchain, etc.)
+- [ ] B12. Implement AsyncPipelineCreator, ImageCache, helper functions
+- [ ] B13. Cross-compile and verify all 562 exports match prebuilt nm output
+- [ ] B14. Size sanity check — compiled .so within 2x of prebuilt 598 KB
+
+### Final Integration
+- [ ] C1. Add both libs to recovered/src/clean/CMakeLists.txt
+- [ ] C2. Full APK build with compiled renderers replacing prebuilts
+- [ ] C3. Document reconstruction quality and any remaining FUN_ unknowns
