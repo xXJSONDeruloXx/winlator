@@ -12,6 +12,9 @@
 #  if __has_include(<android/hardware_buffer.h>)
 #    include <android/hardware_buffer.h>
 #  endif
+#  if __has_include(<android/hardware_buffer_jni.h>)
+#    include <android/hardware_buffer_jni.h>
+#  endif
 #  if __has_include(<EGL/egl.h>)
 #    include <EGL/egl.h>
 #    include <EGL/eglext.h>
@@ -27,11 +30,33 @@
 
 static EGLContext globalEGLContext = EGL_NO_CONTEXT;
 
+// native_handle_t — private Android type for hardware buffer handles.
+// Not in the public NDK; defined here to match the kernel/vendor ABI.
+typedef struct native_handle {
+    int version;   // sizeof(native_handle_t)
+    int numFds;
+    int numInts;
+    int data[0];   // numFds fds followed by numInts ints
+} native_handle_t;
+
+// AHardwareBuffer_getNativeHandle is a private API. Resolve via dlsym.
+typedef const native_handle_t *(*pfn_AHardwareBuffer_getNativeHandle)(const AHardwareBuffer *);
+static pfn_AHardwareBuffer_getNativeHandle _getNativeHandle = NULL;
+static int _getNativeHandle_resolved = 0;
+
+static const native_handle_t *resolve_getNativeHandle(const AHardwareBuffer *buffer) {
+    if (!_getNativeHandle_resolved) {
+        _getNativeHandle = (pfn_AHardwareBuffer_getNativeHandle)
+            dlsym(RTLD_DEFAULT, "AHardwareBuffer_getNativeHandle");
+        _getNativeHandle_resolved = 1;
+    }
+    return _getNativeHandle ? _getNativeHandle(buffer) : NULL;
+}
+
 // ── AHardwareBuffer_getFd ─────────────────────────────────────────────────────
 // Returns the first native handle fd from the AHardwareBuffer.
-// Exact transplant of the recovered binary's export.
 uint32_t AHardwareBuffer_getFd(AHardwareBuffer *buffer) {
-    const native_handle_t *handle = AHardwareBuffer_getNativeHandle(buffer);
+    const native_handle_t *handle = resolve_getNativeHandle(buffer);
     if (handle && handle->numFds > 0) {
         return (uint32_t)handle->data[0];
     }

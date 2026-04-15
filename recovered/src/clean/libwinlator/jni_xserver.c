@@ -99,6 +99,15 @@ Java_com_winlator_xserver_Drawable_fromBitmap(
 
 // ── Pixmap ───────────────────────────────────────────────────────────────────
 
+JNIEXPORT jobject JNICALL
+Java_com_winlator_xserver_Pixmap_toBitmap(
+    JNIEnv *env, jclass cls, jlong pixmapPtr, jint width, jint height)
+{
+    // TODO: transplant native-buffer-to-bitmap
+    (void)env; (void)cls; (void)pixmapPtr; (void)width; (void)height;
+    return NULL;
+}
+
 #else // no jni.h — host build stubs
 
 // When building on host without JNI headers, provide empty stubs.
