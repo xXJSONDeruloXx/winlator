@@ -8,5 +8,5 @@
 	branch = main
 [submodule "gladio"]
 	path = gladio
-	url = https://github.com/brunodev85/gladio
+	url = https://github.com/xXJSONDeruloXx/gladio
 	branch = main
